@@ -87,8 +87,8 @@ reviews-dekho-ai/
 |---|---|---|
 | 0 | Inspection & plan | This document is approved |
 | 1 | Design system + frontend shell, all pages, demo mode | Every route renders, layout tested at 375/768/1440 px |
-| 2 | FastAPI, models, schemas, CRUD, Swagger | Endpoints pass TestClient tests |
-| 3 | Adapters, CSV/XLSX ingestion with column detection and preview, demo dataset | Upload → preview → import works end to end |
+| 2 | FastAPI, models, schemas, CRUD, Swagger, **CSV/XLSX ingestion with column detection and preview** (moved up from Phase 3), history, frontend wired to the API | ✅ Done 2026-11-14 |
+| 3 | URL adapters (permitted sources only), richer demo dataset | Upload → preview → import already works; adapters remain |
 | 4 | NLP engine | Unit tests on positive/negative/neutral/mixed cases pass |
 | 5 | Analytics dashboard wired to the API | All charts/filters use backend data |
 | 6 | Grounded summaries (+ optional Ollama) | Summaries cite counts and real quotes |
@@ -107,3 +107,73 @@ reviews-dekho-ai/
   are removed in Phase 5 when the frontend reads live API data.
 - Frontend site detection (`src/lib/sites.js`) gives instant feedback; in Phase 3 the backend
   adapter registry becomes the source of truth.
+
+**2026-11-14 — Phase 2 complete (backend + frontend integration)**
+
+Phase 1 was committed locally first (`feat: complete Reviews Dekho AI frontend`). Nothing has been pushed.
+
+*Backend layout*
+```
+backend/app/
+├── main.py        app factory, CORS, routers, lifespan (creates tables)
+├── config.py      env-driven settings (DATABASE_URL, CORS_ORIGINS, upload limits)
+├── database.py    engine, session dependency, SQLite foreign keys ON
+├── models.py      Product 1─< Review, Product 1─< AnalysisResult (cascade delete)
+├── schemas.py     Pydantic models, camelCase JSON to match the frontend
+├── errors.py      every error body is {"detail": "<readable message>"}
+├── api/           health, products, reviews, uploads, history (thin routes)
+├── services/      ingestion, analysis (wraps app/nlp unchanged), products, sites, reports
+└── nlp/           unchanged from Phase 1
+```
+*Database*: three tables. Per-review results (sentiment, score, aspects) live on `reviews` and reflect the latest
+run; product-level results (stats, aspects, keywords, summary, upload cleaning report) are stored per run in
+`analysis_results`, so history keeps earlier runs. SQLite file: `backend/storage/reviews_dekho.db` (git-ignored).
+
+*Endpoints* (Swagger at `http://localhost:8000/docs`)
+
+| Method | Path | Purpose |
+|---|---|---|
+| GET | `/api/health` | API + database check |
+| GET / POST | `/api/products` | List (with latest analysis numbers) / create empty product |
+| GET / PATCH / DELETE | `/api/products/{id}` | Read / rename / delete (cascades) |
+| GET | `/api/products/{id}/analysis` | Full latest analysis (same shape as the demo JSON) |
+| POST | `/api/products/{id}/analyze` | Re-run analysis → new history entry |
+| GET / POST | `/api/products/{id}/reviews` | List with sentiment/rating/search/paging filters / add reviews (re-analyses) |
+| DELETE | `/api/products/{id}/reviews/{reviewId}` | Delete one review (re-analyses) |
+| POST | `/api/uploads/preview` | Read CSV/XLSX, detect columns, sample rows, warnings; saves nothing |
+| POST | `/api/uploads/import` | Clean + store + analyse → product |
+| GET | `/api/products/{id}/report.csv` | Reviews with sentiment/features (formula-injection safe) |
+| GET | `/api/products/{id}/report.pdf` | Returns 501 — not built yet |
+| POST | `/api/products/from-url` | Recognises Amazon/Flipkart/demo/other links; always explains why it can't collect (422) |
+| GET / DELETE | `/api/history`, `/api/history/{id}` | Every analysis run, newest first; detail; delete one run |
+
+*Upload validation and cleaning*: .csv/.xlsx only, 10 MB, 20,000 rows; UTF-8/BOM/Windows-1252; comma,
+semicolon, tab or pipe delimiters; blank rows and empty unnamed columns dropped; text whitespace-normalised and
+capped at 5,000 chars; empty text skipped; duplicates skipped (same ID, or same text if no ID column);
+ratings parsed from `4`, `4.0`, `4/5`, `4.5 stars` (out of range → "not given"); dates parsed day-first unless
+ISO. Every skip/repair is counted in the stored `ingestion` report. A failed import leaves no partial data.
+
+*Frontend changes (minimal, no redesign)*: Reports page — CSV download wired; PDF and demo-product export show
+honest "not available" messages instead of broken links. `manual` source badge added. Demo-data comment updated.
+Everything else (History, Overview, Upload, product analysis, URL form) already called these endpoints and now
+receives real data. Demo mode is unchanged and still works with the server off.
+
+*Verification*: backend `pytest` 81 passed · frontend `vitest` 43 passed (31 existing + 12 new
+communication tests) · `oxlint` clean · `vite build` OK. Live run (uvicorn + `vite preview`): CORS preflight
+from the frontend origin accepted; importing `demo_kestrel_orbit_5g.csv` through the API produced stats,
+aspects, keywords and summary identical to the frontend's demo snapshot; XLSX import, invalid file (415),
+history, CSV export and Swagger all checked.
+
+*Not done / carried forward*
+- PDF report (Phase 6/8), side-by-side comparison (Phase 7), URL adapters for permitted sources (Phase 3).
+- The UI has no buttons yet for deleting/renaming products or adding single reviews; the API supports them.
+- Re-analysis is synchronous; fine for the 20,000-row limit, a background job would be needed beyond that.
+- No Alembic migrations: tables are created on startup. Schema changes during development mean deleting
+  `backend/storage/reviews_dekho.db`.
+
+*Run it*
+```
+cd backend && .venv/bin/uvicorn app.main:app --reload     # API on :8000, docs at /docs
+cd frontend && npm run dev                                   # UI on :5173
+cd backend && .venv/bin/python -m pytest                     # backend tests
+```

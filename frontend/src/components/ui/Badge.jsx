@@ -1,4 +1,4 @@
-import { FileSpreadsheet, FlaskConical, Link2 } from 'lucide-react'
+import { FileSpreadsheet, FlaskConical, Link2, PenLine } from 'lucide-react'
 
 const tone = {
   positive: 'bg-pos-soft text-pos',
@@ -46,6 +46,7 @@ const SOURCES = {
   demo: { label: 'Demo data', icon: FlaskConical, className: 'border-mix/30 bg-mix-soft text-mix' },
   upload: { label: 'Uploaded file', icon: FileSpreadsheet, className: 'border-line-strong bg-surface text-ink-2' },
   url: { label: 'Product link', icon: Link2, className: 'border-line-strong bg-surface text-ink-2' },
+  manual: { label: 'Added manually', icon: PenLine, className: 'border-line-strong bg-surface text-ink-2' },
 }
 
 export function SourceBadge({ source }) {

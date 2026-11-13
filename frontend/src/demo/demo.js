@@ -1,7 +1,8 @@
 // Demo product used before/without the backend. The numbers are the output of
 // the real analysis pipeline (backend/app/nlp) run on synthetic reviews from
 // backend/data/sample/demo_kestrel_orbit_5g.csv. Rebuild with
-// backend/scripts/build_demo_snapshot.py. Replaced by live API data in Phase 5.
+// backend/scripts/build_demo_snapshot.py. The demo product always works offline;
+// products stored by the backend are listed alongside it.
 import demoAnalysis from './demoAnalysis.json'
 
 export const DEMO_ID = 'demo'
