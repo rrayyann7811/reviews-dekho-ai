@@ -1,0 +1,50 @@
+@import "tailwindcss";
+
+/* Design tokens — see docs/DESIGN_SYSTEM.md. Chart colours mirrored in src/lib/theme.js */
+@theme {
+  --font-sans: "IBM Plex Sans", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+
+  --color-canvas: #f6f6f4;
+  --color-surface: #ffffff;
+  --color-subtle: #f9f9f8;
+  --color-line: #e6e6e2;
+  --color-line-strong: #d3d3cd;
+
+  --color-ink: #1b1c1e;
+  --color-ink-2: #4b4e54;
+  --color-ink-3: #686c73;
+
+  --color-brand-50: #eef4f8;
+  --color-brand-100: #dae6ef;
+  --color-brand-600: #22577a;
+  --color-brand-700: #1b4663;
+  --color-brand-800: #163a52;
+
+  --color-pos: #2d7a4e;
+  --color-pos-soft: #e8f3ec;
+  --color-neu: #8a8f98;
+  --color-neu-ink: #5f646c;
+  --color-neu-soft: #f0f1f2;
+  --color-neg: #b4321f;
+  --color-neg-soft: #fbece9;
+  --color-mix: #9a5b06;
+  --color-mix-soft: #fbf2e3;
+}
+
+@layer base {
+  html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  body {
+    @apply bg-canvas text-ink font-sans text-sm leading-normal;
+  }
+  :focus-visible {
+    outline: 2px solid var(--color-brand-600);
+    outline-offset: 2px;
+  }
+  /* Respect users who prefer less motion. */
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { transition-duration: 0ms !important; animation-duration: 0ms !important; }
+  }
+}
