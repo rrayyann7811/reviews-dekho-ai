@@ -21,7 +21,7 @@ def list_products(db: Session = Depends(get_db)):
 @router.post("", response_model=ProductSummary, status_code=status.HTTP_201_CREATED,
              summary="Create an empty product (add reviews to it afterwards)")
 def create_product(body: ProductCreate, db: Session = Depends(get_db)):
-    product = Product(name=body.name, brand=body.brand, category=body.category, source="manual")
+    product = Product(name=body.name, brand=body.brand, category=body.category, domain=body.domain, source="manual")
     db.add(product)
     db.commit()
     return product_service.summary_out(product)

@@ -281,3 +281,86 @@ describe('product links (Phase 3)', () => {
     expect(fetch.mock.calls.some(([url]) => url.endsWith('/products/from-url'))).toBe(false)
   })
 })
+
+describe('NLP results (Phase 4)', () => {
+  const HINGLISH = {
+    id: 'H-1', text: 'bakwas app hai, paisa barbaad', rating: 1, date: '2026-11-01', title: null, reviewer: null,
+    sentiment: null, score: null, mixed: false, aspects: [], status: 'language_not_supported', language: 'hinglish', usedTitle: false,
+  }
+  const withLanguage = {
+    ...STORED_ANALYSIS,
+    reviews: [...STORED_ANALYSIS.reviews, HINGLISH],
+    stats: { ...STORED_ANALYSIS.stats, totalReviews: STORED_ANALYSIS.stats.totalReviews + 1,
+      analysedReviews: STORED_ANALYSIS.stats.totalReviews, notAnalysed: { languageNotSupported: 1 } },
+    engine: { id: 'transformer', name: 'RoBERTa sentiment model', pipelineVersion: 2, fallbackReason: null, domain: 'product' },
+  }
+  const render7 = (analysis, path = '/products/7') => {
+    mockBackend({ 'GET /health': { status: 'ok' }, 'GET /products/7/analysis': analysis })
+    renderAt(path)
+  }
+
+  it('names the engine that produced the run', async () => {
+    render7(withLanguage)
+    expect(await screen.findByText('RoBERTa sentiment model')).toBeInTheDocument()
+    expect(screen.getByText(/chance it is positive minus the chance it is negative/)).toBeInTheDocument()
+  })
+
+  it('warns when the run fell back to VADER', async () => {
+    render7({ ...withLanguage, engine: { id: 'vader', pipelineVersion: 2, fallbackReason: 'The sentiment model couldn’t be used, so VADER was used instead (model files are not installed).' } })
+    expect(await screen.findByText('Analysed with the backup method')).toBeInTheDocument()
+    expect(screen.getByText('VADER (rule-based)')).toBeInTheDocument()
+    expect(screen.getByText(/between −0.05 and \+0.05 count as neutral/)).toBeInTheDocument()
+  })
+
+  it('says when an old run used the earlier method', async () => {
+    render7({ ...STORED_ANALYSIS, engine: { id: 'vader', pipelineVersion: 1 } })
+    expect(await screen.findByText(/made with an earlier version of the method/)).toBeInTheDocument()
+  })
+
+  it('counts only analysed reviews and says how many were not in English', async () => {
+    render7(withLanguage)
+    const total = withLanguage.stats.totalReviews
+    expect((await screen.findByText('Reviews analysed')).nextSibling).toHaveTextContent(String(total - 1))
+    expect(screen.getByText(new RegExp(`1 of ${total} not in English`))).toBeInTheDocument()
+  })
+
+  it('shows non-English reviews as not analysed, with a reason, and lets you filter them', async () => {
+    render7(withLanguage, '/products/7?tab=reviews')
+    fireEvent.change(await screen.findByLabelText('Filter by sentiment'), { target: { value: 'unanalysed' } })
+    expect(screen.getByText(/Showing 1 of 1 matching reviews/)).toBeInTheDocument()
+    expect(screen.getByText('Not analysed')).toBeInTheDocument()
+    fireEvent.click(screen.getByText('bakwas app hai, paisa barbaad'))
+    expect(screen.getByText(/looks like Hindi written in English letters/)).toBeInTheDocument()
+    expect(screen.getAllByText('Not analysed').length).toBeGreaterThan(1) // badge + score
+  })
+
+  it('sorting by sentiment puts unscored reviews last instead of breaking', async () => {
+    render7(withLanguage, '/products/7?tab=reviews')
+    fireEvent.change(await screen.findByLabelText('Sort reviews'), { target: { value: 'negative' } })
+    expect(screen.getByText(/Showing 20 of/)).toBeInTheDocument()
+    expect(screen.queryByText('bakwas app hai, paisa barbaad')).not.toBeInTheDocument() // last, beyond the first 20
+  })
+
+  it('app products describe app features when none were found', async () => {
+    render7({ ...withLanguage, product: { ...withLanguage.product, domain: 'app' }, aspects: [] }, '/products/7?tab=aspects')
+    expect(await screen.findByText(/login, crashes, speed, updates, ads/)).toBeInTheDocument()
+  })
+
+  it('upload sends what the reviews describe', async () => {
+    mockBackend({
+      'GET /health': { status: 'ok' },
+      'GET /products': [],
+      'POST /uploads/preview': { fileName: 'r.csv', rowCount: 1, columns: ['review'], sampleRows: [{ review: 'Crashes' }],
+        detected: { text: 'review' }, productName: null, warnings: [] },
+      'POST /uploads/import': STORED,
+      'GET /products/7/analysis': withLanguage,
+    })
+    renderAt('/upload')
+    fireEvent.change(screen.getByLabelText('Review file'), { target: { files: [new File(['review'], 'r.csv', { type: 'text/csv' })] } })
+    fireEvent.change(await screen.findByLabelText('What do these reviews describe?'), { target: { value: 'app' } })
+    fireEvent.click(screen.getByRole('button', { name: 'Import and analyse' }))
+    await screen.findByRole('heading', { level: 1, name: 'Uploaded Blender' })
+    const call = fetch.mock.calls.find(([url]) => url.endsWith('/uploads/import'))
+    expect(call[1].body.get('domain')).toBe('app')
+  })
+})

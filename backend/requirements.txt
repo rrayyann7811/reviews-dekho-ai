@@ -2,6 +2,9 @@ fastapi==0.162.7
 httpx==0.28.1
 nltk==3.10.4
 numpy==2.5.4
+# Pretrained sentiment model (optional: without these or the model files, VADER is used).
+# Model files: .venv/bin/python scripts/download_model.py
+onnxruntime==1.32.0
 openpyxl==3.1.5
 pandas==3.1.1
 pydantic==2.14.3
@@ -10,5 +13,6 @@ python-multipart==0.0.33
 reportlab==5.1.0
 scikit-learn==1.9.1
 SQLAlchemy==2.1.8
+tokenizers==0.23.3
 uvicorn[standard]==0.54.0
 vaderSentiment==3.3.2

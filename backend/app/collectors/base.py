@@ -68,6 +68,7 @@ class SourceAdapter:
     name: str = ""
     hosts: tuple[str, ...] = ()
     status: str = "supported"      # or "unavailable": recognised, but reviews can't be collected
+    domain: str = "product"        # what the site's reviews are about: "product" or "app"
     note: str = ""                 # one sentence shown in the list of websites
     example: str | None = None     # example link shown in the UI and docs
 

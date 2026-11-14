@@ -15,14 +15,19 @@ function Stat({ label, value, detail, swatch }) {
 
 export default function StatStrip({ stats, ingestion }) {
   const { totalReviews, sentimentCounts: c, sentimentPercent: p } = stats
+  const analysed = stats.analysedReviews ?? totalReviews // runs before Phase 4 analysed every review
+  const notEnglish = totalReviews - analysed
   const skippedParts = [
     ingestion?.duplicatesRemoved && plural(ingestion.duplicatesRemoved, 'duplicate'),
     ingestion?.emptyRemoved && plural(ingestion.emptyRemoved, 'empty row'),
   ].filter(Boolean)
+  const detail = [
+    notEnglish > 0 && `${notEnglish} of ${totalReviews} not in English`,
+    skippedParts.length ? `Skipped ${skippedParts.join(' and ')}` : !notEnglish && 'No rows skipped',
+  ].filter(Boolean).join(' · ')
   return (
     <dl className="grid grid-cols-2 gap-px overflow-hidden rounded-lg border border-line bg-line xl:grid-cols-5">
-      <Stat label="Reviews analysed" value={totalReviews}
-        detail={skippedParts.length ? `Skipped ${skippedParts.join(' and ')}` : 'No rows skipped'} />
+      <Stat label="Reviews analysed" value={analysed} detail={detail} />
       <Stat label="Average rating" value={stats.averageRating ? `${formatRating(stats.averageRating)} / 5` : '—'}
         detail={stats.ratedReviews ? `From ${plural(stats.ratedReviews, 'rated review')}` : 'No star ratings in data'} />
       <Stat label="Positive" swatch="bg-pos" value={formatPercent(p.positive)} detail={plural(c.positive, 'review')} />

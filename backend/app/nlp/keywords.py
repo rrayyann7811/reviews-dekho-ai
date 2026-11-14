@@ -11,7 +11,9 @@ from sklearn.feature_extraction.text import ENGLISH_STOP_WORDS, CountVectorizer
 
 # Words that appear in almost every review and say nothing specific.
 REVIEW_STOPWORDS = {
-    "phone", "product", "good", "great", "nice", "best", "bad", "really", "bit",
+    "phone", "product", "products", "app", "apps", "application", "good", "great", "nice", "best", "bad",
+    "really", "bit", "please", "pls", "plz", "thanks", "thank", "ok", "okay", "don", "doesn", "didn", "isn",
+    "won", "wasn", "ve", "ll", "im", "ive", "dont", "doesnt", "cant", "wont", "didnt", "isnt", "star", "stars",
     "okay", "overall", "bought", "buy", "use", "using", "used", "just", "like",
     "also", "would", "one", "even", "much", "got", "get", "expected", "far",
     "day", "time", "lot", "little", "slightly", "totally", "thing", "things",
@@ -21,22 +23,36 @@ STOPWORDS = ENGLISH_STOP_WORDS | REVIEW_STOPWORDS
 _WORD = re.compile(r"[a-z][a-z0-9]+")
 
 
-def _terms(text: str) -> list[str]:
-    """Single words plus adjacent two-word phrases, skipping stopwords."""
-    words = _WORD.findall(text.lower())
-    unigrams = [w for w in words if w not in STOPWORDS and len(w) > 2]
-    bigrams = [f"{a} {b}" for a, b in zip(words, words[1:])
-               if a not in ENGLISH_STOP_WORDS and b not in ENGLISH_STOP_WORDS
-               and a not in {"phone", "good", "great", "nice", "very"}]
-    return unigrams + bigrams
+def _make_terms(extra_stopwords: frozenset[str]):
+    stop = STOPWORDS | extra_stopwords
+
+    def terms(text: str) -> list[str]:
+        """Single words plus adjacent two-word phrases, skipping stopwords."""
+        words = _WORD.findall(text.lower())
+        unigrams = [w for w in words if w not in stop and len(w) > 2]
+        bigrams = [f"{a} {b}" for a, b in zip(words, words[1:])
+                   if a not in ENGLISH_STOP_WORDS and b not in ENGLISH_STOP_WORDS
+                   and a not in extra_stopwords and b not in extra_stopwords
+                   and a not in {"phone", "app", "good", "great", "nice", "very"}]
+        return unigrams + bigrams
+    return terms
 
 
-def extract_keywords(texts: list[str], top_n: int = 15, min_reviews: int = 2) -> list[dict]:
+def name_stopwords(*names: str | None) -> frozenset[str]:
+    """Words of the product's own name and brand ("WhatsApp Messenger" -> whatsapp, messenger).
+
+    They appear in a large share of reviews and say nothing about what people think.
+    """
+    return frozenset(w for name in names if name for w in _WORD.findall(name.lower()) if len(w) > 2)
+
+
+def extract_keywords(texts: list[str], top_n: int = 15, min_reviews: int = 2,
+                     extra_stopwords: frozenset[str] = frozenset()) -> list[dict]:
     """Return the most common terms as [{"term": str, "reviews": int}]."""
     texts = [t for t in texts if t]
     if len(texts) < min_reviews:
         return []
-    vectorizer = CountVectorizer(analyzer=_terms, min_df=min_reviews, binary=True)
+    vectorizer = CountVectorizer(analyzer=_make_terms(extra_stopwords), min_df=min_reviews, binary=True)
     try:
         matrix = vectorizer.fit_transform(texts)
     except ValueError:  # every word was filtered out

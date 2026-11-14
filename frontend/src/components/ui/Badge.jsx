@@ -6,6 +6,7 @@ const tone = {
   negative: 'bg-neg-soft text-neg',
   mixed: 'bg-mix-soft text-mix',
   insufficient: 'bg-neu-soft text-neu-ink',
+  unanalysed: 'border border-dashed border-line-strong text-ink-3',
   brand: 'bg-brand-50 text-brand-700',
 }
 
@@ -15,6 +16,7 @@ const dot = {
   negative: 'bg-neg',
   mixed: 'bg-mix',
   insufficient: 'bg-neu',
+  unanalysed: 'bg-transparent',
 }
 
 export function Badge({ variant = 'neutral', children, className = '' }) {
@@ -31,9 +33,12 @@ const SENTIMENT_LABEL = {
   negative: 'Negative',
   mixed: 'Mixed',
   insufficient: 'Too few mentions',
+  unanalysed: 'Not analysed',
 }
 
+/** `value` null means the review couldn't be analysed (for example, not in English). */
 export function SentimentBadge({ value }) {
+  if (value == null) value = 'unanalysed'
   return (
     <Badge variant={value}>
       <span aria-hidden className={`size-1.5 rounded-full ${dot[value]}`} />

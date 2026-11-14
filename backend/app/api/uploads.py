@@ -1,4 +1,5 @@
 import json
+from typing import Literal
 
 from fastapi import APIRouter, Depends, File, Form, UploadFile, status
 from pydantic import ValidationError
@@ -42,6 +43,7 @@ async def import_upload(
     columns: str = Form(..., description='JSON, e.g. {"text": "Review", "rating": "Stars"}'),
     brand: str | None = Form(None, max_length=120),
     category: str | None = Form(None, max_length=120),
+    domain: Literal["product", "app"] = Form("product", description="What is reviewed: a physical product or an app"),
     db: Session = Depends(get_db),
 ):
     try:
@@ -56,7 +58,7 @@ async def import_upload(
     reviews, report = ingestion.clean_reviews(df, column_map.model_dump(by_alias=True))
 
     product = Product(name=product_name.strip(), brand=(brand or "").strip() or None,
-                      category=(category or "").strip() or None, source="upload", file_name=name)
+                      category=(category or "").strip() or None, domain=domain, source="upload", file_name=name)
     db.add(product)
     product_service.add_reviews(db, product, reviews)
     db.flush()

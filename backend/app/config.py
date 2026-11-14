@@ -32,3 +32,16 @@ COLLECT_TIMEOUT_SECONDS = float(os.getenv("COLLECT_TIMEOUT_SECONDS", "15"))
 APPLE_MAX_PAGES = 10              # Apple's feed serves at most 10 pages of 50 reviews
 APPLE_PAGE_DELAY_SECONDS = 0.3    # pause between pages, to be polite to Apple's servers
 APPLE_DEFAULT_COUNTRY = "us"      # used when a link has no country code (Apple shows the US store then)
+
+# Sentiment engine (see app/nlp/engines.py):
+#   "auto"        use the pretrained transformer if its files are installed, otherwise VADER
+#   "transformer" same as auto, but the analysis records a warning when it had to fall back
+#   "vader"       always use the rule-based VADER engine
+SENTIMENT_ENGINE = os.getenv("SENTIMENT_ENGINE", "auto").strip().lower()
+MODEL_DIR = Path(os.getenv("MODEL_DIR", str(BACKEND_DIR / "models" / "twitter-roberta-sentiment")))
+# Texts per model call. 1 on purpose: the int8 model quantizes each call's activations using the range of the
+# whole batch, so with larger batches a review's result changed with its batch-mates (measured: 3.5% of labels
+# flipped). One text per call is deterministic and only ~15% slower (219 vs 257 texts/s on an M3).
+# A full-precision model could use larger batches safely.
+MODEL_BATCH_SIZE = 1
+MODEL_MAX_TOKENS = 256

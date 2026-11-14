@@ -21,6 +21,22 @@ def normalize_text(value) -> str:
     return _WHITESPACE.sub(" ", text).strip()
 
 
+_REPEATED_PUNCTUATION = re.compile(r"([!?.,])\1{3,}")
+
+
+def tidy_for_analysis(text: str) -> str:
+    """Text as given to the sentiment engines: "Good!!!!!!!!" -> "Good!!!".
+
+    Only analysis input is tidied; the original review text is what users see
+    and what is exported.
+    """
+    return _REPEATED_PUNCTUATION.sub(r"\1\1\1", normalize_text(text))
+
+
+def word_count(text: str) -> int:
+    return len(re.findall(r"\w+", text or ""))
+
+
 def split_clauses(text: str) -> list[str]:
     """Split a review into short clauses that each tend to carry one opinion."""
     parts = _CLAUSE_SPLIT.split(normalize_text(text))

@@ -208,3 +208,43 @@ def test_a_new_database_is_created_in_one_transaction(tmp_path, monkeypatch):
     with pytest.raises(RuntimeError):
         migrations.upgrade(engine)
     assert inspect(engine).get_table_names() == []  # nothing half-created, so the next start begins cleanly
+
+
+# ---------- Migration 4: product type and engine per run ----------
+
+def test_phase3_database_gets_domain_and_engine(tmp_path, monkeypatch):
+    path = tmp_path / "db.db"
+    make_phase2_database(path)
+    engine = make_engine(f"sqlite:///{path}")
+    phase3 = migrations.MIGRATIONS[:3]
+    monkeypatch.setattr(migrations, "MIGRATIONS", phase3)
+    monkeypatch.setattr(migrations, "LATEST_VERSION", 3)
+    migrations.upgrade(engine)  # a database exactly as Phase 3 left it
+    con = sqlite3.connect(path)
+    con.execute("INSERT INTO products (id, name, source, created_at, source_site, external_product_id, source_region) "
+                "VALUES (2, 'Some App', 'url', '2026-11-10 10:00:00', 'apple_app_store', '123456', 'in')")
+    con.commit()
+    con.close()
+    monkeypatch.undo()
+
+    assert migrations.upgrade(engine) == 1
+    con = sqlite3.connect(path)
+    assert con.execute("PRAGMA user_version").fetchone()[0] == 4
+    assert dict(con.execute("SELECT id, domain FROM products").fetchall()) == {1: "product", 2: "app"}
+    engines = [json.loads(e) for (e,) in con.execute("SELECT engine FROM analysis_results")]
+    con.close()
+    assert len(engines) == 2 and all(e["id"] == "vader" and e["pipelineVersion"] == 1 for e in engines)
+    assert len(list((tmp_path / "backups").iterdir())) == 2  # one backup per upgrade session
+
+
+def test_upgraded_runs_keep_their_snapshots_untouched(tmp_path):
+    path = tmp_path / "db.db"
+    make_phase2_database(path)
+    con = sqlite3.connect(path)
+    con.execute("UPDATE analysis_results SET stats = ? WHERE id = 2", (json.dumps(
+        {"totalReviews": 2, "sentimentCounts": {"positive": 1, "neutral": 0, "negative": 1}}),))
+    con.commit()
+    con.close()
+    migrations.upgrade(make_engine(f"sqlite:///{path}"))
+    snapshot = json.loads(_snapshot(path, 2))
+    assert all("status" not in r for r in snapshot)  # not rewritten with fields the old run never had

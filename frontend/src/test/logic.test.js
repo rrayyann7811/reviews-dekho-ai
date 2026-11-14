@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import demo from '../demo/demoAnalysis.json'
 import { validateReviewFile } from '../lib/files'
+import { describeEngine } from '../lib/engine'
 import { DEFAULT_FILTERS, filterReviews } from '../lib/reviewFilters'
 import { detectSite, parseProductUrl } from '../lib/sites'
 
@@ -68,5 +69,24 @@ describe('filterReviews', () => {
   it('sorts by score', () => {
     const result = run({ sort: 'negative' })
     expect(result[0].score).toBeLessThanOrEqual(result[1].score)
+  })
+})
+
+describe('Phase 4 helpers', () => {
+  it('filters and sorts reviews that have no sentiment', () => {
+    const reviews = [
+      { id: 'a', text: 'x', sentiment: 'positive', score: 0.9 },
+      { id: 'b', text: 'y', sentiment: null, score: null, status: 'language_not_supported' },
+      { id: 'c', text: 'z', sentiment: 'negative', score: -0.8 },
+    ]
+    expect(filterReviews(reviews, { ...DEFAULT_FILTERS, sentiment: 'unanalysed' }).map((r) => r.id)).toEqual(['b'])
+    expect(filterReviews(reviews, { ...DEFAULT_FILTERS, sort: 'positive' }).map((r) => r.id)).toEqual(['a', 'c', 'b'])
+    expect(filterReviews(reviews, { ...DEFAULT_FILTERS, sort: 'negative' }).map((r) => r.id)).toEqual(['c', 'a', 'b'])
+  })
+
+  it('describes each engine', () => {
+    expect(describeEngine({ id: 'transformer', pipelineVersion: 2 }).name).toBe('RoBERTa sentiment model')
+    expect(describeEngine({ id: 'vader', pipelineVersion: 2 })).toMatchObject({ name: 'VADER (rule-based)', outdated: false })
+    expect(describeEngine(null).outdated).toBe(true)
   })
 })

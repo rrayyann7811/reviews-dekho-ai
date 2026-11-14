@@ -40,7 +40,7 @@ async def lifespan(_: FastAPI):
 
 
 def create_app() -> FastAPI:
-    app = FastAPI(title="Reviews Dekho AI API", version="0.3.0", description=DESCRIPTION, lifespan=lifespan)
+    app = FastAPI(title="Reviews Dekho AI API", version="0.4.0", description=DESCRIPTION, lifespan=lifespan)
     app.add_middleware(
         CORSMiddleware,
         allow_origins=config.CORS_ORIGINS,

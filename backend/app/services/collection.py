@@ -72,7 +72,7 @@ def _collect(db: Session, adapter: SourceAdapter, ref: ProductRef, product: Prod
     now = datetime.now(timezone.utc)
     if product is None:
         product = Product(name=collected.name[:200], brand=(collected.brand or "")[:120] or None,
-                          category=(collected.category or "")[:120] or None, source="url",
+                          category=(collected.category or "")[:120] or None, source="url", domain=adapter.domain,
                           source_url=collected.url, source_site=ref.site, external_product_id=ref.product_id,
                           source_region=ref.region)
         db.add(product)

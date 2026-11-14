@@ -96,3 +96,25 @@ def test_falling_back_to_an_older_run_shows_that_runs_reviews(client, product):
     assert analysis["stats"]["totalReviews"] == len(analysis["reviews"]) == 6
     assert "A2" in [r["id"] for r in analysis["reviews"]]
     assert client.get("/api/products").json()[0]["totalReviews"] == 6  # the list agrees with the page
+
+
+def test_a_new_engine_never_changes_earlier_runs(client, product, monkeypatch):
+    from app.nlp import pipeline
+
+    url = f"/api/products/{product['id']}"
+    first = client.get(f"{url}/analysis").json()
+
+    class Fake:
+        def describe(self):
+            return {"id": "fake", "name": "Fake engine"}
+
+        def predict(self, texts):
+            return [{"label": "neutral", "score": 0.0} for _ in texts]
+
+    monkeypatch.setattr(pipeline, "get_engine", lambda preference=None: (Fake(), None))
+    second = client.post(f"{url}/analyze").json()
+    assert second["engine"]["id"] == "fake"
+    assert all(r["sentiment"] == "neutral" for r in second["reviews"])
+    old = client.get(f"/api/history/{first['analysisId']}").json()
+    assert old["engine"]["id"] == "vader"
+    assert old["reviews"] == first["reviews"] and old["stats"] == first["stats"]

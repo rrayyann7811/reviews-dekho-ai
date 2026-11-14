@@ -16,6 +16,7 @@ import Panel from '../components/ui/Panel'
 import Spinner from '../components/ui/Spinner'
 import Tabs from '../components/ui/Tabs'
 import { api } from '../lib/api'
+import { describeEngine } from '../lib/engine'
 import { formatDate, formatRating, plural } from '../lib/format'
 import { DEFAULT_FILTERS } from '../lib/reviewFilters'
 import { useAnalysis } from '../lib/useData'
@@ -70,6 +71,26 @@ function DataSourceNote({ data, onRefresh, refreshing, refreshError }) {
   return null
 }
 
+function EngineNote({ engine, analyzedAt }) {
+  const info = describeEngine(engine)
+  return (
+    <div className="space-y-3">
+      {engine?.fallbackReason && (
+        <Alert variant="warning" title="Analysed with the backup method">
+          {engine.fallbackReason} Run the analysis again once the model is installed to use it.
+        </Alert>
+      )}
+      <p className="text-xs text-ink-3">
+        Sentiment engine: <span className="font-medium text-ink-2">{info.name}</span>. Sentiment is estimated from the
+        wording with {info.method}. Features are scored on the words around each mention, not the whole review. Reviews
+        that aren’t in English are not analysed. It can misread sarcasm and very short reviews.
+        {info.outdated && ' This analysis was made with an earlier version of the method; run it again to use the current one.'}
+        {' '}Analysed {formatDate(analyzedAt)}.
+      </p>
+    </div>
+  )
+}
+
 function AspectsTab({ data, onOpenReview }) {
   return (
     <div className="space-y-6">
@@ -78,7 +99,11 @@ function AspectsTab({ data, onOpenReview }) {
         {data.aspects.length ? (
           <AspectTable aspects={data.aspects} onOpenReview={onOpenReview} />
         ) : (
-          <EmptyState title="No known features were mentioned">Feature detection looks for words like battery, camera, price or delivery.</EmptyState>
+          <EmptyState title="No known features were mentioned">
+            {data.product.domain === 'app'
+              ? 'For apps, feature detection looks for words about login, crashes, speed, updates, ads, design, notifications, payments, support and privacy.'
+              : 'Feature detection looks for words like battery, camera, display, price or delivery.'}
+          </EmptyState>
         )}
         <p className="border-t border-line px-5 py-3 text-[13px] text-ink-3">
           “Overall” needs at least 3 mentions, and 65% of them in one direction; otherwise it shows Mixed.
@@ -181,12 +206,9 @@ export default function ProductAnalysis() {
         {tab === 'overview' && (
           <div className="space-y-6">
             <StatStrip stats={stats} ingestion={data.ingestion} />
-            <DistributionCharts stats={stats} onShowMismatches={showMismatches} />
+            <DistributionCharts stats={stats} engine={data.engine} onShowMismatches={showMismatches} />
             <SummaryPanel summary={data.summary} onOpenReview={openReview} />
-            <p className="text-xs text-ink-3">
-              Sentiment is estimated from the wording with VADER, a rule-based method. It can misread sarcasm and very short reviews.
-              Analysed {formatDate(data.analyzedAt)}.
-            </p>
+            <EngineNote engine={data.engine} analyzedAt={data.analyzedAt} />
           </div>
         )}
         {tab === 'reviews' && (

@@ -1,17 +1,21 @@
 {
  "stats": {
   "totalReviews": 63,
+  "analysedReviews": 63,
+  "notAnalysed": {
+   "languageNotSupported": 0
+  },
   "ratedReviews": 62,
   "averageRating": 3.61,
   "sentimentCounts": {
-   "positive": 41,
-   "neutral": 2,
-   "negative": 20
+   "positive": 38,
+   "neutral": 7,
+   "negative": 18
   },
   "sentimentPercent": {
-   "positive": 65.1,
-   "neutral": 3.2,
-   "negative": 31.7
+   "positive": 60.3,
+   "neutral": 11.1,
+   "negative": 28.6
   },
   "ratingDistribution": [
    {
@@ -48,12 +52,12 @@
    "aspect": "Battery",
    "mentions": 31,
    "positive": 22,
-   "neutral": 2,
-   "negative": 7,
+   "neutral": 5,
+   "negative": 4,
    "verdict": "positive",
    "examplePositive": {
-    "reviewId": "R-1053",
-    "text": "Good camera, good battery and smooth performance"
+    "reviewId": "R-1004",
+    "text": "Smooth performance, amazing display and the battery charges very fast"
    },
    "exampleNegative": {
     "reviewId": "R-1034",
@@ -63,13 +67,13 @@
   {
    "aspect": "Display",
    "mentions": 23,
-   "positive": 21,
+   "positive": 20,
    "neutral": 0,
-   "negative": 2,
+   "negative": 3,
    "verdict": "positive",
    "examplePositive": {
-    "reviewId": "R-1037",
-    "text": "Wonderful phone with great performance and a beautiful display"
+    "reviewId": "R-1004",
+    "text": "Smooth performance, amazing display and the battery charges very fast"
    },
    "exampleNegative": {
     "reviewId": "R-1027",
@@ -79,57 +83,57 @@
   {
    "aspect": "Camera",
    "mentions": 22,
-   "positive": 14,
-   "neutral": 2,
-   "negative": 6,
+   "positive": 12,
+   "neutral": 3,
+   "negative": 7,
    "verdict": "mixed",
    "examplePositive": {
     "reviewId": "R-1001",
     "text": "The display is bright and smooth, and the camera is great in daylight"
    },
    "exampleNegative": {
-    "reviewId": "R-1003",
-    "text": "The camera is really poor in low light, photos are grainy and blurry"
+    "reviewId": "R-1034",
+    "text": "The phone is terrible at night photos and the battery drains fast"
    }
   },
   {
    "aspect": "Performance",
    "mentions": 21,
    "positive": 14,
-   "neutral": 2,
-   "negative": 5,
+   "neutral": 3,
+   "negative": 4,
    "verdict": "positive",
    "examplePositive": {
-    "reviewId": "R-1037",
-    "text": "Wonderful phone with great performance and a beautiful display"
+    "reviewId": "R-1004",
+    "text": "Smooth performance, amazing display and the battery charges very fast"
    },
    "exampleNegative": {
-    "reviewId": "R-1031",
-    "text": "Frequent software bugs and app crashes after the latest update"
+    "reviewId": "R-1047",
+    "text": "The camera and performance are average and there is too much bloatware"
    }
   },
   {
    "aspect": "Price",
    "mentions": 14,
-   "positive": 10,
-   "neutral": 2,
+   "positive": 8,
+   "neutral": 4,
    "negative": 2,
-   "verdict": "positive",
+   "verdict": "mixed",
    "examplePositive": {
-    "reviewId": "R-1032",
-    "text": "Slim design, good weight and the build quality is excellent for this price"
+    "reviewId": "R-1059",
+    "text": "Brilliant phone for the price"
    },
    "exampleNegative": {
-    "reviewId": "R-1047",
-    "text": "Overpriced for what it offers"
+    "reviewId": "R-1024",
+    "text": "No charger in the box, which I did not expect at this price"
    }
   },
   {
    "aspect": "Build quality",
    "mentions": 10,
-   "positive": 4,
+   "positive": 5,
    "neutral": 4,
-   "negative": 2,
+   "negative": 1,
    "verdict": "mixed",
    "examplePositive": {
     "reviewId": "R-1057",
@@ -148,8 +152,8 @@
    "negative": 4,
    "verdict": "mixed",
    "examplePositive": {
-    "reviewId": "R-1018",
-    "text": "Delivered a day early with secure packaging"
+    "reviewId": "R-1026",
+    "text": "Fast delivery and well packed"
    },
    "exampleNegative": {
     "reviewId": "R-1039",
@@ -159,13 +163,13 @@
   {
    "aspect": "Delivery",
    "mentions": 6,
-   "positive": 2,
-   "neutral": 3,
-   "negative": 1,
+   "positive": 3,
+   "neutral": 1,
+   "negative": 2,
    "verdict": "mixed",
    "examplePositive": {
-    "reviewId": "R-1018",
-    "text": "Delivered a day early with secure packaging"
+    "reviewId": "R-1026",
+    "text": "Fast delivery and well packed"
    },
    "exampleNegative": {
     "reviewId": "R-1005",
@@ -175,14 +179,11 @@
   {
    "aspect": "Customer service",
    "mentions": 5,
-   "positive": 1,
-   "neutral": 1,
-   "negative": 3,
-   "verdict": "mixed",
-   "examplePositive": {
-    "reviewId": "R-1027",
-    "text": "Return process was slow and customer support kept transferring my call"
-   },
+   "positive": 0,
+   "neutral": 0,
+   "negative": 5,
+   "verdict": "negative",
+   "examplePositive": null,
    "exampleNegative": {
     "reviewId": "R-1044",
     "text": "Worst customer service experience"
@@ -252,7 +253,7 @@
   }
  ],
  "summary": {
-  "overview": "Across 63 reviews, 65.1% read as positive, 31.7% as negative and 3.2% as neutral, so the overall tone is mostly positive. The average star rating is 3.6 out of 5 from 62 rated reviews.",
+  "overview": "Across 63 reviews, 60.3% read as positive, 28.6% as negative and 11.1% as neutral, so the overall tone is mostly positive. The average star rating is 3.6 out of 5 from 62 rated reviews.",
   "strengths": [
    {
     "aspect": "Battery",
@@ -260,24 +261,24 @@
     "count": 22,
     "percent": 71,
     "positive": 22,
-    "neutral": 2,
-    "negative": 7,
+    "neutral": 5,
+    "negative": 4,
     "example": {
-     "reviewId": "R-1053",
-     "text": "Good camera, good battery and smooth performance"
+     "reviewId": "R-1004",
+     "text": "Smooth performance, amazing display and the battery charges very fast"
     }
    },
    {
     "aspect": "Display",
     "mentions": 23,
-    "count": 21,
-    "percent": 91,
-    "positive": 21,
+    "count": 20,
+    "percent": 87,
+    "positive": 20,
     "neutral": 0,
-    "negative": 2,
+    "negative": 3,
     "example": {
-     "reviewId": "R-1037",
-     "text": "Wonderful phone with great performance and a beautiful display"
+     "reviewId": "R-1004",
+     "text": "Smooth performance, amazing display and the battery charges very fast"
     }
    },
    {
@@ -286,50 +287,64 @@
     "count": 14,
     "percent": 67,
     "positive": 14,
-    "neutral": 2,
+    "neutral": 3,
+    "negative": 4,
+    "example": {
+     "reviewId": "R-1004",
+     "text": "Smooth performance, amazing display and the battery charges very fast"
+    }
+   }
+  ],
+  "complaints": [
+   {
+    "aspect": "Customer service",
+    "mentions": 5,
+    "count": 5,
+    "percent": 100,
+    "positive": 0,
+    "neutral": 0,
     "negative": 5,
     "example": {
-     "reviewId": "R-1037",
-     "text": "Wonderful phone with great performance and a beautiful display"
+     "reviewId": "R-1044",
+     "text": "Worst customer service experience"
+    }
+   }
+  ],
+  "mixed": [
+   {
+    "aspect": "Camera",
+    "mentions": 22,
+    "count": 7,
+    "percent": 32,
+    "positive": 12,
+    "neutral": 3,
+    "negative": 7,
+    "example": {
+     "reviewId": "R-1034",
+     "text": "The phone is terrible at night photos and the battery drains fast"
     }
    },
    {
     "aspect": "Price",
     "mentions": 14,
-    "count": 10,
-    "percent": 71,
-    "positive": 10,
-    "neutral": 2,
+    "count": 2,
+    "percent": 14,
+    "positive": 8,
+    "neutral": 4,
     "negative": 2,
     "example": {
-     "reviewId": "R-1032",
-     "text": "Slim design, good weight and the build quality is excellent for this price"
-    }
-   }
-  ],
-  "complaints": [],
-  "mixed": [
-   {
-    "aspect": "Camera",
-    "mentions": 22,
-    "count": 6,
-    "percent": 27,
-    "positive": 14,
-    "neutral": 2,
-    "negative": 6,
-    "example": {
-     "reviewId": "R-1003",
-     "text": "The camera is really poor in low light, photos are grainy and blurry"
+     "reviewId": "R-1024",
+     "text": "No charger in the box, which I did not expect at this price"
     }
    },
    {
     "aspect": "Build quality",
     "mentions": 10,
-    "count": 2,
-    "percent": 20,
-    "positive": 4,
+    "count": 1,
+    "percent": 10,
+    "positive": 5,
     "neutral": 4,
-    "negative": 2,
+    "negative": 1,
     "example": {
      "reviewId": "R-1020",
      "text": "Very poor build quality"
@@ -351,27 +366,14 @@
    {
     "aspect": "Delivery",
     "mentions": 6,
-    "count": 1,
-    "percent": 17,
-    "positive": 2,
-    "neutral": 3,
-    "negative": 1,
+    "count": 2,
+    "percent": 33,
+    "positive": 3,
+    "neutral": 1,
+    "negative": 2,
     "example": {
      "reviewId": "R-1005",
      "text": "Delivery was late by four days and the packaging was torn"
-    }
-   },
-   {
-    "aspect": "Customer service",
-    "mentions": 5,
-    "count": 3,
-    "percent": 60,
-    "positive": 1,
-    "neutral": 1,
-    "negative": 3,
-    "example": {
-     "reviewId": "R-1044",
-     "text": "Worst customer service experience"
     }
    }
   ],
@@ -382,1660 +384,1870 @@
  "reviews": [
   {
    "id": "R-1001",
-   "reviewer": "Ananya R.",
-   "title": "Best phone under this budget",
+   "text": "Battery easily lasts a day and a half with heavy use. The display is bright and smooth, and the camera is great in daylight. Totally worth the price.",
    "rating": 5,
    "date": "2026-10-28",
-   "text": "Battery easily lasts a day and a half with heavy use. The display is bright and smooth, and the camera is great in daylight. Totally worth the price.",
+   "title": "Best phone under this budget",
+   "reviewer": "Ananya R.",
    "sentiment": "positive",
-   "score": 0.92,
+   "score": 0.9686,
    "aspects": [
     {
      "aspect": "Battery",
+     "snippet": "Battery easily lasts a day and a half with heavy use",
      "sentiment": "positive",
-     "score": 0.34,
-     "snippet": "Battery easily lasts a day and a half with heavy use"
+     "score": 0.5113
     },
     {
      "aspect": "Build quality",
+     "snippet": "Battery easily lasts a day and a half with heavy use",
      "sentiment": "positive",
-     "score": 0.34,
-     "snippet": "Battery easily lasts a day and a half with heavy use"
+     "score": 0.5113
     },
     {
      "aspect": "Camera",
+     "snippet": "The display is bright and smooth, and the camera is great in daylight",
      "sentiment": "positive",
-     "score": 0.8591,
-     "snippet": "The display is bright and smooth, and the camera is great in daylight"
+     "score": 0.9768
     },
     {
      "aspect": "Display",
+     "snippet": "The display is bright and smooth, and the camera is great in daylight",
      "sentiment": "positive",
-     "score": 0.8591,
-     "snippet": "The display is bright and smooth, and the camera is great in daylight"
+     "score": 0.9768
     },
     {
      "aspect": "Performance",
+     "snippet": "The display is bright and smooth, and the camera is great in daylight",
      "sentiment": "positive",
-     "score": 0.8591,
-     "snippet": "The display is bright and smooth, and the camera is great in daylight"
+     "score": 0.9768
     },
     {
      "aspect": "Price",
+     "snippet": "Totally worth the price",
      "sentiment": "positive",
-     "score": 0.2944,
-     "snippet": "Totally worth the price"
+     "score": 0.8316
     }
    ],
-   "mixed": false
+   "mixed": false,
+   "status": "analysed",
+   "language": "en",
+   "usedTitle": false
   },
   {
    "id": "R-1002",
-   "reviewer": "Vikram S.",
-   "title": "Good but heats while gaming",
+   "text": "Performance is fast for daily apps but the phone gets warm during long gaming sessions. Battery backup is excellent though.",
    "rating": 4,
    "date": "2026-10-27",
-   "text": "Performance is fast for daily apps but the phone gets warm during long gaming sessions. Battery backup is excellent though.",
+   "title": "Good but heats while gaming",
+   "reviewer": "Vikram S.",
    "sentiment": "positive",
-   "score": 0.8126,
+   "score": 0.8632,
    "aspects": [
     {
      "aspect": "Performance",
-     "sentiment": "neutral",
-     "score": 0.0,
-     "snippet": "Performance is fast for daily apps"
+     "snippet": "Performance is fast for daily apps",
+     "sentiment": "positive",
+     "score": 0.8317
     },
     {
      "aspect": "Battery",
+     "snippet": "Battery backup is excellent",
      "sentiment": "positive",
-     "score": 0.5719,
-     "snippet": "Battery backup is excellent"
+     "score": 0.9362
     }
    ],
-   "mixed": false
+   "mixed": false,
+   "status": "analysed",
+   "language": "en",
+   "usedTitle": false
   },
   {
    "id": "R-1003",
-   "reviewer": "Meera P.",
-   "title": "Camera disappointing",
+   "text": "The camera is really poor in low light, photos are grainy and blurry. Display is fine. Expected much better for the price.",
    "rating": 2,
    "date": "2026-10-25",
-   "text": "The camera is really poor in low light, photos are grainy and blurry. Display is fine. Expected much better for the price.",
+   "title": "Camera disappointing",
+   "reviewer": "Meera P.",
    "sentiment": "negative",
-   "score": -0.7233,
+   "score": -0.4763,
    "aspects": [
     {
      "aspect": "Camera",
+     "snippet": "The camera is really poor in low light, photos are grainy and blurry",
      "sentiment": "negative",
-     "score": -0.8676,
-     "snippet": "The camera is really poor in low light, photos are grainy and blurry"
+     "score": -0.8696
     },
     {
      "aspect": "Display",
+     "snippet": "Display is fine",
      "sentiment": "positive",
-     "score": 0.2023,
-     "snippet": "Display is fine"
+     "score": 0.5909
     },
     {
      "aspect": "Price",
+     "snippet": "Expected much better for the price",
      "sentiment": "positive",
-     "score": 0.4404,
-     "snippet": "Expected much better for the price"
+     "score": 0.8481
     }
    ],
-   "mixed": true
+   "mixed": true,
+   "status": "analysed",
+   "language": "en",
+   "usedTitle": false
   },
   {
    "id": "R-1004",
-   "reviewer": "Arjun M.",
-   "title": "Excellent",
+   "text": "Excellent phone. Smooth performance, amazing display and the battery charges very fast.",
    "rating": 5,
    "date": "2026-10-24",
-   "text": "Excellent phone. Smooth performance, amazing display and the battery charges very fast.",
+   "title": "Excellent",
+   "reviewer": "Arjun M.",
    "sentiment": "positive",
-   "score": 0.836,
+   "score": 0.98,
    "aspects": [
     {
      "aspect": "Battery",
+     "snippet": "Smooth performance, amazing display and the battery charges very fast",
      "sentiment": "positive",
-     "score": 0.6369,
-     "snippet": "Smooth performance, amazing display and the battery charges very fast"
+     "score": 0.9788
     },
     {
      "aspect": "Display",
+     "snippet": "Smooth performance, amazing display and the battery charges very fast",
      "sentiment": "positive",
-     "score": 0.6369,
-     "snippet": "Smooth performance, amazing display and the battery charges very fast"
+     "score": 0.9788
     },
     {
      "aspect": "Performance",
+     "snippet": "Smooth performance, amazing display and the battery charges very fast",
      "sentiment": "positive",
-     "score": 0.6369,
-     "snippet": "Smooth performance, amazing display and the battery charges very fast"
+     "score": 0.9788
     }
    ],
-   "mixed": false
+   "mixed": false,
+   "status": "analysed",
+   "language": "en",
+   "usedTitle": false
   },
   {
    "id": "R-1005",
-   "reviewer": "Fatima Z.",
-   "title": "Received damaged box",
+   "text": "Delivery was late by four days and the packaging was torn. The phone had a scratch on the back panel. Very disappointed.",
    "rating": 1,
    "date": "2026-10-22",
-   "text": "Delivery was late by four days and the packaging was torn. The phone had a scratch on the back panel. Very disappointed.",
+   "title": "Received damaged box",
+   "reviewer": "Fatima Z.",
    "sentiment": "negative",
-   "score": -0.7089,
+   "score": -0.9366,
    "aspects": [
     {
      "aspect": "Delivery",
+     "snippet": "Delivery was late by four days and the packaging was torn",
      "sentiment": "negative",
-     "score": -0.3612,
-     "snippet": "Delivery was late by four days and the packaging was torn"
+     "score": -0.8485
     },
     {
      "aspect": "Packaging",
+     "snippet": "Delivery was late by four days and the packaging was torn",
      "sentiment": "negative",
-     "score": -0.3612,
-     "snippet": "Delivery was late by four days and the packaging was torn"
+     "score": -0.8485
     },
     {
      "aspect": "Build quality",
+     "snippet": "The phone had a scratch on the back panel",
      "sentiment": "neutral",
-     "score": 0.0,
-     "snippet": "The phone had a scratch on the back panel"
+     "score": -0.4393
     }
    ],
-   "mixed": false
+   "mixed": false,
+   "status": "analysed",
+   "language": "en",
+   "usedTitle": false
   },
   {
    "id": "R-1006",
-   "reviewer": "Karthik N.",
-   "title": "Average",
+   "text": "It is an average phone. Nothing great, nothing bad. Camera is okay, battery is okay.",
    "rating": 3,
    "date": "2026-10-21",
-   "text": "It is an average phone. Nothing great, nothing bad. Camera is okay, battery is okay.",
-   "sentiment": "negative",
-   "score": -0.4335,
+   "title": "Average",
+   "reviewer": "Karthik N.",
+   "sentiment": "positive",
+   "score": 0.3717,
    "aspects": [
     {
      "aspect": "Battery",
+     "snippet": "Camera is okay, battery is okay",
      "sentiment": "positive",
-     "score": 0.4215,
-     "snippet": "Camera is okay, battery is okay"
+     "score": 0.6956
     },
     {
      "aspect": "Camera",
+     "snippet": "Camera is okay, battery is okay",
      "sentiment": "positive",
-     "score": 0.4215,
-     "snippet": "Camera is okay, battery is okay"
+     "score": 0.6956
     }
    ],
-   "mixed": false
+   "mixed": false,
+   "status": "analysed",
+   "language": "en",
+   "usedTitle": false
   },
   {
    "id": "R-1007",
-   "reviewer": "Sneha T.",
-   "title": "Love the display",
+   "text": "The AMOLED display is stunning and very bright outdoors. Speakers are loud. Build quality feels premium.",
    "rating": 5,
    "date": "2026-10-20",
-   "text": "The AMOLED display is stunning and very bright outdoors. Speakers are loud. Build quality feels premium.",
+   "title": "Love the display",
+   "reviewer": "Sneha T.",
    "sentiment": "positive",
-   "score": 0.6997,
+   "score": 0.955,
    "aspects": [
     {
      "aspect": "Display",
+     "snippet": "The AMOLED display is stunning and very bright outdoors",
      "sentiment": "positive",
-     "score": 0.6997,
-     "snippet": "The AMOLED display is stunning and very bright outdoors"
+     "score": 0.9745
     },
     {
      "aspect": "Build quality",
-     "sentiment": "neutral",
-     "score": 0.0,
-     "snippet": "Build quality feels premium"
+     "snippet": "Build quality feels premium",
+     "sentiment": "positive",
+     "score": 0.6878
     }
    ],
-   "mixed": false
+   "mixed": false,
+   "status": "analysed",
+   "language": "en",
+   "usedTitle": false
   },
   {
    "id": "R-1008",
-   "reviewer": "Rahul D.",
-   "title": "Value for money",
+   "text": "Great value for money. Performance is smooth. Only issue is the bloatware that comes preinstalled.",
    "rating": 4,
    "date": "2026-10-18",
-   "text": "Great value for money. Performance is smooth. Only issue is the bloatware that comes preinstalled.",
+   "title": "Value for money",
+   "reviewer": "Rahul D.",
    "sentiment": "positive",
-   "score": 0.7579,
+   "score": 0.7575,
    "aspects": [
     {
      "aspect": "Price",
+     "snippet": "Great value for money",
      "sentiment": "positive",
-     "score": 0.7579,
-     "snippet": "Great value for money"
+     "score": 0.9172
     },
     {
      "aspect": "Performance",
+     "snippet": "Performance is smooth",
      "sentiment": "positive",
-     "score": 0.3612,
-     "snippet": "Performance is smooth"
+     "score": 0.7611
     }
    ],
-   "mixed": false
+   "mixed": false,
+   "status": "analysed",
+   "language": "en",
+   "usedTitle": false
   },
   {
    "id": "R-1009",
-   "reviewer": "Pooja V.",
-   "title": "Customer service not helpful",
+   "text": "Phone started lagging after a week. I contacted customer service three times and they were not helpful at all.",
    "rating": 2,
    "date": "2026-10-17",
-   "text": "Phone started lagging after a week. I contacted customer service three times and they were not helpful at all.",
+   "title": "Customer service not helpful",
+   "reviewer": "Pooja V.",
    "sentiment": "negative",
-   "score": -0.6288,
+   "score": -0.9134,
    "aspects": [
     {
      "aspect": "Performance",
+     "snippet": "Phone started lagging after a week",
      "sentiment": "negative",
-     "score": -0.4215,
-     "snippet": "Phone started lagging after a week"
+     "score": -0.793
     },
     {
      "aspect": "Customer service",
+     "snippet": "I contacted customer service three times and they were not helpful at all",
      "sentiment": "negative",
-     "score": -0.3252,
-     "snippet": "I contacted customer service three times and they were not helpful at all"
+     "score": -0.8884
     }
    ],
-   "mixed": false
+   "mixed": false,
+   "status": "analysed",
+   "language": "en",
+   "usedTitle": false
   },
   {
    "id": "R-1010",
-   "reviewer": "Imran K.",
-   "title": "Battery monster",
+   "text": "Battery life is the best I have seen. Two days on a single charge with normal use. Fast charging works well.",
    "rating": 5,
    "date": "2026-10-15",
-   "text": "Battery life is the best I have seen. Two days on a single charge with normal use. Fast charging works well.",
+   "title": "Battery monster",
+   "reviewer": "Imran K.",
    "sentiment": "positive",
-   "score": 0.743,
+   "score": 0.9706,
    "aspects": [
     {
      "aspect": "Battery",
+     "snippet": "Battery life is the best I have seen",
      "sentiment": "positive",
-     "score": 0.6369,
-     "snippet": "Battery life is the best I have seen"
+     "score": 0.937
     }
    ],
-   "mixed": false
+   "mixed": false,
+   "status": "analysed",
+   "language": "en",
+   "usedTitle": false
   },
   {
    "id": "R-1011",
-   "reviewer": "Divya L.",
-   "title": "Nice camera",
+   "text": "Main camera takes sharp and colourful photos in daylight. Night mode is average. Overall happy with the purchase.",
    "rating": 4,
    "date": "2026-10-14",
-   "text": "Main camera takes sharp and colourful photos in daylight. Night mode is average. Overall happy with the purchase.",
+   "title": "Nice camera",
+   "reviewer": "Divya L.",
    "sentiment": "positive",
-   "score": 0.5719,
+   "score": 0.7992,
    "aspects": [
     {
      "aspect": "Camera",
-     "sentiment": "neutral",
-     "score": 0.0,
-     "snippet": "Main camera takes sharp and colourful photos in daylight"
+     "snippet": "Main camera takes sharp and colourful photos in daylight",
+     "sentiment": "positive",
+     "score": 0.6214
     }
    ],
-   "mixed": false
+   "mixed": false,
+   "status": "analysed",
+   "language": "en",
+   "usedTitle": false
   },
   {
    "id": "R-1012",
-   "reviewer": "Suresh B.",
-   "title": "Stopped working",
+   "text": "Phone stopped charging after 10 days. Terrible experience. Service centre asked me to wait two weeks for a replacement.",
    "rating": 1,
    "date": "2026-10-12",
-   "text": "Phone stopped charging after 10 days. Terrible experience. Service centre asked me to wait two weeks for a replacement.",
+   "title": "Stopped working",
+   "reviewer": "Suresh B.",
    "sentiment": "negative",
-   "score": -0.6124,
+   "score": -0.9414,
    "aspects": [
     {
      "aspect": "Battery",
+     "snippet": "Phone stopped charging after 10 days",
      "sentiment": "negative",
-     "score": -0.2263,
-     "snippet": "Phone stopped charging after 10 days"
+     "score": -0.4743
     },
     {
      "aspect": "Customer service",
-     "sentiment": "neutral",
-     "score": 0.0,
-     "snippet": "Service centre asked me to wait two weeks for a replacement"
+     "snippet": "Service centre asked me to wait two weeks for a replacement",
+     "sentiment": "negative",
+     "score": -0.6297
     }
    ],
-   "mixed": false
+   "mixed": false,
+   "status": "analysed",
+   "language": "en",
+   "usedTitle": false
   },
   {
    "id": "R-1013",
-   "reviewer": "Neha G.",
-   "title": "Smooth and fast",
+   "text": "Very smooth performance, no lag even with many apps open. The 120Hz display makes scrolling a pleasure.",
    "rating": 5,
    "date": "2026-10-11",
-   "text": "Very smooth performance, no lag even with many apps open. The 120Hz display makes scrolling a pleasure.",
+   "title": "Smooth and fast",
+   "reviewer": "Neha G.",
    "sentiment": "positive",
-   "score": 0.8345,
+   "score": 0.9643,
    "aspects": [
     {
      "aspect": "Performance",
+     "snippet": "Very smooth performance, no lag even with many apps open",
      "sentiment": "positive",
-     "score": 0.633,
-     "snippet": "Very smooth performance, no lag even with many apps open"
+     "score": 0.9539
     },
     {
      "aspect": "Display",
+     "snippet": "The 120Hz display makes scrolling a pleasure",
      "sentiment": "positive",
-     "score": 0.5719,
-     "snippet": "The 120Hz display makes scrolling a pleasure"
+     "score": 0.9378
     }
    ],
-   "mixed": false
+   "mixed": false,
+   "status": "analysed",
+   "language": "en",
+   "usedTitle": false
   },
   {
    "id": "R-1014",
-   "reviewer": "Aditya J.",
-   "title": "Good phone, slow delivery",
+   "text": "Phone is good but delivery took more than a week. Packaging was fine.",
    "rating": 3,
    "date": "2026-10-10",
-   "text": "Phone is good but delivery took more than a week. Packaging was fine.",
+   "title": "Good phone, slow delivery",
+   "reviewer": "Aditya J.",
    "sentiment": "positive",
-   "score": 0.4854,
+   "score": 0.8671,
    "aspects": [
     {
      "aspect": "Delivery",
-     "sentiment": "neutral",
-     "score": 0.0,
-     "snippet": "delivery took more than a week"
+     "snippet": "delivery took more than a week",
+     "sentiment": "negative",
+     "score": -0.4651
     },
     {
      "aspect": "Packaging",
+     "snippet": "Packaging was fine",
      "sentiment": "positive",
-     "score": 0.2023,
-     "snippet": "Packaging was fine"
+     "score": 0.4837
     }
    ],
-   "mixed": false
+   "mixed": true,
+   "status": "analysed",
+   "language": "en",
+   "usedTitle": false
   },
   {
    "id": "R-1015",
-   "reviewer": "Riya C.",
-   "title": "Perfect for students",
+   "text": "Affordable price, long battery life and a good camera for online classes and photos. Highly recommended.",
    "rating": 5,
    "date": "2026-10-08",
-   "text": "Affordable price, long battery life and a good camera for online classes and photos. Highly recommended.",
+   "title": "Perfect for students",
+   "reviewer": "Riya C.",
    "sentiment": "positive",
-   "score": 0.6115,
+   "score": 0.9603,
    "aspects": [
     {
      "aspect": "Battery",
+     "snippet": "Affordable price, long battery life and a good camera for online classes and photos",
      "sentiment": "positive",
-     "score": 0.4404,
-     "snippet": "Affordable price, long battery life and a good camera for online classes and photos"
+     "score": 0.8425
     },
     {
      "aspect": "Camera",
+     "snippet": "Affordable price, long battery life and a good camera for online classes and photos",
      "sentiment": "positive",
-     "score": 0.4404,
-     "snippet": "Affordable price, long battery life and a good camera for online classes and photos"
+     "score": 0.8425
     },
     {
      "aspect": "Price",
+     "snippet": "Affordable price, long battery life and a good camera for online classes and photos",
      "sentiment": "positive",
-     "score": 0.4404,
-     "snippet": "Affordable price, long battery life and a good camera for online classes and photos"
+     "score": 0.8425
     }
    ],
-   "mixed": false
+   "mixed": false,
+   "status": "analysed",
+   "language": "en",
+   "usedTitle": false
   },
   {
    "id": "R-1016",
-   "reviewer": "Manoj H.",
-   "title": "Overheating issue",
+   "text": "The phone heats up a lot while charging and during video calls. Performance drops when it gets hot.",
    "rating": 2,
    "date": "2026-10-07",
-   "text": "The phone heats up a lot while charging and during video calls. Performance drops when it gets hot.",
+   "title": "Overheating issue",
+   "reviewer": "Manoj H.",
    "sentiment": "negative",
-   "score": -0.296,
+   "score": -0.6413,
    "aspects": [
     {
      "aspect": "Battery",
-     "sentiment": "negative",
-     "score": -0.296,
-     "snippet": "The phone heats up a lot while charging and during video calls"
+     "snippet": "The phone heats up a lot while charging and during video calls",
+     "sentiment": "neutral",
+     "score": -0.0404
     },
     {
      "aspect": "Performance",
-     "sentiment": "negative",
-     "score": -0.296,
-     "snippet": "The phone heats up a lot while charging and during video calls"
+     "snippet": "The phone heats up a lot while charging and during video calls",
+     "sentiment": "neutral",
+     "score": -0.0404
     }
    ],
-   "mixed": false
+   "mixed": false,
+   "status": "analysed",
+   "language": "en",
+   "usedTitle": false
   },
   {
    "id": "R-1017",
-   "reviewer": "Kavya S.",
-   "title": "Good build",
+   "text": "Build quality is solid and the matte back does not attract fingerprints. Battery is decent. Camera could be better.",
    "rating": 4,
    "date": "2026-10-05",
-   "text": "Build quality is solid and the matte back does not attract fingerprints. Battery is decent. Camera could be better.",
+   "title": "Good build",
+   "reviewer": "Kavya S.",
    "sentiment": "positive",
-   "score": 0.3378,
+   "score": 0.8299,
    "aspects": [
     {
      "aspect": "Build quality",
-     "sentiment": "negative",
-     "score": -0.1306,
-     "snippet": "Build quality is solid and the matte back does not attract fingerprints"
+     "snippet": "Build quality is solid and the matte back does not attract fingerprints",
+     "sentiment": "neutral",
+     "score": 0.3976
     },
     {
      "aspect": "Battery",
-     "sentiment": "neutral",
-     "score": 0.0,
-     "snippet": "Battery is decent"
+     "snippet": "Battery is decent",
+     "sentiment": "positive",
+     "score": 0.7456
     },
     {
      "aspect": "Camera",
-     "sentiment": "positive",
-     "score": 0.4404,
-     "snippet": "Camera could be better"
+     "snippet": "Camera could be better",
+     "sentiment": "neutral",
+     "score": 0.3285
     }
    ],
-   "mixed": true
+   "mixed": false,
+   "status": "analysed",
+   "language": "en",
+   "usedTitle": false
   },
   {
    "id": "R-1018",
-   "reviewer": "Nikhil A.",
-   "title": "Superb",
+   "text": "Superb phone! Display, battery and performance are all excellent. Delivered a day early with secure packaging.",
    "rating": 5,
    "date": "2026-10-04",
-   "text": "Superb phone! Display, battery and performance are all excellent. Delivered a day early with secure packaging.",
+   "title": "Superb",
+   "reviewer": "Nikhil A.",
    "sentiment": "positive",
-   "score": 0.8883,
+   "score": 0.9801,
    "aspects": [
     {
      "aspect": "Battery",
+     "snippet": "Display, battery and performance are all excellent",
      "sentiment": "positive",
-     "score": 0.5719,
-     "snippet": "Display, battery and performance are all excellent"
+     "score": 0.9602
     },
     {
      "aspect": "Display",
+     "snippet": "Display, battery and performance are all excellent",
      "sentiment": "positive",
-     "score": 0.5719,
-     "snippet": "Display, battery and performance are all excellent"
+     "score": 0.9602
     },
     {
      "aspect": "Performance",
+     "snippet": "Display, battery and performance are all excellent",
      "sentiment": "positive",
-     "score": 0.5719,
-     "snippet": "Display, battery and performance are all excellent"
+     "score": 0.9602
     },
     {
      "aspect": "Delivery",
+     "snippet": "Delivered a day early with secure packaging",
      "sentiment": "positive",
-     "score": 0.34,
-     "snippet": "Delivered a day early with secure packaging"
+     "score": 0.6691
     },
     {
      "aspect": "Packaging",
+     "snippet": "Delivered a day early with secure packaging",
      "sentiment": "positive",
-     "score": 0.34,
-     "snippet": "Delivered a day early with secure packaging"
+     "score": 0.6691
     }
    ],
-   "mixed": false
+   "mixed": false,
+   "status": "analysed",
+   "language": "en",
+   "usedTitle": false
   },
   {
    "id": "R-1019",
-   "reviewer": "Lakshmi I.",
-   "title": "Mixed feelings",
+   "text": "Great battery and display, but the camera is poor indoors and the speaker is too soft. Not sure if I would buy again.",
    "rating": 3,
    "date": "2026-10-02",
-   "text": "Great battery and display, but the camera is poor indoors and the speaker is too soft. Not sure if I would buy again.",
+   "title": "Mixed feelings",
+   "reviewer": "Lakshmi I.",
    "sentiment": "negative",
-   "score": -0.6178,
+   "score": -0.8294,
    "aspects": [
     {
      "aspect": "Battery",
+     "snippet": "Great battery and display",
      "sentiment": "positive",
-     "score": 0.6249,
-     "snippet": "Great battery and display"
+     "score": 0.948
     },
     {
      "aspect": "Display",
+     "snippet": "Great battery and display",
      "sentiment": "positive",
-     "score": 0.6249,
-     "snippet": "Great battery and display"
+     "score": 0.948
     },
     {
      "aspect": "Camera",
+     "snippet": "the camera is poor indoors and the speaker is too soft",
      "sentiment": "negative",
-     "score": -0.4767,
-     "snippet": "the camera is poor indoors and the speaker is too soft"
+     "score": -0.8292
     }
    ],
-   "mixed": true
+   "mixed": true,
+   "status": "analysed",
+   "language": "en",
+   "usedTitle": false
   },
   {
    "id": "R-1020",
-   "reviewer": "Harsh W.",
-   "title": "Waste of money",
+   "text": "Waste of money. Touch screen stopped responding properly within a month. Very poor build quality.",
    "rating": 1,
    "date": "2026-09-30",
-   "text": "Waste of money. Touch screen stopped responding properly within a month. Very poor build quality.",
+   "title": "Waste of money",
+   "reviewer": "Harsh W.",
    "sentiment": "negative",
-   "score": -0.796,
+   "score": -0.941,
    "aspects": [
     {
      "aspect": "Display",
+     "snippet": "Touch screen stopped responding properly within a month",
      "sentiment": "negative",
-     "score": -0.2263,
-     "snippet": "Touch screen stopped responding properly within a month"
+     "score": -0.8018
     },
     {
      "aspect": "Build quality",
+     "snippet": "Very poor build quality",
      "sentiment": "negative",
-     "score": -0.5256,
-     "snippet": "Very poor build quality"
+     "score": -0.8443
     }
    ],
-   "mixed": false
+   "mixed": false,
+   "status": "analysed",
+   "language": "en",
+   "usedTitle": false
   },
   {
    "id": "R-1021",
-   "reviewer": "Tanvi M.",
-   "title": "Happy customer",
+   "text": "Really happy with this phone. Clean software, good camera, and the battery lasts all day.",
    "rating": 5,
    "date": "2026-09-29",
-   "text": "Really happy with this phone. Clean software, good camera, and the battery lasts all day.",
+   "title": "Happy customer",
+   "reviewer": "Tanvi M.",
    "sentiment": "positive",
-   "score": 0.8622,
+   "score": 0.9855,
    "aspects": [
     {
      "aspect": "Battery",
+     "snippet": "Clean software, good camera, and the battery lasts all day",
      "sentiment": "positive",
-     "score": 0.6808,
-     "snippet": "Clean software, good camera, and the battery lasts all day"
+     "score": 0.9276
     },
     {
      "aspect": "Camera",
+     "snippet": "Clean software, good camera, and the battery lasts all day",
      "sentiment": "positive",
-     "score": 0.6808,
-     "snippet": "Clean software, good camera, and the battery lasts all day"
+     "score": 0.9276
     },
     {
      "aspect": "Performance",
+     "snippet": "Clean software, good camera, and the battery lasts all day",
      "sentiment": "positive",
-     "score": 0.6808,
-     "snippet": "Clean software, good camera, and the battery lasts all day"
+     "score": 0.9276
     }
    ],
-   "mixed": false
+   "mixed": false,
+   "status": "analysed",
+   "language": "en",
+   "usedTitle": false
   },
   {
    "id": "R-1022",
-   "reviewer": "Gaurav P.",
-   "title": "Solid performer",
+   "text": "Handles demanding games on medium settings without stutter. Gets a bit warm but nothing serious.",
    "rating": 4,
    "date": "2026-09-27",
-   "text": "Handles demanding games on medium settings without stutter. Gets a bit warm but nothing serious.",
-   "sentiment": "positive",
-   "score": 0.1967,
+   "title": "Solid performer",
+   "reviewer": "Gaurav P.",
+   "sentiment": "neutral",
+   "score": 0.1293,
    "aspects": [
     {
      "aspect": "Performance",
+     "snippet": "Handles demanding games on medium settings without stutter",
      "sentiment": "neutral",
-     "score": -0.0031,
-     "snippet": "Handles demanding games on medium settings without stutter"
+     "score": 0.1732
     }
    ],
-   "mixed": false
+   "mixed": false,
+   "status": "analysed",
+   "language": "en",
+   "usedTitle": false
   },
   {
    "id": "R-1023",
-   "reviewer": "Shreya N.",
-   "title": "Gift for my father",
+   "text": "Bought it for my father. Big display and loud speaker make it easy for him to use. He loves it.",
    "rating": 5,
    "date": "2026-09-26",
-   "text": "Bought it for my father. Big display and loud speaker make it easy for him to use. He loves it.",
+   "title": "Gift for my father",
+   "reviewer": "Shreya N.",
    "sentiment": "positive",
-   "score": 0.765,
+   "score": 0.9622,
    "aspects": [
     {
      "aspect": "Display",
+     "snippet": "Big display and loud speaker make it easy for him to use",
      "sentiment": "positive",
-     "score": 0.4404,
-     "snippet": "Big display and loud speaker make it easy for him to use"
+     "score": 0.671
     }
    ],
-   "mixed": false
+   "mixed": false,
+   "status": "analysed",
+   "language": "en",
+   "usedTitle": false
   },
   {
    "id": "R-1024",
-   "reviewer": "Mohit R.",
-   "title": "Charger not in box",
+   "text": "No charger in the box, which I did not expect at this price. Phone itself is okay but this is disappointing.",
    "rating": 2,
    "date": "2026-09-24",
-   "text": "No charger in the box, which I did not expect at this price. Phone itself is okay but this is disappointing.",
+   "title": "Charger not in box",
+   "reviewer": "Mohit R.",
    "sentiment": "negative",
-   "score": -0.6652,
+   "score": -0.8829,
    "aspects": [
     {
      "aspect": "Battery",
+     "snippet": "No charger in the box, which I did not expect at this price",
      "sentiment": "negative",
-     "score": -0.296,
-     "snippet": "No charger in the box, which I did not expect at this price"
+     "score": -0.7263
     },
     {
      "aspect": "Price",
+     "snippet": "No charger in the box, which I did not expect at this price",
      "sentiment": "negative",
-     "score": -0.296,
-     "snippet": "No charger in the box, which I did not expect at this price"
+     "score": -0.7263
     },
     {
      "aspect": "Packaging",
+     "snippet": "No charger in the box, which I did not expect at this price",
      "sentiment": "negative",
-     "score": -0.296,
-     "snippet": "No charger in the box, which I did not expect at this price"
+     "score": -0.7263
     }
    ],
-   "mixed": false
+   "mixed": false,
+   "status": "analysed",
+   "language": "en",
+   "usedTitle": false
   },
   {
    "id": "R-1025",
-   "reviewer": "Aisha F.",
-   "title": "Good overall",
+   "text": "Good overall phone. Camera is good in daylight, display is bright. Battery could be slightly better with 5G on.",
    "rating": 4,
    "date": "2026-09-22",
-   "text": "Good overall phone. Camera is good in daylight, display is bright. Battery could be slightly better with 5G on.",
+   "title": "Good overall",
+   "reviewer": "Aisha F.",
    "sentiment": "positive",
-   "score": 0.8836,
+   "score": 0.9515,
    "aspects": [
     {
      "aspect": "Camera",
+     "snippet": "Camera is good in daylight, display is bright",
      "sentiment": "positive",
-     "score": 0.7003,
-     "snippet": "Camera is good in daylight, display is bright"
+     "score": 0.9211
     },
     {
      "aspect": "Display",
+     "snippet": "Camera is good in daylight, display is bright",
      "sentiment": "positive",
-     "score": 0.7003,
-     "snippet": "Camera is good in daylight, display is bright"
+     "score": 0.9211
     },
     {
      "aspect": "Battery",
-     "sentiment": "positive",
-     "score": 0.3832,
-     "snippet": "Battery could be slightly better with 5G on"
+     "snippet": "Battery could be slightly better with 5G on",
+     "sentiment": "neutral",
+     "score": 0.3978
     }
    ],
-   "mixed": false
+   "mixed": false,
+   "status": "analysed",
+   "language": "en",
+   "usedTitle": false
   },
   {
    "id": "R-1026",
-   "reviewer": "Varun T.",
-   "title": "Fast delivery",
+   "text": "Fast delivery and well packed. The phone works perfectly and setup was easy.",
    "rating": 5,
    "date": "2026-09-21",
-   "text": "Fast delivery and well packed. The phone works perfectly and setup was easy.",
+   "title": "Fast delivery",
+   "reviewer": "Varun T.",
    "sentiment": "positive",
-   "score": 0.8481,
+   "score": 0.9632,
    "aspects": [
     {
      "aspect": "Delivery",
+     "snippet": "Fast delivery and well packed",
      "sentiment": "positive",
-     "score": 0.2732,
-     "snippet": "Fast delivery and well packed"
+     "score": 0.9
     },
     {
      "aspect": "Packaging",
+     "snippet": "Fast delivery and well packed",
      "sentiment": "positive",
-     "score": 0.2732,
-     "snippet": "Fast delivery and well packed"
+     "score": 0.9
     }
    ],
-   "mixed": false
+   "mixed": false,
+   "status": "analysed",
+   "language": "en",
+   "usedTitle": false
   },
   {
    "id": "R-1027",
-   "reviewer": "Priya K.",
-   "title": "Defective unit",
+   "text": "Received a defective unit with dead pixels on the display. Return process was slow and customer support kept transferring my call.",
    "rating": 1,
    "date": "2026-09-19",
-   "text": "Received a defective unit with dead pixels on the display. Return process was slow and customer support kept transferring my call.",
+   "title": "Defective unit",
+   "reviewer": "Priya K.",
    "sentiment": "negative",
-   "score": -0.7269,
+   "score": -0.913,
    "aspects": [
     {
      "aspect": "Display",
+     "snippet": "Received a defective unit with dead pixels on the display",
      "sentiment": "negative",
-     "score": -0.8316,
-     "snippet": "Received a defective unit with dead pixels on the display"
+     "score": -0.855
     },
     {
      "aspect": "Customer service",
-     "sentiment": "positive",
-     "score": 0.4019,
-     "snippet": "Return process was slow and customer support kept transferring my call"
+     "snippet": "Return process was slow and customer support kept transferring my call",
+     "sentiment": "negative",
+     "score": -0.8127
     }
    ],
-   "mixed": true
+   "mixed": false,
+   "status": "analysed",
+   "language": "en",
+   "usedTitle": false
   },
   {
    "id": "R-1028",
-   "reviewer": "Rohan E.",
-   "title": "Okay for the price",
+   "text": "Okay for the price. Performance is fine for social media but slows down with heavy apps.",
    "rating": 3,
    "date": "2026-09-18",
-   "text": "Okay for the price. Performance is fine for social media but slows down with heavy apps.",
-   "sentiment": "positive",
-   "score": 0.2144,
+   "title": "Okay for the price",
+   "reviewer": "Rohan E.",
+   "sentiment": "neutral",
+   "score": -0.1271,
    "aspects": [
     {
      "aspect": "Price",
-     "sentiment": "positive",
-     "score": 0.2263,
-     "snippet": "Okay for the price"
+     "snippet": "Okay for the price",
+     "sentiment": "neutral",
+     "score": 0.0508
     },
     {
      "aspect": "Performance",
-     "sentiment": "positive",
-     "score": 0.2023,
-     "snippet": "Performance is fine for social media"
+     "snippet": "Performance is fine for social media",
+     "sentiment": "neutral",
+     "score": 0.4175
     },
     {
      "aspect": "Build quality",
+     "snippet": "slows down with heavy apps",
      "sentiment": "neutral",
-     "score": 0.0,
-     "snippet": "slows down with heavy apps"
+     "score": -0.1691
     }
    ],
-   "mixed": false
+   "mixed": false,
+   "status": "analysed",
+   "language": "en",
+   "usedTitle": false
   },
   {
    "id": "R-1029",
-   "reviewer": "Ishita D.",
-   "title": "Camera is amazing",
+   "text": "The portrait mode is amazing and colours look natural. Selfies are sharp too. Very impressed with the camera.",
    "rating": 5,
    "date": "2026-09-16",
-   "text": "The portrait mode is amazing and colours look natural. Selfies are sharp too. Very impressed with the camera.",
+   "title": "Camera is amazing",
+   "reviewer": "Ishita D.",
    "sentiment": "positive",
-   "score": 0.8655,
+   "score": 0.9758,
    "aspects": [
     {
      "aspect": "Camera",
+     "snippet": "The portrait mode is amazing and colours look natural",
      "sentiment": "positive",
-     "score": 0.743,
-     "snippet": "The portrait mode is amazing and colours look natural"
+     "score": 0.9519
     }
    ],
-   "mixed": false
+   "mixed": false,
+   "status": "analysed",
+   "language": "en",
+   "usedTitle": false
   },
   {
    "id": "R-1030",
-   "reviewer": "Sameer Q.",
-   "title": "Great battery",
+   "text": "Battery easily lasts a full day of heavy use. Charging from 0 to 100 takes about an hour. Display is good.",
    "rating": 4,
    "date": "2026-09-15",
-   "text": "Battery easily lasts a full day of heavy use. Charging from 0 to 100 takes about an hour. Display is good.",
+   "title": "Great battery",
+   "reviewer": "Sameer Q.",
    "sentiment": "positive",
-   "score": 0.6486,
+   "score": 0.8054,
    "aspects": [
     {
      "aspect": "Battery",
+     "snippet": "Battery easily lasts a full day of heavy use",
      "sentiment": "positive",
-     "score": 0.34,
-     "snippet": "Battery easily lasts a full day of heavy use"
+     "score": 0.5985
     },
     {
      "aspect": "Build quality",
+     "snippet": "Battery easily lasts a full day of heavy use",
      "sentiment": "positive",
-     "score": 0.34,
-     "snippet": "Battery easily lasts a full day of heavy use"
+     "score": 0.5985
     },
     {
      "aspect": "Display",
+     "snippet": "Display is good",
      "sentiment": "positive",
-     "score": 0.4404,
-     "snippet": "Display is good"
+     "score": 0.9004
     }
    ],
-   "mixed": false
+   "mixed": false,
+   "status": "analysed",
+   "language": "en",
+   "usedTitle": false
   },
   {
    "id": "R-1031",
-   "reviewer": "Nandini B.",
-   "title": "Software bugs",
+   "text": "Frequent software bugs and app crashes after the latest update. Hope they fix it soon.",
    "rating": 2,
    "date": "2026-09-13",
-   "text": "Frequent software bugs and app crashes after the latest update. Hope they fix it soon.",
+   "title": "Software bugs",
+   "reviewer": "Nandini B.",
    "sentiment": "negative",
-   "score": -0.3818,
+   "score": -0.6016,
    "aspects": [
     {
      "aspect": "Performance",
+     "snippet": "Frequent software bugs and app crashes after the latest update",
      "sentiment": "negative",
-     "score": -0.6705,
-     "snippet": "Frequent software bugs and app crashes after the latest update"
+     "score": -0.576
     }
    ],
-   "mixed": false
+   "mixed": false,
+   "status": "analysed",
+   "language": "en",
+   "usedTitle": false
   },
   {
    "id": "R-1032",
-   "reviewer": "Akash Y.",
-   "title": "Premium feel",
+   "text": "Feels premium in hand. Slim design, good weight and the build quality is excellent for this price.",
    "rating": 5,
    "date": "2026-09-12",
-   "text": "Feels premium in hand. Slim design, good weight and the build quality is excellent for this price.",
+   "title": "Premium feel",
+   "reviewer": "Akash Y.",
    "sentiment": "positive",
-   "score": 0.8689,
+   "score": 0.9361,
    "aspects": [
     {
      "aspect": "Build quality",
+     "snippet": "Feels premium in hand",
      "sentiment": "positive",
-     "score": 0.4939,
-     "snippet": "Feels premium in hand"
+     "score": 0.6031
     },
     {
      "aspect": "Price",
+     "snippet": "Slim design, good weight and the build quality is excellent for this price",
      "sentiment": "positive",
-     "score": 0.765,
-     "snippet": "Slim design, good weight and the build quality is excellent for this price"
+     "score": 0.9349
     }
    ],
-   "mixed": false
+   "mixed": false,
+   "status": "analysed",
+   "language": "en",
+   "usedTitle": false
   },
   {
    "id": "R-1033",
-   "reviewer": "Deepa U.",
-   "title": "Recommended",
+   "text": "Recommended for anyone looking for a reliable phone with good battery and display.",
    "rating": 4,
    "date": "2026-09-10",
-   "text": "Recommended for anyone looking for a reliable phone with good battery and display.",
+   "title": "Recommended",
+   "reviewer": "Deepa U.",
    "sentiment": "positive",
-   "score": 0.5719,
+   "score": 0.8941,
    "aspects": [
     {
      "aspect": "Battery",
+     "snippet": "Recommended for anyone looking for a reliable phone with good battery and display",
      "sentiment": "positive",
-     "score": 0.5719,
-     "snippet": "Recommended for anyone looking for a reliable phone with good battery and display"
+     "score": 0.8441
     },
     {
      "aspect": "Display",
+     "snippet": "Recommended for anyone looking for a reliable phone with good battery and display",
      "sentiment": "positive",
-     "score": 0.5719,
-     "snippet": "Recommended for anyone looking for a reliable phone with good battery and display"
+     "score": 0.8441
     }
    ],
-   "mixed": false
+   "mixed": false,
+   "status": "analysed",
+   "language": "en",
+   "usedTitle": false
   },
   {
    "id": "R-1034",
-   "reviewer": "Farhan S.",
-   "title": "Five stars",
+   "text": "The phone is terrible at night photos and the battery drains fast.",
    "rating": 5,
    "date": "2026-09-08",
-   "text": "The phone is terrible at night photos and the battery drains fast.",
+   "title": "Five stars",
+   "reviewer": "Farhan S.",
    "sentiment": "negative",
-   "score": -0.6808,
+   "score": -0.9244,
    "aspects": [
     {
      "aspect": "Battery",
+     "snippet": "The phone is terrible at night photos and the battery drains fast",
      "sentiment": "negative",
-     "score": -0.6808,
-     "snippet": "The phone is terrible at night photos and the battery drains fast"
+     "score": -0.9239
     },
     {
      "aspect": "Camera",
+     "snippet": "The phone is terrible at night photos and the battery drains fast",
      "sentiment": "negative",
-     "score": -0.6808,
-     "snippet": "The phone is terrible at night photos and the battery drains fast"
+     "score": -0.9239
     }
    ],
-   "mixed": false
+   "mixed": false,
+   "status": "analysed",
+   "language": "en",
+   "usedTitle": false
   },
   {
    "id": "R-1035",
-   "reviewer": "Swati J.",
-   "title": "Decent",
+   "text": "Decent phone. The display is nice but the price is a little high compared to similar phones.",
    "rating": 3,
    "date": "2026-09-07",
-   "text": "Decent phone. The display is nice but the price is a little high compared to similar phones.",
+   "title": "Decent",
+   "reviewer": "Swati J.",
    "sentiment": "positive",
-   "score": 0.2263,
+   "score": 0.8536,
    "aspects": [
     {
      "aspect": "Display",
+     "snippet": "The display is nice",
      "sentiment": "positive",
-     "score": 0.4215,
-     "snippet": "The display is nice"
+     "score": 0.9319
     },
     {
      "aspect": "Price",
+     "snippet": "the price is a little high compared to similar phones",
      "sentiment": "neutral",
-     "score": 0.0,
-     "snippet": "the price is a little high compared to similar phones"
+     "score": -0.2143
     }
    ],
-   "mixed": false
+   "mixed": false,
+   "status": "analysed",
+   "language": "en",
+   "usedTitle": false
   },
   {
    "id": "R-1036",
-   "reviewer": "Yash L.",
-   "title": "Battery drains fast",
+   "text": "Battery drains very fast even on standby. Lost 30 percent overnight. Very disappointed with the battery.",
    "rating": 1,
    "date": "2026-09-05",
-   "text": "Battery drains very fast even on standby. Lost 30 percent overnight. Very disappointed with the battery.",
+   "title": "Battery drains fast",
+   "reviewer": "Yash L.",
    "sentiment": "negative",
-   "score": -0.8016,
+   "score": -0.9321,
    "aspects": [
     {
      "aspect": "Battery",
-     "sentiment": "negative",
-     "score": -0.3612,
-     "snippet": "Battery drains very fast even on standby"
+     "snippet": "Battery drains very fast even on standby",
+     "sentiment": "neutral",
+     "score": -0.4095
     }
    ],
-   "mixed": false
+   "mixed": false,
+   "status": "analysed",
+   "language": "en",
+   "usedTitle": false
   },
   {
    "id": "R-1037",
-   "reviewer": "Anjali W.",
-   "title": "Wonderful",
+   "text": "Wonderful phone with great performance and a beautiful display. Worth every rupee.",
    "rating": 5,
    "date": "2026-09-04",
-   "text": "Wonderful phone with great performance and a beautiful display. Worth every rupee.",
+   "title": "Wonderful",
+   "reviewer": "Anjali W.",
    "sentiment": "positive",
-   "score": 0.9274,
+   "score": 0.9812,
    "aspects": [
     {
      "aspect": "Display",
+     "snippet": "Wonderful phone with great performance and a beautiful display",
      "sentiment": "positive",
-     "score": 0.9136,
-     "snippet": "Wonderful phone with great performance and a beautiful display"
+     "score": 0.9737
     },
     {
      "aspect": "Performance",
+     "snippet": "Wonderful phone with great performance and a beautiful display",
      "sentiment": "positive",
-     "score": 0.9136,
-     "snippet": "Wonderful phone with great performance and a beautiful display"
+     "score": 0.9737
     },
     {
      "aspect": "Price",
-     "sentiment": "positive",
-     "score": 0.2263,
-     "snippet": "Worth every rupee"
+     "snippet": "Worth every rupee",
+     "sentiment": "neutral",
+     "score": 0.3347
     }
    ],
-   "mixed": false
+   "mixed": false,
+   "status": "analysed",
+   "language": "en",
+   "usedTitle": false
   },
   {
    "id": "R-1038",
-   "reviewer": "Kunal V.",
-   "title": "Nice but heavy",
+   "text": "Nice phone with good battery and camera, but it is a bit heavy to hold for a long time.",
    "rating": 4,
    "date": "2026-09-02",
-   "text": "Nice phone with good battery and camera, but it is a bit heavy to hold for a long time.",
+   "title": "Nice but heavy",
+   "reviewer": "Kunal V.",
    "sentiment": "positive",
-   "score": 0.431,
+   "score": 0.5161,
    "aspects": [
     {
      "aspect": "Battery",
+     "snippet": "Nice phone with good battery and camera",
      "sentiment": "positive",
-     "score": 0.6908,
-     "snippet": "Nice phone with good battery and camera"
+     "score": 0.9354
     },
     {
      "aspect": "Camera",
+     "snippet": "Nice phone with good battery and camera",
      "sentiment": "positive",
-     "score": 0.6908,
-     "snippet": "Nice phone with good battery and camera"
+     "score": 0.9354
     },
     {
      "aspect": "Build quality",
+     "snippet": "it is a bit heavy to hold for a long time",
      "sentiment": "neutral",
-     "score": 0.0,
-     "snippet": "it is a bit heavy to hold for a long time"
+     "score": -0.3941
     }
    ],
-   "mixed": false
+   "mixed": false,
+   "status": "analysed",
+   "language": "en",
+   "usedTitle": false
   },
   {
    "id": "R-1039",
-   "reviewer": "Ritu A.",
-   "title": "Poor packaging",
+   "text": "The packaging was very poor, the box was crushed. The phone works but the experience was bad.",
    "rating": 2,
    "date": "2026-08-31",
-   "text": "The packaging was very poor, the box was crushed. The phone works but the experience was bad.",
+   "title": "Poor packaging",
+   "reviewer": "Ritu A.",
    "sentiment": "negative",
-   "score": -0.827,
+   "score": -0.9138,
    "aspects": [
     {
      "aspect": "Packaging",
+     "snippet": "The packaging was very poor, the box was crushed",
      "sentiment": "negative",
-     "score": -0.7089,
-     "snippet": "The packaging was very poor, the box was crushed"
+     "score": -0.9048
     }
    ],
-   "mixed": false
+   "mixed": false,
+   "status": "analysed",
+   "language": "en",
+   "usedTitle": false
   },
   {
    "id": "R-1040",
-   "reviewer": "Siddharth G.",
-   "title": "Excellent performance",
+   "text": "Excellent performance and battery. The display is crisp and the phone never lags.",
    "rating": 5,
    "date": "2026-08-30",
-   "text": "Excellent performance and battery. The display is crisp and the phone never lags.",
+   "title": "Excellent performance",
+   "reviewer": "Siddharth G.",
    "sentiment": "positive",
-   "score": 0.8079,
+   "score": 0.9659,
    "aspects": [
     {
      "aspect": "Battery",
+     "snippet": "Excellent performance and battery",
      "sentiment": "positive",
-     "score": 0.5719,
-     "snippet": "Excellent performance and battery"
+     "score": 0.9215
     },
     {
      "aspect": "Performance",
+     "snippet": "Excellent performance and battery",
      "sentiment": "positive",
-     "score": 0.5719,
-     "snippet": "Excellent performance and battery"
+     "score": 0.9215
     },
     {
      "aspect": "Display",
+     "snippet": "The display is crisp and the phone never lags",
      "sentiment": "positive",
-     "score": 0.5588,
-     "snippet": "The display is crisp and the phone never lags"
+     "score": 0.9061
     }
    ],
-   "mixed": false
+   "mixed": false,
+   "status": "analysed",
+   "language": "en",
+   "usedTitle": false
   },
   {
    "id": "R-1041",
-   "reviewer": "Bhavna R.",
-   "title": "Good camera",
+   "text": "The camera produces good photos with natural colours. Video stabilisation is decent.",
    "rating": 4,
    "date": "2026-08-28",
-   "text": "The camera produces good photos with natural colours. Video stabilisation is decent.",
+   "title": "Good camera",
+   "reviewer": "Bhavna R.",
    "sentiment": "positive",
-   "score": 0.6597,
+   "score": 0.8752,
    "aspects": [
     {
      "aspect": "Camera",
+     "snippet": "The camera produces good photos with natural colours",
      "sentiment": "positive",
-     "score": 0.6597,
-     "snippet": "The camera produces good photos with natural colours"
+     "score": 0.8669
     }
    ],
-   "mixed": false
+   "mixed": false,
+   "status": "analysed",
+   "language": "en",
+   "usedTitle": false
   },
   {
    "id": "R-1042",
-   "reviewer": "Omkar P.",
-   "title": "Average camera",
+   "text": "Battery is good but the camera is average and the display brightness is low in sunlight.",
    "rating": 3,
    "date": "2026-08-27",
-   "text": "Battery is good but the camera is average and the display brightness is low in sunlight.",
-   "sentiment": "positive",
-   "score": 0.4019,
+   "title": "Average camera",
+   "reviewer": "Omkar P.",
+   "sentiment": "neutral",
+   "score": -0.0092,
    "aspects": [
     {
      "aspect": "Battery",
+     "snippet": "Battery is good",
      "sentiment": "positive",
-     "score": 0.4404,
-     "snippet": "Battery is good"
+     "score": 0.8694
     },
     {
      "aspect": "Camera",
-     "sentiment": "positive",
-     "score": 0.128,
-     "snippet": "the camera is average and the display brightness is low in sunlight"
+     "snippet": "the camera is average and the display brightness is low in sunlight",
+     "sentiment": "negative",
+     "score": -0.6199
     },
     {
      "aspect": "Display",
-     "sentiment": "positive",
-     "score": 0.128,
-     "snippet": "the camera is average and the display brightness is low in sunlight"
+     "snippet": "the camera is average and the display brightness is low in sunlight",
+     "sentiment": "negative",
+     "score": -0.6199
     }
    ],
-   "mixed": false
+   "mixed": true,
+   "status": "analysed",
+   "language": "en",
+   "usedTitle": false
   },
   {
    "id": "R-1043",
-   "reviewer": "Zoya H.",
-   "title": "Loving it",
+   "text": "Loving it so far. Fast, smooth and the battery life is impressive.",
    "rating": 5,
    "date": "2026-08-25",
-   "text": "Loving it so far. Fast, smooth and the battery life is impressive.",
+   "title": "Loving it",
+   "reviewer": "Zoya H.",
    "sentiment": "positive",
-   "score": 0.8739,
+   "score": 0.9832,
    "aspects": [
     {
      "aspect": "Battery",
+     "snippet": "Fast, smooth and the battery life is impressive",
      "sentiment": "positive",
-     "score": 0.7003,
-     "snippet": "Fast, smooth and the battery life is impressive"
+     "score": 0.9439
     },
     {
      "aspect": "Performance",
+     "snippet": "Fast, smooth and the battery life is impressive",
      "sentiment": "positive",
-     "score": 0.7003,
-     "snippet": "Fast, smooth and the battery life is impressive"
+     "score": 0.9439
     }
    ],
-   "mixed": false
+   "mixed": false,
+   "status": "analysed",
+   "language": "en",
+   "usedTitle": false
   },
   {
    "id": "R-1044",
-   "reviewer": "Prakash N.",
-   "title": "Worst service",
+   "text": "Worst customer service experience. The phone had a network issue and nobody from support helped me.",
    "rating": 1,
    "date": "2026-08-23",
-   "text": "Worst customer service experience. The phone had a network issue and nobody from support helped me.",
+   "title": "Worst service",
+   "reviewer": "Prakash N.",
    "sentiment": "negative",
-   "score": -0.34,
+   "score": -0.9503,
    "aspects": [
     {
      "aspect": "Customer service",
+     "snippet": "Worst customer service experience",
      "sentiment": "negative",
-     "score": -0.6249,
-     "snippet": "Worst customer service experience"
+     "score": -0.9035
     }
    ],
-   "mixed": false
+   "mixed": false,
+   "status": "analysed",
+   "language": "en",
+   "usedTitle": false
   },
   {
    "id": "R-1045",
-   "reviewer": "Isha M.",
-   "title": "Good purchase",
+   "text": "Good purchase at this price. Display and battery are strong points. Camera is acceptable.",
    "rating": 4,
    "date": "2026-08-22",
-   "text": "Good purchase at this price. Display and battery are strong points. Camera is acceptable.",
+   "title": "Good purchase",
+   "reviewer": "Isha M.",
    "sentiment": "positive",
-   "score": 0.8176,
+   "score": 0.9531,
    "aspects": [
     {
      "aspect": "Price",
+     "snippet": "Good purchase at this price",
      "sentiment": "positive",
-     "score": 0.4404,
-     "snippet": "Good purchase at this price"
+     "score": 0.9331
     },
     {
      "aspect": "Battery",
+     "snippet": "Display and battery are strong points",
      "sentiment": "positive",
-     "score": 0.5106,
-     "snippet": "Display and battery are strong points"
+     "score": 0.775
     },
     {
      "aspect": "Display",
+     "snippet": "Display and battery are strong points",
      "sentiment": "positive",
-     "score": 0.5106,
-     "snippet": "Display and battery are strong points"
+     "score": 0.775
     },
     {
      "aspect": "Camera",
-     "sentiment": "positive",
-     "score": 0.3182,
-     "snippet": "Camera is acceptable"
+     "snippet": "Camera is acceptable",
+     "sentiment": "neutral",
+     "score": 0.3608
     }
    ],
-   "mixed": false
+   "mixed": false,
+   "status": "analysed",
+   "language": "en",
+   "usedTitle": false
   },
   {
    "id": "R-1046",
-   "reviewer": "Tarun K.",
-   "title": "Fantastic",
+   "text": "Fantastic display and very good battery backup. Gaming performance is smooth.",
    "rating": 5,
    "date": "2026-08-20",
-   "text": "Fantastic display and very good battery backup. Gaming performance is smooth.",
+   "title": "Fantastic",
+   "reviewer": "Tarun K.",
    "sentiment": "positive",
-   "score": 0.8516,
+   "score": 0.9807,
    "aspects": [
     {
      "aspect": "Battery",
+     "snippet": "Fantastic display and very good battery backup",
      "sentiment": "positive",
-     "score": 0.7778,
-     "snippet": "Fantastic display and very good battery backup"
+     "score": 0.9776
     },
     {
      "aspect": "Display",
+     "snippet": "Fantastic display and very good battery backup",
      "sentiment": "positive",
-     "score": 0.7778,
-     "snippet": "Fantastic display and very good battery backup"
+     "score": 0.9776
     },
     {
      "aspect": "Performance",
+     "snippet": "Gaming performance is smooth",
      "sentiment": "positive",
-     "score": 0.3612,
-     "snippet": "Gaming performance is smooth"
+     "score": 0.4407
     }
    ],
-   "mixed": false
+   "mixed": false,
+   "status": "analysed",
+   "language": "en",
+   "usedTitle": false
   },
   {
    "id": "R-1047",
-   "reviewer": "Payal S.",
-   "title": "Overpriced",
+   "text": "Overpriced for what it offers. The camera and performance are average and there is too much bloatware.",
    "rating": 2,
    "date": "2026-08-18",
-   "text": "Overpriced for what it offers. The camera and performance are average and there is too much bloatware.",
+   "title": "Overpriced",
+   "reviewer": "Payal S.",
    "sentiment": "negative",
-   "score": -0.6705,
+   "score": -0.9016,
    "aspects": [
     {
      "aspect": "Price",
+     "snippet": "Overpriced for what it offers",
      "sentiment": "negative",
-     "score": -0.4588,
-     "snippet": "Overpriced for what it offers"
+     "score": -0.4094
     },
     {
      "aspect": "Camera",
+     "snippet": "The camera and performance are average and there is too much bloatware",
      "sentiment": "negative",
-     "score": -0.3612,
-     "snippet": "The camera and performance are average and there is too much bloatware"
+     "score": -0.8914
     },
     {
      "aspect": "Performance",
+     "snippet": "The camera and performance are average and there is too much bloatware",
      "sentiment": "negative",
-     "score": -0.3612,
-     "snippet": "The camera and performance are average and there is too much bloatware"
+     "score": -0.8914
     }
    ],
-   "mixed": false
+   "mixed": false,
+   "status": "analysed",
+   "language": "en",
+   "usedTitle": false
   },
   {
    "id": "R-1048",
-   "reviewer": "Abhinav C.",
-   "title": "Happy with it",
+   "text": "Happy with the phone. Performance is good and the display is vibrant. Delivery was on time.",
    "rating": 4,
    "date": "2026-08-17",
-   "text": "Happy with the phone. Performance is good and the display is vibrant. Delivery was on time.",
+   "title": "Happy with it",
+   "reviewer": "Abhinav C.",
    "sentiment": "positive",
-   "score": 0.8442,
+   "score": 0.9774,
    "aspects": [
     {
      "aspect": "Display",
+     "snippet": "Performance is good and the display is vibrant",
      "sentiment": "positive",
-     "score": 0.6597,
-     "snippet": "Performance is good and the display is vibrant"
+     "score": 0.9668
     },
     {
      "aspect": "Performance",
+     "snippet": "Performance is good and the display is vibrant",
      "sentiment": "positive",
-     "score": 0.6597,
-     "snippet": "Performance is good and the display is vibrant"
+     "score": 0.9668
     },
     {
      "aspect": "Delivery",
-     "sentiment": "neutral",
-     "score": 0.0,
-     "snippet": "Delivery was on time"
+     "snippet": "Delivery was on time",
+     "sentiment": "positive",
+     "score": 0.7959
     }
    ],
-   "mixed": false
+   "mixed": false,
+   "status": "analysed",
+   "language": "en",
+   "usedTitle": false
   },
   {
    "id": "R-1049",
-   "reviewer": "Megha T.",
-   "title": "Great camera and battery",
+   "text": "Great camera and battery. Takes beautiful photos and lasts the whole day.",
    "rating": 5,
    "date": "2026-08-15",
-   "text": "Great camera and battery. Takes beautiful photos and lasts the whole day.",
+   "title": "Great camera and battery",
+   "reviewer": "Megha T.",
    "sentiment": "positive",
-   "score": 0.8402,
+   "score": 0.9754,
    "aspects": [
     {
      "aspect": "Battery",
+     "snippet": "Great camera and battery",
      "sentiment": "positive",
-     "score": 0.6249,
-     "snippet": "Great camera and battery"
+     "score": 0.9212
     },
     {
      "aspect": "Camera",
+     "snippet": "Great camera and battery",
      "sentiment": "positive",
-     "score": 0.6249,
-     "snippet": "Great camera and battery"
+     "score": 0.9212
     }
    ],
-   "mixed": false
+   "mixed": false,
+   "status": "analysed",
+   "language": "en",
+   "usedTitle": false
   },
   {
    "id": "R-1050",
-   "reviewer": "Rajesh V.",
-   "title": "Fine",
+   "text": "The phone is fine. I received it on the expected date.",
    "rating": 3,
    "date": "2026-08-13",
-   "text": "The phone is fine. I received it on the expected date.",
+   "title": "Fine",
+   "reviewer": "Rajesh V.",
    "sentiment": "positive",
-   "score": 0.2023,
+   "score": 0.7946,
    "aspects": [
     {
      "aspect": "Delivery",
+     "snippet": "I received it on the expected date",
      "sentiment": "neutral",
-     "score": 0.0,
-     "snippet": "I received it on the expected date"
+     "score": 0.1958
     }
    ],
-   "mixed": false
+   "mixed": false,
+   "status": "analysed",
+   "language": "en",
+   "usedTitle": false
   },
   {
    "id": "R-1051",
-   "reviewer": "Sana A.",
-   "title": "Good display",
+   "text": "The display quality is very good for watching videos. Battery life is also good.",
    "rating": 4,
    "date": "2026-08-11",
-   "text": "The display quality is very good for watching videos. Battery life is also good.",
+   "title": "Good display",
+   "reviewer": "Sana A.",
    "sentiment": "positive",
-   "score": 0.7264,
+   "score": 0.9661,
    "aspects": [
     {
      "aspect": "Display",
+     "snippet": "The display quality is very good for watching videos",
      "sentiment": "positive",
-     "score": 0.4927,
-     "snippet": "The display quality is very good for watching videos"
+     "score": 0.922
     },
     {
      "aspect": "Battery",
+     "snippet": "Battery life is also good",
      "sentiment": "positive",
-     "score": 0.4404,
-     "snippet": "Battery life is also good"
+     "score": 0.9302
     }
    ],
-   "mixed": false
+   "mixed": false,
+   "status": "analysed",
+   "language": "en",
+   "usedTitle": false
   },
   {
    "id": "R-1052",
-   "reviewer": "Vivek O.",
-   "title": "Camera lens scratched",
+   "text": "Camera lens came scratched out of the box and photos have a blurry spot. Replacement was denied.",
    "rating": 1,
    "date": "2026-08-10",
-   "text": "Camera lens came scratched out of the box and photos have a blurry spot. Replacement was denied.",
+   "title": "Camera lens scratched",
+   "reviewer": "Vivek O.",
    "sentiment": "negative",
-   "score": -0.7845,
+   "score": -0.7473,
    "aspects": [
     {
      "aspect": "Camera",
+     "snippet": "Camera lens came scratched out of the box and photos have a blurry spot",
      "sentiment": "negative",
-     "score": -0.6124,
-     "snippet": "Camera lens came scratched out of the box and photos have a blurry spot"
+     "score": -0.6101
     },
     {
      "aspect": "Packaging",
+     "snippet": "Camera lens came scratched out of the box and photos have a blurry spot",
      "sentiment": "negative",
-     "score": -0.6124,
-     "snippet": "Camera lens came scratched out of the box and photos have a blurry spot"
+     "score": -0.6101
     },
     {
      "aspect": "Customer service",
+     "snippet": "Replacement was denied",
      "sentiment": "negative",
-     "score": -0.4404,
-     "snippet": "Replacement was denied"
+     "score": -0.5081
     }
    ],
-   "mixed": false
+   "mixed": false,
+   "status": "analysed",
+   "language": "en",
+   "usedTitle": false
   },
   {
    "id": "R-1053",
-   "reviewer": "Chitra L.",
-   "title": "Value for money",
+   "text": "Great value for money. Good camera, good battery and smooth performance.",
    "rating": 5,
    "date": "2026-08-08",
-   "text": "Great value for money. Good camera, good battery and smooth performance.",
+   "title": "Value for money",
+   "reviewer": "Chitra L.",
    "sentiment": "positive",
-   "score": 0.93,
+   "score": 0.966,
    "aspects": [
     {
      "aspect": "Price",
+     "snippet": "Great value for money",
      "sentiment": "positive",
-     "score": 0.7579,
-     "snippet": "Great value for money"
+     "score": 0.9172
     },
     {
      "aspect": "Battery",
+     "snippet": "Good camera, good battery and smooth performance",
      "sentiment": "positive",
-     "score": 0.8074,
-     "snippet": "Good camera, good battery and smooth performance"
+     "score": 0.9381
     },
     {
      "aspect": "Camera",
+     "snippet": "Good camera, good battery and smooth performance",
      "sentiment": "positive",
-     "score": 0.8074,
-     "snippet": "Good camera, good battery and smooth performance"
+     "score": 0.9381
     },
     {
      "aspect": "Performance",
+     "snippet": "Good camera, good battery and smooth performance",
      "sentiment": "positive",
-     "score": 0.8074,
-     "snippet": "Good camera, good battery and smooth performance"
+     "score": 0.9381
     }
    ],
-   "mixed": false
+   "mixed": false,
+   "status": "analysed",
+   "language": "en",
+   "usedTitle": false
   },
   {
    "id": "R-1054",
-   "reviewer": "Naveen D.",
-   "title": "Nice phone",
+   "text": "Nice phone. The fingerprint sensor is fast and accurate. Battery lasts a day.",
    "rating": 4,
    "date": "2026-08-06",
-   "text": "Nice phone. The fingerprint sensor is fast and accurate. Battery lasts a day.",
+   "title": "Nice phone",
+   "reviewer": "Naveen D.",
    "sentiment": "positive",
-   "score": 0.4215,
+   "score": 0.9703,
    "aspects": [
     {
      "aspect": "Battery",
+     "snippet": "Battery lasts a day",
      "sentiment": "neutral",
-     "score": 0.0,
-     "snippet": "Battery lasts a day"
+     "score": 0.321
     }
    ],
-   "mixed": false
+   "mixed": false,
+   "status": "analysed",
+   "language": "en",
+   "usedTitle": false
   },
   {
    "id": "R-1055",
-   "reviewer": "Rekha S.",
-   "title": null,
+   "text": "Display is good but the battery drains quickly when using the camera.",
    "rating": null,
    "date": "2026-08-05",
-   "text": "Display is good but the battery drains quickly when using the camera.",
-   "sentiment": "negative",
-   "score": -0.3182,
+   "title": null,
+   "reviewer": "Rekha S.",
+   "sentiment": "neutral",
+   "score": 0.0654,
    "aspects": [
     {
      "aspect": "Display",
+     "snippet": "Display is good",
      "sentiment": "positive",
-     "score": 0.4404,
-     "snippet": "Display is good"
+     "score": 0.9004
     },
     {
      "aspect": "Battery",
-     "sentiment": "negative",
-     "score": -0.3612,
-     "snippet": "the battery drains quickly when using the camera"
+     "snippet": "the battery drains quickly when using the camera",
+     "sentiment": "neutral",
+     "score": -0.3472
     },
     {
      "aspect": "Camera",
-     "sentiment": "negative",
-     "score": -0.3612,
-     "snippet": "the battery drains quickly when using the camera"
+     "snippet": "the battery drains quickly when using the camera",
+     "sentiment": "neutral",
+     "score": -0.3472
     }
    ],
-   "mixed": true
+   "mixed": false,
+   "status": "analysed",
+   "language": "en",
+   "usedTitle": false
   },
   {
    "id": "R-1056",
-   "reviewer": "Aman B.",
-   "title": "Good",
+   "text": "Good",
    "rating": 5,
    "date": "2026-08-03",
-   "text": "Good",
+   "title": "Good",
+   "reviewer": "Aman B.",
    "sentiment": "positive",
-   "score": 0.4404,
+   "score": 0.7927,
    "aspects": [],
-   "mixed": false
+   "mixed": false,
+   "status": "analysed",
+   "language": "en",
+   "usedTitle": true
   },
   {
    "id": "R-1057",
-   "reviewer": "Ira P.",
-   "title": null,
+   "text": "Performance is smooth and the phone feels well built. Price is reasonable.",
    "rating": 4,
    "date": "2026-08-02",
-   "text": "Performance is smooth and the phone feels well built. Price is reasonable.",
+   "title": null,
+   "reviewer": "Ira P.",
    "sentiment": "positive",
-   "score": 0.5574,
+   "score": 0.9342,
    "aspects": [
     {
      "aspect": "Performance",
+     "snippet": "Performance is smooth and the phone feels well built",
      "sentiment": "positive",
-     "score": 0.5574,
-     "snippet": "Performance is smooth and the phone feels well built"
+     "score": 0.9372
     },
     {
      "aspect": "Build quality",
+     "snippet": "Performance is smooth and the phone feels well built",
      "sentiment": "positive",
-     "score": 0.5574,
-     "snippet": "Performance is smooth and the phone feels well built"
+     "score": 0.9372
     },
     {
      "aspect": "Price",
+     "snippet": "Price is reasonable",
      "sentiment": "neutral",
-     "score": 0.0,
-     "snippet": "Price is reasonable"
+     "score": 0.3242
     }
    ],
-   "mixed": false
+   "mixed": false,
+   "status": "analysed",
+   "language": "en",
+   "usedTitle": false
   },
   {
    "id": "R-1058",
-   "reviewer": "Kabir J.",
-   "title": "Slow charging",
+   "text": "Charging is slow compared to what was advertised and the phone heats up while charging.",
    "rating": 2,
    "date": "2026-07-30",
-   "text": "Charging is slow compared to what was advertised and the phone heats up while charging.",
+   "title": "Slow charging",
+   "reviewer": "Kabir J.",
    "sentiment": "negative",
-   "score": -0.296,
+   "score": -0.4603,
    "aspects": [
     {
      "aspect": "Battery",
+     "snippet": "Charging is slow compared to what was advertised and the phone heats up while charging",
      "sentiment": "negative",
-     "score": -0.296,
-     "snippet": "Charging is slow compared to what was advertised and the phone heats up while charging"
+     "score": -0.5423
     },
     {
      "aspect": "Performance",
+     "snippet": "Charging is slow compared to what was advertised and the phone heats up while charging",
      "sentiment": "negative",
-     "score": -0.296,
-     "snippet": "Charging is slow compared to what was advertised and the phone heats up while charging"
+     "score": -0.5423
     }
    ],
-   "mixed": false
+   "mixed": false,
+   "status": "analysed",
+   "language": "en",
+   "usedTitle": false
   },
   {
    "id": "R-1059",
-   "reviewer": "Tara N.",
-   "title": "Brilliant",
+   "text": "Brilliant phone for the price. The display, camera and battery are all very good.",
    "rating": 5,
    "date": "2026-07-28",
-   "text": "Brilliant phone for the price. The display, camera and battery are all very good.",
+   "title": "Brilliant",
+   "reviewer": "Tara N.",
    "sentiment": "positive",
-   "score": 0.7902,
+   "score": 0.9815,
    "aspects": [
     {
      "aspect": "Price",
+     "snippet": "Brilliant phone for the price",
      "sentiment": "positive",
-     "score": 0.5859,
-     "snippet": "Brilliant phone for the price"
+     "score": 0.9558
     },
     {
      "aspect": "Battery",
+     "snippet": "The display, camera and battery are all very good",
      "sentiment": "positive",
-     "score": 0.4927,
-     "snippet": "The display, camera and battery are all very good"
+     "score": 0.9626
     },
     {
      "aspect": "Camera",
+     "snippet": "The display, camera and battery are all very good",
      "sentiment": "positive",
-     "score": 0.4927,
-     "snippet": "The display, camera and battery are all very good"
+     "score": 0.9626
     },
     {
      "aspect": "Display",
+     "snippet": "The display, camera and battery are all very good",
      "sentiment": "positive",
-     "score": 0.4927,
-     "snippet": "The display, camera and battery are all very good"
+     "score": 0.9626
     }
    ],
-   "mixed": false
+   "mixed": false,
+   "status": "analysed",
+   "language": "en",
+   "usedTitle": false
   },
   {
    "id": "R-1060",
-   "reviewer": "Dev S.",
-   "title": "Not bad",
+   "text": "Not bad, but not great either. The camera app is slow to open.",
    "rating": 3,
    "date": "2026-07-26",
-   "text": "Not bad, but not great either. The camera app is slow to open.",
+   "title": "Not bad",
+   "reviewer": "Dev S.",
    "sentiment": "negative",
-   "score": -0.5448,
+   "score": -0.8307,
    "aspects": [
     {
      "aspect": "Camera",
-     "sentiment": "neutral",
-     "score": 0.0,
-     "snippet": "The camera app is slow to open"
+     "snippet": "The camera app is slow to open",
+     "sentiment": "negative",
+     "score": -0.638
     }
    ],
-   "mixed": false
+   "mixed": false,
+   "status": "analysed",
+   "language": "en",
+   "usedTitle": false
   },
   {
    "id": "R-1062",
-   "reviewer": "Neel B.",
-   "title": "Upgrade",
+   "text": "Upgraded from the Orbit 4. Will update this review after a month of use.",
    "rating": 4,
    "date": "2026-07-22",
-   "text": "Upgraded from the Orbit 4. Will update this review after a month of use.",
+   "title": "Upgrade",
+   "reviewer": "Neel B.",
    "sentiment": "neutral",
-   "score": 0.0,
+   "score": 0.3732,
    "aspects": [],
-   "mixed": false
+   "mixed": false,
+   "status": "analysed",
+   "language": "en",
+   "usedTitle": false
   },
   {
    "id": "R-1063",
-   "reviewer": "Gita R.",
-   "title": "Festive sale purchase",
+   "text": "Bought this during the festive sale. I chose the blue colour.",
    "rating": 5,
    "date": "2026-07-20",
-   "text": "Bought this during the festive sale. I chose the blue colour.",
-   "sentiment": "positive",
-   "score": 0.4588,
+   "title": "Festive sale purchase",
+   "reviewer": "Gita R.",
+   "sentiment": "neutral",
+   "score": 0.4067,
    "aspects": [],
-   "mixed": false
+   "mixed": false,
+   "status": "analysed",
+   "language": "en",
+   "usedTitle": false
   },
   {
    "id": "R-1064",
-   "reviewer": "Ayaan K.",
-   "title": null,
+   "text": "Using it with two SIM cards. Setup took about twenty minutes.",
    "rating": 3,
    "date": "2026-07-18",
-   "text": "Using it with two SIM cards. Setup took about twenty minutes.",
+   "title": null,
+   "reviewer": "Ayaan K.",
    "sentiment": "neutral",
-   "score": 0.0,
+   "score": 0.1949,
    "aspects": [],
-   "mixed": false
+   "mixed": false,
+   "status": "analysed",
+   "language": "en",
+   "usedTitle": false
   }
  ],
+ "engine": {
+  "id": "transformer",
+  "name": "RoBERTa sentiment model",
+  "model": "cardiffnlp/twitter-roberta-base-sentiment-latest",
+  "variant": "int8-quantized ONNX (Xenova/twitter-roberta-base-sentiment-latest)",
+  "pipelineVersion": 2,
+  "fallbackReason": null,
+  "domain": "product",
+  "features": [
+   "Battery",
+   "Camera",
+   "Display",
+   "Performance",
+   "Build quality",
+   "Price",
+   "Delivery",
+   "Packaging",
+   "Customer service"
+  ]
+ },
  "product": {
   "id": "demo",
   "name": "Kestrel Orbit 5G (8 GB / 128 GB)",
   "brand": "Kestrel (fictional)",
   "category": "Smartphones",
-  "source": "demo"
+  "source": "demo",
+  "domain": "product"
  },
  "ingestion": {
   "rowsInFile": 65,
@@ -2043,5 +2255,5 @@
   "emptyRemoved": 1,
   "fileName": "demo_kestrel_orbit_5g.csv"
  },
- "analyzedAt": "2026-11-13T21:15:05+00:00"
+ "analyzedAt": "2026-11-14T00:42:59+00:00"
 }

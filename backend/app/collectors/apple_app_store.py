@@ -81,6 +81,7 @@ class AppleAppStoreAdapter(SourceAdapter):
     name = "Apple App Store"
     hosts = ("apps.apple.com", "itunes.apple.com")
     status = "supported"
+    domain = "app"
     note = ("Apps on the App Store. Up to the 500 most recent written reviews from the country store in the link, "
             "through Apple’s public review feed.")
     example = "https://apps.apple.com/in/app/whatsapp-messenger/id310633997"

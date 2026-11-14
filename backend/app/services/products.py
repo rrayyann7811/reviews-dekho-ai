@@ -22,6 +22,7 @@ def summary_out(product: Product) -> dict:
         "brand": product.brand,
         "category": product.category,
         "source": product.source,
+        "domain": product.domain,
         "fileName": product.file_name,
         "createdAt": as_utc(product.created_at),
         # The number the latest analysis covered, so the list always agrees with the analysis page.
@@ -88,6 +89,7 @@ def history_out(analysis: AnalysisResult, product_name: str, source: str, detail
         "averageRating": analysis.average_rating,
         "positivePercent": analysis.positive_percent,
         "negativePercent": analysis.negative_percent,
+        "engine": analysis.engine,
     }
     if detail:
         out |= {"stats": analysis.stats, "aspects": analysis.aspects, "keywords": analysis.keywords,

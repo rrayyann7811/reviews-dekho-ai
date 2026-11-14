@@ -12,7 +12,8 @@ from ..errors import AppError
 from ..models import AnalysisResult, Product, Review
 from ..nlp.pipeline import analyze_reviews
 
-REVIEW_FIELDS = ("id", "text", "rating", "date", "title", "reviewer", "sentiment", "score", "mixed", "aspects")
+REVIEW_FIELDS = ("id", "text", "rating", "date", "title", "reviewer", "sentiment", "score", "mixed", "aspects",
+                 "status", "language", "usedTitle")
 
 
 def as_utc(value):
@@ -37,7 +38,8 @@ def run_analysis(db: Session, product: Product, ingestion: dict | None = None) -
     if not reviews:
         raise AppError("This product has no reviews to analyse. Add or upload reviews first.", 422)
 
-    result = analyze_reviews([review_input(r) for r in reviews])
+    result = analyze_reviews([review_input(r) for r in reviews], domain=product.domain, category=product.category,
+                             product_name=product.name, brand=product.brand)
 
     if ingestion is None and product.latest_analysis is not None:
         ingestion = product.latest_analysis.ingestion  # keep the upload/collection report on re-analysis
@@ -55,6 +57,7 @@ def run_analysis(db: Session, product: Product, ingestion: dict | None = None) -
         summary=result["summary"],
         ingestion=ingestion,
         review_results=[{key: r.get(key) for key in REVIEW_FIELDS} for r in result["reviews"]],
+        engine=result["engine"],
     )
     db.add(analysis)
     db.flush()
@@ -64,7 +67,8 @@ def run_analysis(db: Session, product: Product, ingestion: dict | None = None) -
 
 def unanalysed_review(review: Review) -> dict:
     """A stored review that no analysis run has covered yet."""
-    return review_input(review) | {"sentiment": None, "score": None, "mixed": False, "aspects": []}
+    return review_input(review) | {"sentiment": None, "score": None, "mixed": False, "aspects": [],
+                                   "status": "not_analysed_yet", "language": None, "usedTitle": False}
 
 
 def current_reviews(product: Product) -> list[dict]:
@@ -96,8 +100,9 @@ def analysis_out(product: Product) -> dict:
                        "results. Run the analysis again to see them.", 409)
     return {
         "analysisId": analysis.id,
-        "product": {"id": product.id, "name": product.name, "brand": product.brand,
-                    "category": product.category, "source": product.source} | source_out(product),
+        "product": {"id": product.id, "name": product.name, "brand": product.brand, "category": product.category,
+                    "source": product.source, "domain": product.domain} | source_out(product),
+        "engine": analysis.engine,
         "stats": analysis.stats,
         "aspects": analysis.aspects,
         "keywords": analysis.keywords,

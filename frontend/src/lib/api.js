@@ -42,11 +42,12 @@ export const api = {
     form.append('file', file)
     return request('/uploads/preview', { method: 'POST', body: form })
   },
-  importUpload: (file, { productName, columns }) => {
+  importUpload: (file, { productName, columns, domain = 'product' }) => {
     const form = new FormData()
     form.append('file', file)
     form.append('product_name', productName)
     form.append('columns', JSON.stringify(columns))
+    form.append('domain', domain)
     return request('/uploads/import', { method: 'POST', body: form })
   },
   reportUrl: (productId, format) => `${API_URL}/products/${encodeURIComponent(productId)}/report.${format}`,

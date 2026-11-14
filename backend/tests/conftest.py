@@ -7,6 +7,9 @@ from pathlib import Path
 # Point the app at a throwaway database BEFORE it is imported, so tests never touch real data.
 _TMP = Path(tempfile.mkdtemp(prefix="reviews-dekho-tests-"))
 os.environ["DATABASE_URL"] = f"sqlite:///{_TMP / 'test.db'}"
+# The default suite uses VADER so results are exact and the model files aren't needed.
+# tests/test_transformer_engine.py covers the pretrained model (skipped if it isn't installed).
+os.environ["SENTIMENT_ENGINE"] = "vader"
 
 import pandas as pd  # noqa: E402
 import pytest  # noqa: E402

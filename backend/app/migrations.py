@@ -95,10 +95,28 @@ def _v3_collected_products(conn: Connection) -> None:
                          "ON products (source_site, external_product_id, source_region)")
 
 
+VADER_BEFORE_PHASE_4 = {"id": "vader", "name": "VADER (rule-based)", "model": "vaderSentiment 3.3.2",
+                        "pipelineVersion": 1, "fallbackReason": None, "domain": "product",
+                        "recordedBy": "migration 4 (every run before Phase 4 used this pipeline)"}
+
+
+def _v4_engine_and_domain(conn: Connection) -> None:
+    """Record what was reviewed (product or app) and which sentiment engine produced each run.
+
+    Every run made before Phase 4 used the same VADER pipeline with the physical-product feature list,
+    so that is recorded for them. Snapshot contents are not touched.
+    """
+    conn.exec_driver_sql("ALTER TABLE products ADD COLUMN domain VARCHAR(20) NOT NULL DEFAULT 'product'")
+    conn.exec_driver_sql("UPDATE products SET domain = 'app' WHERE source_site = 'apple_app_store'")
+    conn.exec_driver_sql("ALTER TABLE analysis_results ADD COLUMN engine JSON")
+    conn.exec_driver_sql("UPDATE analysis_results SET engine = ?", (json.dumps(VADER_BEFORE_PHASE_4),))
+
+
 MIGRATIONS: list[tuple[str, Callable[[Connection], None]]] = [
     ("baseline (Phase 2 schema)", _v1_baseline),
     ("per-review results stored on each analysis run", _v2_review_snapshots),
     ("source details for products collected from links", _v3_collected_products),
+    ("product domain and sentiment engine per analysis run", _v4_engine_and_domain),
 ]
 LATEST_VERSION = len(MIGRATIONS)
 

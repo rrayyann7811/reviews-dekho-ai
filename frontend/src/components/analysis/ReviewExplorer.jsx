@@ -10,6 +10,11 @@ import Stars from '../ui/Stars'
 
 const PAGE_SIZE = 20
 
+const LANGUAGE_NOTE = {
+  hinglish: 'This review looks like Hindi written in English letters (Hinglish).',
+  unknown: 'This review doesn’t look like English.',
+}
+
 function ReviewItem({ review, expanded, onToggle, mismatch, itemRef }) {
   return (
     <li ref={itemRef} className={`border-t border-line first:border-t-0 ${expanded ? 'bg-subtle' : ''}`}>
@@ -22,6 +27,7 @@ function ReviewItem({ review, expanded, onToggle, mismatch, itemRef }) {
           <p className={`mt-1.5 text-sm text-ink-2 ${expanded ? '' : 'line-clamp-2'}`}>{review.text}</p>
           <p className="mt-1.5 text-xs text-ink-3">
             {review.reviewer ?? 'Anonymous'} · {formatDate(review.date)}
+            {review.status === 'language_not_supported' && review.language?.endsWith('script') && ` · Written in ${review.language}`}
           </p>
         </div>
         <div className="flex shrink-0 flex-col items-end gap-1.5">
@@ -33,11 +39,20 @@ function ReviewItem({ review, expanded, onToggle, mismatch, itemRef }) {
       {expanded && (
         <div className="space-y-3 px-5 pb-4 text-[13px]">
           <dl className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-            <div><dt className="text-ink-3">Sentiment score</dt><dd className="font-medium tabular-nums">{review.score > 0 ? '+' : ''}{review.score.toFixed(2)}</dd></div>
+            <div><dt className="text-ink-3">Sentiment score</dt><dd className="font-medium tabular-nums">{review.score == null ? 'Not analysed' : `${review.score > 0 ? '+' : ''}${review.score.toFixed(2)}`}</dd></div>
             <div><dt className="text-ink-3">Star rating</dt><dd className="font-medium">{review.rating ? `${review.rating} / 5` : 'Not given'}</dd></div>
             <div><dt className="text-ink-3">Review ID</dt><dd className="font-medium">{review.id}</dd></div>
             <div><dt className="text-ink-3">Date</dt><dd className="font-medium">{formatDate(review.date)}</dd></div>
           </dl>
+          {review.status === 'language_not_supported' && (
+            <p className="rounded-md border border-line bg-subtle px-3 py-2 text-ink-2">
+              {LANGUAGE_NOTE[review.language] ?? 'This review doesn’t look like English.'} The sentiment engines only
+              understand English, so its tone wasn’t analysed and it isn’t counted in the percentages. Its star rating still counts.
+            </p>
+          )}
+          {review.usedTitle && (
+            <p className="text-ink-3">The text is very short, so the title was analysed with it.</p>
+          )}
           {mismatch && (
             <p className="rounded-md border border-mix/25 bg-mix-soft px-3 py-2 text-ink-2">
               The star rating and the wording of this review point in different directions. Neither is treated as more reliable.
@@ -108,6 +123,7 @@ export default function ReviewExplorer({ reviews, mismatchIds, filters, onFilter
           <option value="negative">Negative</option>
           <option value="mixed">Mixed opinions</option>
           <option value="mismatch">Stars disagree with text</option>
+          <option value="unanalysed">Not analysed (language)</option>
         </Select>
         <Select aria-label="Filter by star rating" value={filters.rating} onChange={(e) => set({ rating: e.target.value })}>
           <option value="all">All ratings</option>

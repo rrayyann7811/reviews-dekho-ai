@@ -71,6 +71,7 @@ export default function UploadReviews() {
   const [preview, setPreview] = useState(null)
   const [columns, setColumns] = useState({})
   const [productName, setProductName] = useState('')
+  const [domain, setDomain] = useState('product')
   const [busy, setBusy] = useState(null) // 'reading' | 'importing' | null
   const [error, setError] = useState('')
 
@@ -79,6 +80,7 @@ export default function UploadReviews() {
     setPreview(null)
     setColumns({})
     setProductName('')
+    setDomain('product')
     setError('')
   }
 
@@ -108,7 +110,7 @@ export default function UploadReviews() {
     setError('')
     setBusy('importing')
     try {
-      const product = await api.importUpload(file, { productName: productName.trim(), columns })
+      const product = await api.importUpload(file, { productName: productName.trim(), columns, domain })
       navigate(`/products/${product.id}`)
     } catch (err) {
       setError(err.message)
@@ -154,9 +156,19 @@ export default function UploadReviews() {
                   </div>
                 </div>
 
-                <Field label="Product name" hint="Shown in your history and reports.">
-                  {(props) => <Input {...props} value={productName} onChange={(e) => setProductName(e.target.value)} />}
-                </Field>
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <Field label="Product name" hint="Shown in your history and reports.">
+                    {(props) => <Input {...props} value={productName} onChange={(e) => setProductName(e.target.value)} />}
+                  </Field>
+                  <Field label="What do these reviews describe?" hint="Chooses which features are looked for.">
+                    {(props) => (
+                      <Select {...props} value={domain} onChange={(e) => setDomain(e.target.value)}>
+                        <option value="product">A physical product (battery, delivery, price…)</option>
+                        <option value="app">A mobile app (login, crashes, ads…)</option>
+                      </Select>
+                    )}
+                  </Field>
+                </div>
 
                 {error && <Alert variant="error">{error}</Alert>}
                 <div className="flex justify-end gap-2 border-t border-line pt-4">

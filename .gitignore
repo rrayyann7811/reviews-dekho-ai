@@ -25,3 +25,7 @@ coverage/
 .vscode/
 .idea/
 *.log
+
+# Downloaded model weights and evaluation datasets (fetched by scripts)
+backend/models/
+backend/data/eval/

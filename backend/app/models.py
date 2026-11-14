@@ -35,6 +35,8 @@ class Product(Base):
     brand: Mapped[str | None] = mapped_column(String(120))
     category: Mapped[str | None] = mapped_column(String(120))
     source: Mapped[str] = mapped_column(String(20), default="manual")  # one of SOURCES
+    # What was reviewed: "product" (physical product) or "app". Chooses the feature list used in analysis.
+    domain: Mapped[str] = mapped_column(String(20), default="product", server_default="product")
     source_url: Mapped[str | None] = mapped_column(String(2000))
     file_name: Mapped[str | None] = mapped_column(String(255))
     # Only for products collected from a link (source == "url"):
@@ -93,5 +95,7 @@ class AnalysisResult(Base):
     # Every review as analysed in this run: id, text, rating, date, title, reviewer, sentiment, score, mixed,
     # aspects. None only for runs made before this was stored (databases upgraded from Phase 2).
     review_results: Mapped[list | None] = mapped_column(JSON)
+    # Which sentiment engine and NLP pipeline version produced this run (see app/nlp/engines.py).
+    engine: Mapped[dict | None] = mapped_column(JSON)
 
     product: Mapped[Product] = relationship(back_populates="analyses")

@@ -1,0 +1,1811 @@
+{
+ "generatedAt": "2026-11-14T00:57:37+00:00",
+ "machine": "arm64, Darwin 27.2.0, Python 3.14.3",
+ "transformer": {
+  "id": "transformer",
+  "name": "RoBERTa sentiment model",
+  "model": "cardiffnlp/twitter-roberta-base-sentiment-latest",
+  "variant": "int8-quantized ONNX (Xenova/twitter-roberta-base-sentiment-latest)",
+  "loadSeconds": 0.66,
+  "batchSize": 1
+ },
+ "E1": {
+  "dataset": "UCI Sentiment Labelled Sentences (Kotzias et al., 2015)",
+  "size": 3000,
+  "labels": "human, binary (positive/negative)",
+  "engines": {
+   "vader-base": {
+    "n": 3000,
+    "accuracy": 0.677,
+    "macroF1": 0.7514,
+    "perClass": {
+     "negative": {
+      "precision": 0.9312,
+      "recall": 0.5413,
+      "f1": 0.6847,
+      "support": 1500
+     },
+     "positive": {
+      "precision": 0.8236,
+      "recall": 0.8127,
+      "f1": 0.8181,
+      "support": 1500
+     }
+    },
+    "confusion": {
+     "rows (gold)": [
+      "negative",
+      "positive"
+     ],
+     "columns (predicted)": [
+      "negative",
+      "neutral",
+      "positive"
+     ],
+     "matrix": [
+      [
+       812,
+       427,
+       261
+      ],
+      [
+       60,
+       221,
+       1219
+      ]
+     ]
+    },
+    "neutralPredictionRate": 0.216,
+    "bySource": {
+     "amazon_cells": 0.693,
+     "yelp": 0.646,
+     "imdb": 0.692
+    },
+    "accuracyWhenNotNeutral": 0.8635,
+    "speed": {
+     "texts": 3000,
+     "runs": 3,
+     "medianSeconds": 0.067,
+     "textsPerSecond": 44492.8
+    }
+   },
+   "vader": {
+    "n": 3000,
+    "accuracy": 0.6947,
+    "macroF1": 0.7664,
+    "perClass": {
+     "negative": {
+      "precision": 0.934,
+      "recall": 0.5753,
+      "f1": 0.712,
+      "support": 1500
+     },
+     "positive": {
+      "precision": 0.8278,
+      "recall": 0.814,
+      "f1": 0.8208,
+      "support": 1500
+     }
+    },
+    "confusion": {
+     "rows (gold)": [
+      "negative",
+      "positive"
+     ],
+     "columns (predicted)": [
+      "negative",
+      "neutral",
+      "positive"
+     ],
+     "matrix": [
+      [
+       863,
+       383,
+       254
+      ],
+      [
+       61,
+       218,
+       1221
+      ]
+     ]
+    },
+    "neutralPredictionRate": 0.2003,
+    "bySource": {
+     "amazon_cells": 0.724,
+     "yelp": 0.663,
+     "imdb": 0.697
+    },
+    "accuracyWhenNotNeutral": 0.8687,
+    "speed": {
+     "texts": 3000,
+     "runs": 3,
+     "medianSeconds": 0.102,
+     "textsPerSecond": 29298.8
+    }
+   },
+   "transformer": {
+    "n": 3000,
+    "accuracy": 0.859,
+    "macroF1": 0.9128,
+    "perClass": {
+     "negative": {
+      "precision": 0.9719,
+      "recall": 0.83,
+      "f1": 0.8954,
+      "support": 1500
+     },
+     "positive": {
+      "precision": 0.9765,
+      "recall": 0.888,
+      "f1": 0.9302,
+      "support": 1500
+     }
+    },
+    "confusion": {
+     "rows (gold)": [
+      "negative",
+      "positive"
+     ],
+     "columns (predicted)": [
+      "negative",
+      "neutral",
+      "positive"
+     ],
+     "matrix": [
+      [
+       1245,
+       223,
+       32
+      ],
+      [
+       36,
+       132,
+       1332
+      ]
+     ]
+    },
+    "neutralPredictionRate": 0.1183,
+    "bySource": {
+     "amazon_cells": 0.842,
+     "yelp": 0.865,
+     "imdb": 0.87
+    },
+    "accuracyWhenNotNeutral": 0.9743,
+    "speed": {
+     "texts": 3000,
+     "runs": 3,
+     "medianSeconds": 16.247,
+     "textsPerSecond": 184.6
+    }
+   }
+  }
+ },
+ "E2": {
+  "dataset": "SemEval-2014 Task 4 test sets (Pontiki et al., 2014)",
+  "labels": "human, per aspect term, 3-class (conflict excluded)",
+  "domains": {
+   "laptops": {
+    "size": 638,
+    "goldDistribution": {
+     "negative": 128,
+     "neutral": 169,
+     "positive": 341
+    },
+    "engines": {
+     "vader-base": {
+      "clause": {
+       "n": 638,
+       "accuracy": 0.627,
+       "macroF1": 0.5808,
+       "perClass": {
+        "negative": {
+         "precision": 0.5536,
+         "recall": 0.4844,
+         "f1": 0.5167,
+         "support": 128
+        },
+        "neutral": {
+         "precision": 0.4251,
+         "recall": 0.5207,
+         "f1": 0.4681,
+         "support": 169
+        },
+        "positive": {
+         "precision": 0.7837,
+         "recall": 0.7331,
+         "f1": 0.7576,
+         "support": 341
+        }
+       },
+       "confusion": {
+        "rows (gold)": [
+         "negative",
+         "neutral",
+         "positive"
+        ],
+        "columns (predicted)": [
+         "negative",
+         "neutral",
+         "positive"
+        ],
+        "matrix": [
+         [
+          62,
+          47,
+          19
+         ],
+         [
+          31,
+          88,
+          50
+         ],
+         [
+          19,
+          72,
+          250
+         ]
+        ]
+       },
+       "neutralPredictionRate": 0.3245
+      },
+      "sentence": {
+       "n": 638,
+       "accuracy": 0.6254,
+       "macroF1": 0.5732,
+       "perClass": {
+        "negative": {
+         "precision": 0.5495,
+         "recall": 0.4766,
+         "f1": 0.5105,
+         "support": 128
+        },
+        "neutral": {
+         "precision": 0.4219,
+         "recall": 0.4793,
+         "f1": 0.4488,
+         "support": 169
+        },
+        "positive": {
+         "precision": 0.7672,
+         "recall": 0.7537,
+         "f1": 0.7604,
+         "support": 341
+        }
+       },
+       "confusion": {
+        "rows (gold)": [
+         "negative",
+         "neutral",
+         "positive"
+        ],
+        "columns (predicted)": [
+         "negative",
+         "neutral",
+         "positive"
+        ],
+        "matrix": [
+         [
+          61,
+          45,
+          22
+         ],
+         [
+          32,
+          81,
+          56
+         ],
+         [
+          18,
+          66,
+          257
+         ]
+        ]
+       },
+       "neutralPredictionRate": 0.3009
+      }
+     },
+     "vader": {
+      "clause": {
+       "n": 638,
+       "accuracy": 0.6348,
+       "macroF1": 0.5928,
+       "perClass": {
+        "negative": {
+         "precision": 0.5862,
+         "recall": 0.5312,
+         "f1": 0.5574,
+         "support": 128
+        },
+        "neutral": {
+         "precision": 0.4293,
+         "recall": 0.503,
+         "f1": 0.4632,
+         "support": 169
+        },
+        "positive": {
+         "precision": 0.7778,
+         "recall": 0.739,
+         "f1": 0.7579,
+         "support": 341
+        }
+       },
+       "confusion": {
+        "rows (gold)": [
+         "negative",
+         "neutral",
+         "positive"
+        ],
+        "columns (predicted)": [
+         "negative",
+         "neutral",
+         "positive"
+        ],
+        "matrix": [
+         [
+          68,
+          42,
+          18
+         ],
+         [
+          30,
+          85,
+          54
+         ],
+         [
+          18,
+          71,
+          252
+         ]
+        ]
+       },
+       "neutralPredictionRate": 0.3103
+      },
+      "sentence": {
+       "n": 638,
+       "accuracy": 0.6332,
+       "macroF1": 0.5847,
+       "perClass": {
+        "negative": {
+         "precision": 0.5776,
+         "recall": 0.5234,
+         "f1": 0.5492,
+         "support": 128
+        },
+        "neutral": {
+         "precision": 0.4262,
+         "recall": 0.4615,
+         "f1": 0.4432,
+         "support": 169
+        },
+        "positive": {
+         "precision": 0.764,
+         "recall": 0.7595,
+         "f1": 0.7618,
+         "support": 341
+        }
+       },
+       "confusion": {
+        "rows (gold)": [
+         "negative",
+         "neutral",
+         "positive"
+        ],
+        "columns (predicted)": [
+         "negative",
+         "neutral",
+         "positive"
+        ],
+        "matrix": [
+         [
+          67,
+          41,
+          20
+         ],
+         [
+          31,
+          78,
+          60
+         ],
+         [
+          18,
+          64,
+          259
+         ]
+        ]
+       },
+       "neutralPredictionRate": 0.2868
+      }
+     },
+     "transformer": {
+      "clause": {
+       "n": 638,
+       "accuracy": 0.768,
+       "macroF1": 0.731,
+       "perClass": {
+        "negative": {
+         "precision": 0.7568,
+         "recall": 0.6562,
+         "f1": 0.7029,
+         "support": 128
+        },
+        "neutral": {
+         "precision": 0.5936,
+         "recall": 0.6568,
+         "f1": 0.6236,
+         "support": 169
+        },
+        "positive": {
+         "precision": 0.8676,
+         "recall": 0.8651,
+         "f1": 0.8664,
+         "support": 341
+        }
+       },
+       "confusion": {
+        "rows (gold)": [
+         "negative",
+         "neutral",
+         "positive"
+        ],
+        "columns (predicted)": [
+         "negative",
+         "neutral",
+         "positive"
+        ],
+        "matrix": [
+         [
+          84,
+          40,
+          4
+         ],
+         [
+          17,
+          111,
+          41
+         ],
+         [
+          10,
+          36,
+          295
+         ]
+        ]
+       },
+       "neutralPredictionRate": 0.2931
+      },
+      "sentence": {
+       "n": 638,
+       "accuracy": 0.7618,
+       "macroF1": 0.7237,
+       "perClass": {
+        "negative": {
+         "precision": 0.7391,
+         "recall": 0.6641,
+         "f1": 0.6996,
+         "support": 128
+        },
+        "neutral": {
+         "precision": 0.5847,
+         "recall": 0.6331,
+         "f1": 0.608,
+         "support": 169
+        },
+        "positive": {
+         "precision": 0.8647,
+         "recall": 0.8622,
+         "f1": 0.8634,
+         "support": 341
+        }
+       },
+       "confusion": {
+        "rows (gold)": [
+         "negative",
+         "neutral",
+         "positive"
+        ],
+        "columns (predicted)": [
+         "negative",
+         "neutral",
+         "positive"
+        ],
+        "matrix": [
+         [
+          85,
+          39,
+          4
+         ],
+         [
+          20,
+          107,
+          42
+         ],
+         [
+          10,
+          37,
+          294
+         ]
+        ]
+       },
+       "neutralPredictionRate": 0.2868
+      }
+     }
+    }
+   },
+   "restaurants": {
+    "size": 1120,
+    "goldDistribution": {
+     "negative": 196,
+     "neutral": 196,
+     "positive": 728
+    },
+    "engines": {
+     "vader-base": {
+      "clause": {
+       "n": 1120,
+       "accuracy": 0.7304,
+       "macroF1": 0.6109,
+       "perClass": {
+        "negative": {
+         "precision": 0.6781,
+         "recall": 0.5051,
+         "f1": 0.5789,
+         "support": 196
+        },
+        "neutral": {
+         "precision": 0.3727,
+         "recall": 0.4184,
+         "f1": 0.3942,
+         "support": 196
+        },
+        "positive": {
+         "precision": 0.8448,
+         "recall": 0.875,
+         "f1": 0.8596,
+         "support": 728
+        }
+       },
+       "confusion": {
+        "rows (gold)": [
+         "negative",
+         "neutral",
+         "positive"
+        ],
+        "columns (predicted)": [
+         "negative",
+         "neutral",
+         "positive"
+        ],
+        "matrix": [
+         [
+          99,
+          61,
+          36
+         ],
+         [
+          33,
+          82,
+          81
+         ],
+         [
+          14,
+          77,
+          637
+         ]
+        ]
+       },
+       "neutralPredictionRate": 0.1964
+      },
+      "sentence": {
+       "n": 1120,
+       "accuracy": 0.733,
+       "macroF1": 0.6084,
+       "perClass": {
+        "negative": {
+         "precision": 0.6433,
+         "recall": 0.5153,
+         "f1": 0.5722,
+         "support": 196
+        },
+        "neutral": {
+         "precision": 0.3929,
+         "recall": 0.3929,
+         "f1": 0.3929,
+         "support": 196
+        },
+        "positive": {
+         "precision": 0.8383,
+         "recall": 0.8832,
+         "f1": 0.8602,
+         "support": 728
+        }
+       },
+       "confusion": {
+        "rows (gold)": [
+         "negative",
+         "neutral",
+         "positive"
+        ],
+        "columns (predicted)": [
+         "negative",
+         "neutral",
+         "positive"
+        ],
+        "matrix": [
+         [
+          101,
+          53,
+          42
+         ],
+         [
+          37,
+          77,
+          82
+         ],
+         [
+          19,
+          66,
+          643
+         ]
+        ]
+       },
+       "neutralPredictionRate": 0.175
+      }
+     },
+     "vader": {
+      "clause": {
+       "n": 1120,
+       "accuracy": 0.7375,
+       "macroF1": 0.6247,
+       "perClass": {
+        "negative": {
+         "precision": 0.6948,
+         "recall": 0.5459,
+         "f1": 0.6114,
+         "support": 196
+        },
+        "neutral": {
+         "precision": 0.3807,
+         "recall": 0.4235,
+         "f1": 0.401,
+         "support": 196
+        },
+        "positive": {
+         "precision": 0.8503,
+         "recall": 0.8736,
+         "f1": 0.8618,
+         "support": 728
+        }
+       },
+       "confusion": {
+        "rows (gold)": [
+         "negative",
+         "neutral",
+         "positive"
+        ],
+        "columns (predicted)": [
+         "negative",
+         "neutral",
+         "positive"
+        ],
+        "matrix": [
+         [
+          107,
+          57,
+          32
+         ],
+         [
+          33,
+          83,
+          80
+         ],
+         [
+          14,
+          78,
+          636
+         ]
+        ]
+       },
+       "neutralPredictionRate": 0.1946
+      },
+      "sentence": {
+       "n": 1120,
+       "accuracy": 0.7393,
+       "macroF1": 0.6201,
+       "perClass": {
+        "negative": {
+         "precision": 0.6566,
+         "recall": 0.5561,
+         "f1": 0.6022,
+         "support": 196
+        },
+        "neutral": {
+         "precision": 0.399,
+         "recall": 0.3929,
+         "f1": 0.3959,
+         "support": 196
+        },
+        "positive": {
+         "precision": 0.8436,
+         "recall": 0.8819,
+         "f1": 0.8623,
+         "support": 728
+        }
+       },
+       "confusion": {
+        "rows (gold)": [
+         "negative",
+         "neutral",
+         "positive"
+        ],
+        "columns (predicted)": [
+         "negative",
+         "neutral",
+         "positive"
+        ],
+        "matrix": [
+         [
+          109,
+          49,
+          38
+         ],
+         [
+          38,
+          77,
+          81
+         ],
+         [
+          19,
+          67,
+          642
+         ]
+        ]
+       },
+       "neutralPredictionRate": 0.1723
+      }
+     },
+     "transformer": {
+      "clause": {
+       "n": 1120,
+       "accuracy": 0.7893,
+       "macroF1": 0.7135,
+       "perClass": {
+        "negative": {
+         "precision": 0.7208,
+         "recall": 0.7245,
+         "f1": 0.7226,
+         "support": 196
+        },
+        "neutral": {
+         "precision": 0.4718,
+         "recall": 0.5969,
+         "f1": 0.527,
+         "support": 196
+        },
+        "positive": {
+         "precision": 0.9259,
+         "recall": 0.8585,
+         "f1": 0.8909,
+         "support": 728
+        }
+       },
+       "confusion": {
+        "rows (gold)": [
+         "negative",
+         "neutral",
+         "positive"
+        ],
+        "columns (predicted)": [
+         "negative",
+         "neutral",
+         "positive"
+        ],
+        "matrix": [
+         [
+          142,
+          46,
+          8
+         ],
+         [
+          37,
+          117,
+          42
+         ],
+         [
+          18,
+          85,
+          625
+         ]
+        ]
+       },
+       "neutralPredictionRate": 0.2214
+      },
+      "sentence": {
+       "n": 1120,
+       "accuracy": 0.7911,
+       "macroF1": 0.6958,
+       "perClass": {
+        "negative": {
+         "precision": 0.6622,
+         "recall": 0.75,
+         "f1": 0.7033,
+         "support": 196
+        },
+        "neutral": {
+         "precision": 0.5,
+         "recall": 0.4745,
+         "f1": 0.4869,
+         "support": 196
+        },
+        "positive": {
+         "precision": 0.9073,
+         "recall": 0.8874,
+         "f1": 0.8972,
+         "support": 728
+        }
+       },
+       "confusion": {
+        "rows (gold)": [
+         "negative",
+         "neutral",
+         "positive"
+        ],
+        "columns (predicted)": [
+         "negative",
+         "neutral",
+         "positive"
+        ],
+        "matrix": [
+         [
+          147,
+          36,
+          13
+         ],
+         [
+          50,
+          93,
+          53
+         ],
+         [
+          25,
+          57,
+          646
+         ]
+        ]
+       },
+       "neutralPredictionRate": 0.1661
+      }
+     }
+    }
+   }
+  }
+ },
+ "E3": {
+  "dataset": "SentiMix Hindi-English test split (SemEval-2020 Task 9)",
+  "split": "test",
+  "size": 2999,
+  "labels": "human word-level language tags; human tweet sentiment (3-class)",
+  "languageCheck": {
+   "onSentiMix": {
+    "hindiDominant (≥50% Hindi words)": {
+     "tweets": 2096,
+     "flaggedNotSupported": 1839,
+     "flaggedRate": 0.8774
+    },
+    "mixed (20–50%)": {
+     "tweets": 564,
+     "flaggedNotSupported": 88,
+     "flaggedRate": 0.156
+    },
+    "englishDominant (≤20% Hindi words)": {
+     "tweets": 339,
+     "flaggedNotSupported": 0,
+     "flaggedRate": 0.0
+    }
+   },
+   "onEnglishUCI": {
+    "sentences": 3000,
+    "wronglyFlagged": 0,
+    "rate": 0.0
+   }
+  },
+  "engineSentimentByLanguage": {
+   "hindiDominant (≥50% Hindi words)": {
+    "vader-base": {
+     "n": 2096,
+     "accuracy": 0.4375,
+     "macroF1": 0.4264,
+     "perClass": {
+      "negative": {
+       "precision": 0.5161,
+       "recall": 0.1998,
+       "f1": 0.288,
+       "support": 801
+      },
+      "neutral": {
+       "precision": 0.3962,
+       "recall": 0.6123,
+       "f1": 0.4811,
+       "support": 779
+      },
+      "positive": {
+       "precision": 0.4811,
+       "recall": 0.5426,
+       "f1": 0.51,
+       "support": 516
+      }
+     },
+     "confusion": {
+      "rows (gold)": [
+       "negative",
+       "neutral",
+       "positive"
+      ],
+      "columns (predicted)": [
+       "negative",
+       "neutral",
+       "positive"
+      ],
+      "matrix": [
+       [
+        160,
+        523,
+        118
+       ],
+       [
+        118,
+        477,
+        184
+       ],
+       [
+        32,
+        204,
+        280
+       ]
+      ]
+     },
+     "neutralPredictionRate": 0.5744
+    },
+    "vader": {
+     "n": 2096,
+     "accuracy": 0.4385,
+     "macroF1": 0.4276,
+     "perClass": {
+      "negative": {
+       "precision": 0.5144,
+       "recall": 0.201,
+       "f1": 0.289,
+       "support": 801
+      },
+      "neutral": {
+       "precision": 0.3968,
+       "recall": 0.6123,
+       "f1": 0.4816,
+       "support": 779
+      },
+      "positive": {
+       "precision": 0.4836,
+       "recall": 0.5446,
+       "f1": 0.5123,
+       "support": 516
+      }
+     },
+     "confusion": {
+      "rows (gold)": [
+       "negative",
+       "neutral",
+       "positive"
+      ],
+      "columns (predicted)": [
+       "negative",
+       "neutral",
+       "positive"
+      ],
+      "matrix": [
+       [
+        161,
+        522,
+        118
+       ],
+       [
+        120,
+        477,
+        182
+       ],
+       [
+        32,
+        203,
+        281
+       ]
+      ]
+     },
+     "neutralPredictionRate": 0.5735
+    },
+    "transformer": {
+     "n": 2096,
+     "accuracy": 0.4771,
+     "macroF1": 0.4311,
+     "perClass": {
+      "negative": {
+       "precision": 0.6479,
+       "recall": 0.1149,
+       "f1": 0.1951,
+       "support": 801
+      },
+      "neutral": {
+       "precision": 0.4115,
+       "recall": 0.9127,
+       "f1": 0.5672,
+       "support": 779
+      },
+      "positive": {
+       "precision": 0.8717,
+       "recall": 0.3818,
+       "f1": 0.531,
+       "support": 516
+      }
+     },
+     "confusion": {
+      "rows (gold)": [
+       "negative",
+       "neutral",
+       "positive"
+      ],
+      "columns (predicted)": [
+       "negative",
+       "neutral",
+       "positive"
+      ],
+      "matrix": [
+       [
+        92,
+        706,
+        3
+       ],
+       [
+        42,
+        711,
+        26
+       ],
+       [
+        8,
+        311,
+        197
+       ]
+      ]
+     },
+     "neutralPredictionRate": 0.8244
+    }
+   },
+   "englishDominant (≤20% Hindi words)": {
+    "vader-base": {
+     "n": 339,
+     "accuracy": 0.6165,
+     "macroF1": 0.4915,
+     "perClass": {
+      "negative": {
+       "precision": 0.4091,
+       "recall": 0.5455,
+       "f1": 0.4675,
+       "support": 33
+      },
+      "neutral": {
+       "precision": 0.6,
+       "recall": 0.1538,
+       "f1": 0.2449,
+       "support": 117
+      },
+      "positive": {
+       "precision": 0.6528,
+       "recall": 0.9153,
+       "f1": 0.7621,
+       "support": 189
+      }
+     },
+     "confusion": {
+      "rows (gold)": [
+       "negative",
+       "neutral",
+       "positive"
+      ],
+      "columns (predicted)": [
+       "negative",
+       "neutral",
+       "positive"
+      ],
+      "matrix": [
+       [
+        18,
+        3,
+        12
+       ],
+       [
+        19,
+        18,
+        80
+       ],
+       [
+        7,
+        9,
+        173
+       ]
+      ]
+     },
+     "neutralPredictionRate": 0.0885
+    },
+    "vader": {
+     "n": 339,
+     "accuracy": 0.6136,
+     "macroF1": 0.4903,
+     "perClass": {
+      "negative": {
+       "precision": 0.3913,
+       "recall": 0.5455,
+       "f1": 0.4557,
+       "support": 33
+      },
+      "neutral": {
+       "precision": 0.6129,
+       "recall": 0.1624,
+       "f1": 0.2568,
+       "support": 117
+      },
+      "positive": {
+       "precision": 0.6527,
+       "recall": 0.9048,
+       "f1": 0.7583,
+       "support": 189
+      }
+     },
+     "confusion": {
+      "rows (gold)": [
+       "negative",
+       "neutral",
+       "positive"
+      ],
+      "columns (predicted)": [
+       "negative",
+       "neutral",
+       "positive"
+      ],
+      "matrix": [
+       [
+        18,
+        3,
+        12
+       ],
+       [
+        19,
+        19,
+        79
+       ],
+       [
+        9,
+        9,
+        171
+       ]
+      ]
+     },
+     "neutralPredictionRate": 0.0914
+    },
+    "transformer": {
+     "n": 339,
+     "accuracy": 0.6785,
+     "macroF1": 0.6386,
+     "perClass": {
+      "negative": {
+       "precision": 0.4531,
+       "recall": 0.8788,
+       "f1": 0.5979,
+       "support": 33
+      },
+      "neutral": {
+       "precision": 0.5938,
+       "recall": 0.4872,
+       "f1": 0.5352,
+       "support": 117
+      },
+      "positive": {
+       "precision": 0.8045,
+       "recall": 0.7619,
+       "f1": 0.7826,
+       "support": 189
+      }
+     },
+     "confusion": {
+      "rows (gold)": [
+       "negative",
+       "neutral",
+       "positive"
+      ],
+      "columns (predicted)": [
+       "negative",
+       "neutral",
+       "positive"
+      ],
+      "matrix": [
+       [
+        29,
+        3,
+        1
+       ],
+       [
+        26,
+        57,
+        34
+       ],
+       [
+        9,
+        36,
+        144
+       ]
+      ]
+     },
+     "neutralPredictionRate": 0.2832
+    }
+   }
+  }
+ },
+ "E3dev": {
+  "dataset": "SentiMix Hindi-English dev split (SemEval-2020 Task 9)",
+  "split": "dev",
+  "size": 2998,
+  "labels": "human word-level language tags; human tweet sentiment (3-class)",
+  "languageCheck": {
+   "onSentiMix": {
+    "hindiDominant (≥50% Hindi words)": {
+     "tweets": 2156,
+     "flaggedNotSupported": 1907,
+     "flaggedRate": 0.8845
+    },
+    "mixed (20–50%)": {
+     "tweets": 586,
+     "flaggedNotSupported": 99,
+     "flaggedRate": 0.1689
+    },
+    "englishDominant (≤20% Hindi words)": {
+     "tweets": 256,
+     "flaggedNotSupported": 5,
+     "flaggedRate": 0.0195
+    }
+   },
+   "onEnglishUCI": {
+    "sentences": 3000,
+    "wronglyFlagged": 0,
+    "rate": 0.0
+   }
+  },
+  "engineSentimentByLanguage": {
+   "hindiDominant (≥50% Hindi words)": {
+    "vader-base": {
+     "n": 2156,
+     "accuracy": 0.4021,
+     "macroF1": 0.3887,
+     "perClass": {
+      "negative": {
+       "precision": 0.4441,
+       "recall": 0.1798,
+       "f1": 0.256,
+       "support": 773
+      },
+      "neutral": {
+       "precision": 0.373,
+       "recall": 0.529,
+       "f1": 0.4375,
+       "support": 811
+      },
+      "positive": {
+       "precision": 0.4315,
+       "recall": 0.5227,
+       "f1": 0.4727,
+       "support": 572
+      }
+     },
+     "confusion": {
+      "rows (gold)": [
+       "negative",
+       "neutral",
+       "positive"
+      ],
+      "columns (predicted)": [
+       "negative",
+       "neutral",
+       "positive"
+      ],
+      "matrix": [
+       [
+        139,
+        488,
+        146
+       ],
+       [
+        134,
+        429,
+        248
+       ],
+       [
+        40,
+        233,
+        299
+       ]
+      ]
+     },
+     "neutralPredictionRate": 0.5334
+    },
+    "vader": {
+     "n": 2156,
+     "accuracy": 0.3998,
+     "macroF1": 0.3874,
+     "perClass": {
+      "negative": {
+       "precision": 0.442,
+       "recall": 0.1824,
+       "f1": 0.2582,
+       "support": 773
+      },
+      "neutral": {
+       "precision": 0.3699,
+       "recall": 0.5191,
+       "f1": 0.432,
+       "support": 811
+      },
+      "positive": {
+       "precision": 0.4292,
+       "recall": 0.5245,
+       "f1": 0.4721,
+       "support": 572
+      }
+     },
+     "confusion": {
+      "rows (gold)": [
+       "negative",
+       "neutral",
+       "positive"
+      ],
+      "columns (predicted)": [
+       "negative",
+       "neutral",
+       "positive"
+      ],
+      "matrix": [
+       [
+        141,
+        486,
+        146
+       ],
+       [
+        137,
+        421,
+        253
+       ],
+       [
+        41,
+        231,
+        300
+       ]
+      ]
+     },
+     "neutralPredictionRate": 0.5278
+    },
+    "transformer": {
+     "n": 2156,
+     "accuracy": 0.4467,
+     "macroF1": 0.3968,
+     "perClass": {
+      "negative": {
+       "precision": 0.4839,
+       "recall": 0.097,
+       "f1": 0.1616,
+       "support": 773
+      },
+      "neutral": {
+       "precision": 0.3962,
+       "recall": 0.8286,
+       "f1": 0.5361,
+       "support": 811
+      },
+      "positive": {
+       "precision": 0.7082,
+       "recall": 0.3776,
+       "f1": 0.4926,
+       "support": 572
+      }
+     },
+     "confusion": {
+      "rows (gold)": [
+       "negative",
+       "neutral",
+       "positive"
+      ],
+      "columns (predicted)": [
+       "negative",
+       "neutral",
+       "positive"
+      ],
+      "matrix": [
+       [
+        75,
+        686,
+        12
+       ],
+       [
+        62,
+        672,
+        77
+       ],
+       [
+        18,
+        338,
+        216
+       ]
+      ]
+     },
+     "neutralPredictionRate": 0.7866
+    }
+   },
+   "englishDominant (≤20% Hindi words)": {
+    "vader-base": {
+     "n": 256,
+     "accuracy": 0.5703,
+     "macroF1": 0.4809,
+     "perClass": {
+      "negative": {
+       "precision": 0.45,
+       "recall": 0.5143,
+       "f1": 0.48,
+       "support": 35
+      },
+      "neutral": {
+       "precision": 0.75,
+       "recall": 0.1515,
+       "f1": 0.2521,
+       "support": 99
+      },
+      "positive": {
+       "precision": 0.5765,
+       "recall": 0.9262,
+       "f1": 0.7107,
+       "support": 122
+      }
+     },
+     "confusion": {
+      "rows (gold)": [
+       "negative",
+       "neutral",
+       "positive"
+      ],
+      "columns (predicted)": [
+       "negative",
+       "neutral",
+       "positive"
+      ],
+      "matrix": [
+       [
+        18,
+        2,
+        15
+       ],
+       [
+        16,
+        15,
+        68
+       ],
+       [
+        6,
+        3,
+        113
+       ]
+      ]
+     },
+     "neutralPredictionRate": 0.0781
+    },
+    "vader": {
+     "n": 256,
+     "accuracy": 0.5742,
+     "macroF1": 0.4844,
+     "perClass": {
+      "negative": {
+       "precision": 0.4615,
+       "recall": 0.5143,
+       "f1": 0.4865,
+       "support": 35
+      },
+      "neutral": {
+       "precision": 0.75,
+       "recall": 0.1515,
+       "f1": 0.2521,
+       "support": 99
+      },
+      "positive": {
+       "precision": 0.5787,
+       "recall": 0.9344,
+       "f1": 0.7147,
+       "support": 122
+      }
+     },
+     "confusion": {
+      "rows (gold)": [
+       "negative",
+       "neutral",
+       "positive"
+      ],
+      "columns (predicted)": [
+       "negative",
+       "neutral",
+       "positive"
+      ],
+      "matrix": [
+       [
+        18,
+        2,
+        15
+       ],
+       [
+        16,
+        15,
+        68
+       ],
+       [
+        5,
+        3,
+        114
+       ]
+      ]
+     },
+     "neutralPredictionRate": 0.0781
+    },
+    "transformer": {
+     "n": 256,
+     "accuracy": 0.6211,
+     "macroF1": 0.5674,
+     "perClass": {
+      "negative": {
+       "precision": 0.3704,
+       "recall": 0.5714,
+       "f1": 0.4494,
+       "support": 35
+      },
+      "neutral": {
+       "precision": 0.6557,
+       "recall": 0.404,
+       "f1": 0.5,
+       "support": 99
+      },
+      "positive": {
+       "precision": 0.7021,
+       "recall": 0.8115,
+       "f1": 0.7529,
+       "support": 122
+      }
+     },
+     "confusion": {
+      "rows (gold)": [
+       "negative",
+       "neutral",
+       "positive"
+      ],
+      "columns (predicted)": [
+       "negative",
+       "neutral",
+       "positive"
+      ],
+      "matrix": [
+       [
+        20,
+        6,
+        9
+       ],
+       [
+        26,
+        40,
+        33
+       ],
+       [
+        8,
+        15,
+        99
+       ]
+      ]
+     },
+     "neutralPredictionRate": 0.2383
+    }
+   }
+  }
+ },
+ "E4": {
+  "dataset": "Live App Store reviews (weak labels from star ratings — NOT ground truth)",
+  "collectedAt": "2026-11-14T00:58:18+00:00",
+  "apps": [
+   {
+    "app": "WhatsApp Messenger",
+    "country": "IN",
+    "reviews": 500
+   },
+   {
+    "app": "Zomato",
+    "country": "IN",
+    "reviews": 500
+   },
+   {
+    "app": "Swiggy",
+    "country": "IN",
+    "reviews": 500
+   },
+   {
+    "app": "Facebook",
+    "country": "US",
+    "reviews": 500
+   }
+  ],
+  "reviewsWithStars": 2000,
+  "englishReviewsUsed": 1942,
+  "flaggedNotEnglish": 58,
+  "engines": {
+   "vader-base": {
+    "n": 1942,
+    "accuracy": 0.6298,
+    "macroF1": 0.497,
+    "perClass": {
+     "negative": {
+      "precision": 0.8471,
+      "recall": 0.5625,
+      "f1": 0.6761,
+      "support": 896
+     },
+     "neutral": {
+      "precision": 0.0465,
+      "recall": 0.2159,
+      "f1": 0.0765,
+      "support": 88
+     },
+     "positive": {
+      "precision": 0.7463,
+      "recall": 0.7307,
+      "f1": 0.7384,
+      "support": 958
+     }
+    },
+    "confusion": {
+     "rows (gold)": [
+      "negative",
+      "neutral",
+      "positive"
+     ],
+     "columns (predicted)": [
+      "negative",
+      "neutral",
+      "positive"
+     ],
+     "matrix": [
+      [
+       504,
+       186,
+       206
+      ],
+      [
+       37,
+       19,
+       32
+      ],
+      [
+       54,
+       204,
+       700
+      ]
+     ]
+    },
+    "neutralPredictionRate": 0.2106
+   },
+   "vader": {
+    "n": 1942,
+    "accuracy": 0.6529,
+    "macroF1": 0.5086,
+    "perClass": {
+     "negative": {
+      "precision": 0.8384,
+      "recall": 0.6138,
+      "f1": 0.7088,
+      "support": 896
+     },
+     "neutral": {
+      "precision": 0.0443,
+      "recall": 0.1818,
+      "f1": 0.0713,
+      "support": 88
+     },
+     "positive": {
+      "precision": 0.7589,
+      "recall": 0.7328,
+      "f1": 0.7456,
+      "support": 958
+     }
+    },
+    "confusion": {
+     "rows (gold)": [
+      "negative",
+      "neutral",
+      "positive"
+     ],
+     "columns (predicted)": [
+      "negative",
+      "neutral",
+      "positive"
+     ],
+     "matrix": [
+      [
+       550,
+       153,
+       193
+      ],
+      [
+       42,
+       16,
+       30
+      ],
+      [
+       64,
+       192,
+       702
+      ]
+     ]
+    },
+    "neutralPredictionRate": 0.1859
+   },
+   "transformer": {
+    "n": 1942,
+    "accuracy": 0.7384,
+    "macroF1": 0.5874,
+    "perClass": {
+     "negative": {
+      "precision": 0.8271,
+      "recall": 0.8114,
+      "f1": 0.8192,
+      "support": 896
+     },
+     "neutral": {
+      "precision": 0.0773,
+      "recall": 0.3182,
+      "f1": 0.1244,
+      "support": 88
+     },
+     "positive": {
+      "precision": 0.9686,
+      "recall": 0.7088,
+      "f1": 0.8186,
+      "support": 958
+     }
+    },
+    "confusion": {
+     "rows (gold)": [
+      "negative",
+      "neutral",
+      "positive"
+     ],
+     "columns (predicted)": [
+      "negative",
+      "neutral",
+      "positive"
+     ],
+     "matrix": [
+      [
+       727,
+       155,
+       14
+      ],
+      [
+       52,
+       28,
+       8
+      ],
+      [
+       100,
+       179,
+       679
+      ]
+     ]
+    },
+    "neutralPredictionRate": 0.1864
+   }
+  }
+ },
+ "peakMemoryMB": 344
+}

@@ -21,11 +21,21 @@ def _aspect_line(row: dict, kind: str) -> dict:
     }
 
 
+def _language_note(stats: dict) -> list[str]:
+    skipped = (stats.get("notAnalysed") or {}).get("languageNotSupported", 0)
+    if not skipped:
+        return []
+    noun, verb = ("review", "is") if skipped == 1 else ("reviews", "are")
+    return [f"{skipped} {noun} {verb} not in English (for example Hindi or Hinglish), so their sentiment wasn’t "
+            "analysed. They are left out of the percentages; their star ratings still count."]
+
+
 def build_summary(stats: dict, aspects: list[dict]) -> dict:
-    total = stats["totalReviews"]
+    total = stats.get("analysedReviews", stats["totalReviews"])
     if total < MIN_REVIEWS_FOR_SUMMARY:
         return {"overview": None, "strengths": [], "complaints": [], "mixed": [], "notes": [
-            f"Only {total} review(s) available. At least {MIN_REVIEWS_FOR_SUMMARY} are needed for a meaningful summary."]}
+            f"Only {total} review(s) could be analysed. At least {MIN_REVIEWS_FOR_SUMMARY} are needed for a "
+            "meaningful summary.", *_language_note(stats)]}
 
     pct = stats["sentimentPercent"]
     lead = max(("positive", "neutral", "negative"), key=lambda s: pct[s])
@@ -41,7 +51,7 @@ def build_summary(stats: dict, aspects: list[dict]) -> dict:
     complaints = [_aspect_line(a, "negative") for a in decided if a["verdict"] == "negative"]
     mixed = [_aspect_line(a, "negative") for a in decided if a["verdict"] == "mixed"]
 
-    notes = []
+    notes = _language_note(stats)
     mismatches = len(stats["ratingSentimentMismatches"])
     if mismatches:
         noun, verb = ("review", "has") if mismatches == 1 else ("reviews", "have")

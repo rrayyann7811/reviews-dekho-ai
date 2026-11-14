@@ -6,6 +6,9 @@ from pydantic import BaseModel, ConfigDict, Field, field_validator
 from pydantic.alias_generators import to_camel
 
 
+Domain = Literal["product", "app"]
+
+
 class ApiModel(BaseModel):
     model_config = ConfigDict(alias_generator=to_camel, populate_by_name=True, from_attributes=True)
 
@@ -23,15 +26,17 @@ class ProductCreate(ApiModel):
     name: str = Field(min_length=1, max_length=200, examples=["Kestrel Orbit 5G"])
     brand: str | None = Field(default=None, max_length=120)
     category: str | None = Field(default=None, max_length=120)
+    domain: Domain = Field(default="product", description="What is reviewed: a physical product or an app")
 
     _clean = field_validator("name", "brand", "category", mode="before")(_strip_or_none)
 
 
 class ProductUpdate(ApiModel):
-    """Only the fields sent are changed."""
+    """Only the fields sent are changed. A new domain applies from the next analysis run."""
     name: str | None = Field(default=None, min_length=1, max_length=200)
     brand: str | None = Field(default=None, max_length=120)
     category: str | None = Field(default=None, max_length=120)
+    domain: Domain | None = None
 
     _clean = field_validator("name", "brand", "category", mode="before")(_strip_or_none)
 
@@ -52,6 +57,7 @@ class ProductSummary(SourceDetails):
     brand: str | None
     category: str | None
     source: str = Field(description="upload | url | manual")
+    domain: str = "product"
     file_name: str | None = None
     created_at: dt.datetime
     total_reviews: int
@@ -105,10 +111,14 @@ class ReviewOut(ApiModel):
     date: dt.date | None
     title: str | None
     reviewer: str | None
-    sentiment: str | None
+    sentiment: str | None = Field(description="Null when the review couldn’t be analysed (see status)")
     score: float | None
     mixed: bool
     aspects: list[AspectMention]
+    # Defaults describe runs made before Phase 4, whose snapshots don't have these fields.
+    status: str = Field(default="analysed", description="analysed | language_not_supported | not_analysed_yet")
+    language: str | None = None
+    used_title: bool = Field(default=False, description="The title was analysed with a very short review text")
 
 
 class ReviewPage(ApiModel):
@@ -124,6 +134,7 @@ class AnalysisProduct(SourceDetails):
     brand: str | None
     category: str | None
     source: str
+    domain: str = "product"
 
 
 class Analysis(ApiModel):
@@ -137,6 +148,7 @@ class Analysis(ApiModel):
     reviews: list[ReviewOut]
     ingestion: dict | None
     analyzed_at: dt.datetime
+    engine: dict | None = Field(default=None, description="Sentiment engine and pipeline version used for this run")
 
 
 class HistoryEntry(ApiModel):
@@ -149,6 +161,7 @@ class HistoryEntry(ApiModel):
     average_rating: float | None
     positive_percent: float
     negative_percent: float
+    engine: dict | None = None
 
 
 class HistoryDetail(HistoryEntry):

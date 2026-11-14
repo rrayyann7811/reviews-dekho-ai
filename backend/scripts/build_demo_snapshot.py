@@ -1,7 +1,8 @@
 """Build the analysis snapshot the frontend uses for its demo product.
 
-Temporary helper for Phase 1: once the API serves analyses (Phase 5) the
-frontend reads live data and this script and the JSON file are removed.
+The demo product works offline, so its analysis is pre-computed with the same
+pipeline as real data. Re-run after changing app/nlp. Uses the default engine
+(the pretrained model if installed, otherwise VADER) and records which one.
 
 Run from backend/:  .venv/bin/python scripts/build_demo_snapshot.py
 """
@@ -37,14 +38,11 @@ reviews = [{
     "text": r.review_text,
 } for r in df.itertuples()]
 
-result = analyze_reviews(reviews)
-result["product"] = {
-    "id": "demo",
-    "name": df["product_name"].iloc[0],
-    "brand": "Kestrel (fictional)",
-    "category": "Smartphones",
-    "source": "demo",
-}
+product = {"id": "demo", "name": df["product_name"].iloc[0], "brand": "Kestrel (fictional)",
+           "category": "Smartphones", "source": "demo", "domain": "product"}
+result = analyze_reviews(reviews, domain="product", category=product["category"], product_name=product["name"],
+                         brand="Kestrel")
+result["product"] = product
 result["ingestion"] = {"rowsInFile": rows_in_file, "duplicatesRemoved": duplicates,
                        "emptyRemoved": empty, "fileName": SOURCE.name}
 result["analyzedAt"] = datetime.now(timezone.utc).isoformat(timespec="seconds")
