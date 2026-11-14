@@ -10,6 +10,7 @@ import { DEMO_ID } from '../demo/demo'
 import { useServerStatus } from '../lib/serverStatus'
 import { useProducts } from '../lib/useData'
 import { useRuns } from '../lib/useRuns'
+import { STATIC_DEMO, STATIC_DEMO_TEXT } from '../lib/staticDemo'
 
 const FORMATS = [
   { id: 'pdf', icon: FileText, title: 'PDF report',
@@ -19,6 +20,7 @@ const FORMATS = [
 ]
 
 function unavailableReason(status, productId, runs) {
+  if (STATIC_DEMO) return STATIC_DEMO_TEXT.unavailable
   if (status !== 'online') return 'Available when the server is running.'
   if (!productId) return 'Choose a product first.'
   if (productId === DEMO_ID) return 'The demo product is built into the app and can’t be exported. Upload a review file to export its analysis.'

@@ -9,6 +9,7 @@ import { Input, Select } from '../components/ui/Field'
 import Panel from '../components/ui/Panel'
 import Spinner from '../components/ui/Spinner'
 import { useProducts } from '../lib/useData'
+import { STATIC_DEMO, STATIC_DEMO_TEXT } from '../lib/staticDemo'
 
 export default function History() {
   const { items, loading, error, serverOffline } = useProducts()
@@ -24,7 +25,9 @@ export default function History() {
   return (
     <>
       <PageHeader title="Analysis history" description="Every product you have analysed. Select a row to open its analysis." />
-      {serverOffline && (
+      {STATIC_DEMO ? (
+        <Alert className="mb-6" title="Showing the built-in demo product">{STATIC_DEMO_TEXT.history}</Alert>
+      ) : serverOffline && (
         <Alert variant="warning" className="mb-6" title="Showing the demo product only">
           The analysis server isn’t running, so saved analyses can’t be loaded.
         </Alert>

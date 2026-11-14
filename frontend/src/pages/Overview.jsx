@@ -8,6 +8,7 @@ import Spinner from '../components/ui/Spinner'
 import UrlForm from '../components/UrlForm'
 import { useSettings } from '../lib/settings'
 import { useProducts } from '../lib/useData'
+import { STATIC_DEMO } from '../lib/staticDemo'
 
 const STEPS = [
   { title: 'Add reviews', text: 'Paste a product link from a supported website, or upload a CSV/Excel file of reviews.' },
@@ -51,14 +52,18 @@ export default function Overview() {
       {!settings.introDismissed && <GettingStarted onDismiss={() => update({ introDismissed: true })} />}
 
       <div className="mb-6 grid gap-6 lg:grid-cols-5">
-        <Panel title="Analyze a product link" description="Supported: Apple App Store apps and the demo store. Amazon and Flipkart links are recognised but can’t be collected." className="lg:col-span-3">
+        <Panel title="Analyze a product link" className="lg:col-span-3"
+          description={STATIC_DEMO
+            ? 'In the full app: Apple App Store apps and the demo store. This online demo opens the built-in demo product only.'
+            : 'Supported: Apple App Store apps and the demo store. Amazon and Flipkart links are recognised but can’t be collected.'}>
           <UrlForm compact />
         </Panel>
-        <Panel title="Upload a review file" description="Works with reviews from any website." className="lg:col-span-2">
+        <Panel title="Upload a review file" className="lg:col-span-2"
+          description={STATIC_DEMO ? 'Available in the full app on your own computer.' : 'Works with reviews from any website.'}>
           <p className="text-[13px] text-ink-2">
             Upload a CSV or Excel file with one review per row. You’ll see a preview and can confirm which column holds the review text before anything is analysed.
           </p>
-          <Button to="/upload" variant="secondary" className="mt-4">Upload reviews</Button>
+          <Button to="/upload" variant="secondary" className="mt-4">{STATIC_DEMO ? 'How uploading works' : 'Upload reviews'}</Button>
         </Panel>
       </div>
 

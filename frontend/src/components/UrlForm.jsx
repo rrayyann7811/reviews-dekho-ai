@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { DEMO_ID } from '../demo/demo'
 import { api } from '../lib/api'
 import { useServerStatus } from '../lib/serverStatus'
+import { STATIC_DEMO, STATIC_DEMO_TEXT } from '../lib/staticDemo'
 import { DEMO_PRODUCT_PATH, SITES, detectSite, parseProductUrl } from '../lib/sites'
 import Alert from './ui/Alert'
 import Button from './ui/Button'
@@ -31,6 +32,14 @@ function Outcome({ outcome }) {
       <Alert variant="warning" title={`${outcome.host} isn’t supported yet`} action={alternatives}>
         Reviews can only be collected from the websites listed below. You can still analyse reviews from any
         website by uploading them as a file.
+      </Alert>
+    )
+  }
+  if (outcome.kind === 'static-demo') {
+    return (
+      <Alert title="Not available in the online demo"
+        action={<Button to={`/products/${DEMO_ID}`} variant="secondary" size="sm">Open the demo product</Button>}>
+        {STATIC_DEMO_TEXT.collect}
       </Alert>
     )
   }
@@ -76,6 +85,7 @@ export default function UrlForm({ compact = false }) {
   async function handleSubmit(event) {
     event.preventDefault()
     setOutcome(null)
+    if (STATIC_DEMO) return setOutcome({ kind: 'static-demo' })   // the controls are disabled; never collect online
     const { url, error: validationError } = parseProductUrl(value)
     if (validationError) return setError(validationError)
     setError('')
@@ -109,10 +119,11 @@ export default function UrlForm({ compact = false }) {
     <div className="space-y-4">
       <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-2 sm:flex-row sm:items-start">
         <Field label="Product link" hideLabel={compact} error={error} className="flex-1"
-          hint={compact ? undefined : 'Paste the full address of a product page.'}>
+          hint={STATIC_DEMO ? STATIC_DEMO_TEXT.collect : compact ? undefined : 'Paste the full address of a product page.'}>
           {(props) => (
             <Input
               {...props}
+              disabled={STATIC_DEMO}
               type="url"
               inputMode="url"
               autoComplete="off"
@@ -123,7 +134,7 @@ export default function UrlForm({ compact = false }) {
             />
           )}
         </Field>
-        <Button type="submit" disabled={loading} className={compact ? '' : 'sm:mt-[26px]'}>
+        <Button type="submit" disabled={loading || STATIC_DEMO} className={compact ? '' : 'sm:mt-[26px]'}>
           {loading ? 'Analysing…' : 'Analyze'}
         </Button>
       </form>
@@ -133,12 +144,16 @@ export default function UrlForm({ compact = false }) {
         </p>
       )}
       {outcome && <Outcome outcome={outcome} />}
-      <p className="text-[13px] text-ink-3">
-        No link handy?{' '}
-        <button type="button" className="font-medium text-brand-600 hover:underline" onClick={() => { setValue(DEMO_URL); setError('') }}>
-          Use the demo product link
-        </button>
-      </p>
+      {STATIC_DEMO ? (
+        <Button to={`/products/${DEMO_ID}`} variant="secondary">Open the demo product</Button>
+      ) : (
+        <p className="text-[13px] text-ink-3">
+          No link handy?{' '}
+          <button type="button" className="font-medium text-brand-600 hover:underline" onClick={() => { setValue(DEMO_URL); setError('') }}>
+            Use the demo product link
+          </button>
+        </p>
+      )}
     </div>
   )
 }

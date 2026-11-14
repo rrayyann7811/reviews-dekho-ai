@@ -19,6 +19,7 @@ import { api } from '../lib/api'
 import { useServerStatus } from '../lib/serverStatus'
 import { useProducts } from '../lib/useData'
 import { useRuns } from '../lib/useRuns'
+import { STATIC_DEMO, STATIC_DEMO_TEXT } from '../lib/staticDemo'
 
 // The selection lives in the URL (?a=1&ra=5&b=2&rb=), so a comparison can be shared, bookmarked and reached with Back.
 const KEYS = { a: ['a', 'ra'], b: ['b', 'rb'] }
@@ -100,8 +101,9 @@ export default function Compare() {
   if (status === 'offline') {
     body = (
       <Panel>
-        <EmptyState icon={Columns2} title="Comparing needs the analysis server">
-          The comparison is computed from saved analysis runs on the server. The built-in demo product can’t be compared.
+        <EmptyState icon={Columns2} title={STATIC_DEMO ? 'Comparisons need the full app' : 'Comparing needs the analysis server'}>
+          {STATIC_DEMO ? STATIC_DEMO_TEXT.compare
+            : 'The comparison is computed from saved analysis runs on the server. The built-in demo product can’t be compared.'}
         </EmptyState>
       </Panel>
     )

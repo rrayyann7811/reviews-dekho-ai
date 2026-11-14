@@ -31,22 +31,25 @@ export default function FileDropzone({ file, onFile, onClear, error, disabled })
   return (
     <div>
       <div
-        onDragOver={(e) => { e.preventDefault(); setDragging(true) }}
+        onDragOver={(e) => { e.preventDefault(); if (!disabled) setDragging(true) }}
         onDragLeave={() => setDragging(false)}
-        onDrop={(e) => { e.preventDefault(); setDragging(false); pick(e.dataTransfer.files) }}
+        onDrop={(e) => { e.preventDefault(); setDragging(false); if (!disabled) pick(e.dataTransfer.files) }}
+        aria-disabled={disabled || undefined}
         className={`flex flex-col items-center rounded-lg border border-dashed px-6 py-10 text-center transition-colors ${
-          dragging ? 'border-brand-600 bg-brand-50' : error ? 'border-neg/50 bg-surface' : 'border-line-strong bg-surface'
+          disabled ? 'border-line bg-subtle opacity-70'
+            : dragging ? 'border-brand-600 bg-brand-50' : error ? 'border-neg/50 bg-surface' : 'border-line-strong bg-surface'
         }`}
       >
         <Upload aria-hidden className="mb-3 size-5 text-ink-3" />
         <p className="text-sm text-ink">
           Drag a file here, or{' '}
-          <button type="button" onClick={() => inputRef.current?.click()} className="font-medium text-brand-600 hover:underline">
+          <button type="button" onClick={() => inputRef.current?.click()} disabled={disabled}
+            className="font-medium text-brand-600 hover:underline disabled:cursor-not-allowed disabled:text-ink-3 disabled:no-underline">
             choose a file
           </button>
         </p>
         <p className="mt-1 text-[13px] text-ink-3">CSV or Excel (.xlsx), up to {formatFileSize(MAX_FILE_BYTES)}</p>
-        <input ref={inputRef} type="file" accept={ACCEPTED_EXTENSIONS.join(',')} className="sr-only" tabIndex={-1}
+        <input ref={inputRef} type="file" accept={ACCEPTED_EXTENSIONS.join(',')} className="sr-only" tabIndex={-1} disabled={disabled}
           aria-label="Review file" onChange={(e) => { pick(e.target.files); e.target.value = '' }} />
       </div>
       {error && <p role="alert" className="mt-2 text-[13px] text-neg">{error}</p>}

@@ -12,6 +12,7 @@ import { api } from '../lib/api'
 import { validateReviewFile } from '../lib/files'
 import { plural } from '../lib/format'
 import { estimatedMinutes, LARGE_ANALYSIS, largeAnalysisNotice } from '../lib/workload'
+import { STATIC_DEMO } from '../lib/staticDemo'
 
 // Columns the importer understands. Only the review text is required.
 const COLUMN_ROLES = [
@@ -127,7 +128,7 @@ export default function UploadReviews() {
       <div className="grid items-start gap-6 lg:grid-cols-3">
         <div className="space-y-6 lg:col-span-2">
           <Panel title="1. Choose a file">
-            <FileDropzone file={file} onFile={handleFile} onClear={() => { reset(); setFileError('') }} error={fileError} disabled={!!busy} />
+            <FileDropzone file={file} onFile={handleFile} onClear={() => { reset(); setFileError('') }} error={fileError} disabled={!!busy || STATIC_DEMO} />
             {busy === 'reading' && <Spinner className="mt-4" label="Reading file…" />}
             {error && !preview && <Alert variant="error" title="Couldn’t read this file" className="mt-4">{error}</Alert>}
           </Panel>

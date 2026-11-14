@@ -2,6 +2,7 @@ import { Columns2, FileDown, History, LayoutGrid, Link2, Settings, Upload } from
 import { NavLink } from 'react-router-dom'
 import { useServerStatus } from '../../lib/serverStatus'
 import Logo from './Logo'
+import { STATIC_DEMO, STATIC_DEMO_TEXT } from '../../lib/staticDemo'
 
 const NAV_ITEMS = [
   { to: '/', label: 'Overview', icon: LayoutGrid, end: true },
@@ -38,7 +39,8 @@ const STATUS = {
 
 export default function Sidebar({ onNavigate }) {
   const { status } = useServerStatus()
-  const s = STATUS[status]
+  // The online demo has no server by design: say so, without the red "offline" signal.
+  const s = STATIC_DEMO ? { dot: 'bg-brand-600', text: STATIC_DEMO_TEXT.status } : STATUS[status]
   return (
     <div className="flex h-full flex-col">
       <div className="flex h-14 items-center px-4">
