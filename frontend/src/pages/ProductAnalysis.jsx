@@ -23,6 +23,7 @@ import { formatDate, formatRating, plural } from '../lib/format'
 import { DEFAULT_FILTERS } from '../lib/reviewFilters'
 import { DEMO_ID } from '../demo/demo'
 import { useAnalysis } from '../lib/useData'
+import { estimatedMinutes, LARGE_ANALYSIS } from '../lib/workload'
 
 const BACK = { to: '/history', label: 'Analysis history' }
 
@@ -42,7 +43,11 @@ function ReanalysePanel({ state, error, totalReviews, onConfirm, onCancel }) {
       </Alert>
     )
   }
-  if (state === 'running') return <Spinner className="mb-6" label="Re-analysing… this can take a few seconds for large products." />
+  if (state === 'running') {
+    return <Spinner className="mb-6" label={totalReviews > LARGE_ANALYSIS
+      ? `Re-analysing ${plural(totalReviews, 'review')}… this can take about ${estimatedMinutes(totalReviews)} minutes. Keep this page open.`
+      : 'Re-analysing… this can take a few seconds for large products.'} />
+  }
   if (error) return <Alert variant="error" title="Couldn’t re-analyse" className="mb-6">{error}</Alert>
   if (state === 'done') return <Alert className="mb-6" title="Analysis updated">This page now shows the new run. The previous one is still in the history.</Alert>
   return null

@@ -11,6 +11,7 @@ import Spinner from '../components/ui/Spinner'
 import { api } from '../lib/api'
 import { validateReviewFile } from '../lib/files'
 import { plural } from '../lib/format'
+import { estimatedMinutes, LARGE_ANALYSIS, largeAnalysisNotice } from '../lib/workload'
 
 // Columns the importer understands. Only the review text is required.
 const COLUMN_ROLES = [
@@ -139,6 +140,7 @@ export default function UploadReviews() {
               <form onSubmit={handleImport} className="space-y-5">
                 <PreviewTable preview={preview} />
                 {preview.warnings?.map((w) => <Alert key={w} variant="warning">{w}</Alert>)}
+                {largeAnalysisNotice(preview.rowCount) && <Alert title="Large file">{largeAnalysisNotice(preview.rowCount)}</Alert>}
 
                 <div>
                   <h3 className="mb-3 text-[13px] font-semibold">Match your columns</h3>
@@ -171,6 +173,11 @@ export default function UploadReviews() {
                 </div>
 
                 {error && <Alert variant="error">{error}</Alert>}
+                {busy === 'importing' && (
+                  <Spinner label={preview.rowCount > LARGE_ANALYSIS
+                    ? `Importing and analysing ${plural(preview.rowCount, 'row')}… this can take about ${estimatedMinutes(preview.rowCount)} minutes. Keep this page open.`
+                    : 'Importing and analysing the reviews…'} />
+                )}
                 <div className="flex justify-end gap-2 border-t border-line pt-4">
                   <Button variant="secondary" onClick={() => { reset(); setFileError('') }} disabled={!!busy}>Cancel</Button>
                   <Button type="submit" disabled={!!busy}>{busy === 'importing' ? 'Analysing…' : 'Import and analyse'}</Button>

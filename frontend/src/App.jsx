@@ -1,9 +1,10 @@
 import { lazy, Suspense } from 'react'
-import { BrowserRouter, Route, Routes } from 'react-router-dom'
+import { BrowserRouter, HashRouter, Route, Routes } from 'react-router-dom'
 import AppLayout from './components/layout/AppLayout'
 import Spinner from './components/ui/Spinner'
 import { ServerStatusProvider } from './lib/serverStatus'
 import { SettingsProvider } from './lib/settings'
+import { STATIC_DEMO } from './lib/staticDemo'
 import AnalyzeProduct from './pages/AnalyzeProduct'
 import History from './pages/History'
 import NotFound from './pages/NotFound'
@@ -34,13 +35,16 @@ export function AppRoutes() {
   )
 }
 
+// The static demo uses #/ addresses, so it works from any folder (e.g. GitHub Pages) without server rewrites.
+const Router = STATIC_DEMO ? HashRouter : BrowserRouter
+
 export default function App() {
   return (
     <SettingsProvider>
       <ServerStatusProvider>
-        <BrowserRouter>
+        <Router>
           <AppRoutes />
-        </BrowserRouter>
+        </Router>
       </ServerStatusProvider>
     </SettingsProvider>
   )

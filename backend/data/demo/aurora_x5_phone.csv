@@ -1,0 +1,151 @@
+review_id,reviewer_name,rating,review_date,review_text
+AX5-0001,Demo user 001,4,2026-08-04,"Lovely screen, colours look great."
+AX5-0002,Demo user 002,4,2026-09-23,The display is easy to read outdoors.
+AX5-0003,Demo user 003,5,2026-09-17,Fast delivery and well packed. Worth every rupee.
+AX5-0004,Demo user 004,3,2026-10-12,Performance is as expected for the price.
+AX5-0005,Demo user 005,4,2026-08-29,"Lovely screen, colours look great."
+AX5-0006,Demo user 006,1,2026-09-26,The battery drains far too fast.
+AX5-0007,Demo user 007,5,2026-08-29,The display is easy to read outdoors.
+AX5-0008,Demo user 008,5,2026-09-20,"Battery life is excellent, two days with light use."
+AX5-0009,Demo user 009,3,2026-10-03,The display is easy to read outdoors. The camera app is slow and photos are noisy.
+AX5-0010,Demo user 010,5,2026-09-26,The camera takes excellent photos.
+AX5-0011,Demo user 011,5,2026-09-11,Night photos from the camera are impressive. Fast delivery and well packed.
+AX5-0012,Demo user 012,2,2026-10-08,Performance is slow when switching apps.
+AX5-0013,Demo user 013,4,2026-08-23,The camera takes excellent photos.
+AX5-0014,Demo user 014,5,2026-10-05,Performance is fast and smooth. Fast delivery and well packed.
+AX5-0015,Demo user 015,4,2026-09-07,Delivery took four days. The camera takes excellent photos.
+AX5-0016,Demo user 016,1,2026-09-04,The battery drains far too fast.
+AX5-0017,Demo user 017,2,2026-09-07,Battery backup is poor after a few weeks.
+AX5-0018,Demo user 018,3,2026-10-25,"Too expensive compared to similar phones. Battery life is excellent, two days with light use."
+AX5-0019,Demo user 019,3,2026-08-24,Delivery was late by a week. The battery easily lasts a full day.
+AX5-0020,Demo user 020,3,2026-09-08,"Photos look washed out, camera is disappointing. The display is bright and sharp."
+AX5-0021,Demo user 021,4,2026-10-14,Night photos from the camera are impressive.
+AX5-0022,Demo user 022,3,2026-09-08,Camera does the job.
+AX5-0023,Demo user 023,1,2026-09-08,Performance is slow when switching apps.
+AX5-0024,Demo user 024,3,2026-09-28,The price is reasonable.
+AX5-0025,Demo user 025,4,2026-09-18,Performance is fast and smooth.
+AX5-0026,Demo user 026,3,2026-08-26,The battery easily lasts a full day. Too expensive compared to similar phones.
+AX5-0027,Demo user 027,1,2026-08-28,The battery drains far too fast.
+AX5-0028,Demo user 028,5,2026-09-30,"Great camera, portraits look natural. Battery life is excellent, two days with light use."
+AX5-0029,Demo user 029,5,2026-10-27,Charging is quick and the battery is reliable.
+AX5-0030,Demo user 030,5,2026-10-09,"No lag at all, performance is great for gaming."
+AX5-0031,Demo user 031,4,2026-08-11,The display is bright and sharp.
+AX5-0032,Demo user 032,5,2026-08-11,Night photos from the camera are impressive.
+AX5-0033,Demo user 033,3,2026-09-06,Performance is as expected for the price.
+AX5-0034,Demo user 034,5,2026-09-27,The battery easily lasts a full day.
+AX5-0035,Demo user 035,5,2026-10-27,"No lag at all, performance is great for gaming."
+AX5-0036,Demo user 036,4,2026-10-06,The display is easy to read outdoors. Performance is as expected for the price.
+AX5-0037,Demo user 037,2,2026-10-20,Performance is slow when switching apps.
+AX5-0038,Demo user 038,5,2026-10-24,The display is easy to read outdoors.
+AX5-0039,Demo user 039,5,2026-08-12,"Performance is fast and smooth. Lovely screen, colours look great."
+AX5-0040,Demo user 040,3,2026-09-22,Battery backup is poor after a few weeks. Fast delivery and well packed.
+AX5-0041,Demo user 041,4,2026-09-13,The display is easy to read outdoors.
+AX5-0042,Demo user 042,5,2026-08-15,"No lag at all, performance is great for gaming. The camera takes excellent photos."
+AX5-0043,Demo user 043,5,2026-08-15,Night photos from the camera are impressive.
+AX5-0044,Demo user 044,5,2026-09-01,The display is easy to read outdoors. Battery is average.
+AX5-0045,Demo user 045,3,2026-09-16,"No lag at all, performance is great for gaming. Delivery was late by a week."
+AX5-0046,Demo user 046,5,2026-09-03,Fast delivery and well packed.
+AX5-0047,Demo user 047,5,2026-08-02,The display is bright and sharp.
+AX5-0048,Demo user 048,1,2026-10-24,Battery is average. The display is dim in sunlight.
+AX5-0049,Demo user 049,3,2026-10-02,Performance is as expected for the price.
+AX5-0050,Demo user 050,5,2026-08-17,"Battery life is excellent, two days with light use. The display is bright and sharp."
+AX5-0051,Demo user 051,5,2026-08-28,Fast delivery and well packed. Performance is as expected for the price.
+AX5-0052,Demo user 052,5,2026-09-06,Charging is quick and the battery is reliable.
+AX5-0053,Demo user 053,4,2026-08-12,Fast delivery and well packed.
+AX5-0054,Demo user 054,4,2026-09-14,"No lag at all, performance is great for gaming."
+AX5-0055,Demo user 055,3,2026-09-04,Performance is as expected for the price.
+AX5-0056,Demo user 056,5,2026-09-08,"Great camera, portraits look natural."
+AX5-0057,Demo user 057,3,2026-10-05,The price is reasonable.
+AX5-0058,Demo user 058,3,2026-10-11,Performance is as expected for the price.
+AX5-0059,Demo user 059,5,2026-08-15,"No lag at all, performance is great for gaming. Battery is average."
+AX5-0060,Demo user 060,2,2026-09-25,Too expensive compared to similar phones.
+AX5-0061,Demo user 061,5,2026-08-11,Performance is fast and smooth.
+AX5-0062,Demo user 062,5,2026-08-03,Worth every rupee.
+AX5-0063,Demo user 063,5,2026-09-29,Performance is fast and smooth.
+AX5-0064,Demo user 064,5,2026-10-02,Fast delivery and well packed.
+AX5-0065,Demo user 065,1,2026-09-10,"The phone needs charging twice a day, battery is weak."
+AX5-0066,Demo user 066,2,2026-09-04,Delivery was late by a week. The battery lasts about a day.
+AX5-0067,Demo user 067,5,2026-09-06,Performance is fast and smooth.
+AX5-0068,Demo user 068,4,2026-08-19,The camera takes excellent photos.
+AX5-0069,Demo user 069,3,2026-10-20,Battery is average.
+AX5-0070,Demo user 070,4,2026-09-15,"The price is reasonable. Lovely screen, colours look great."
+AX5-0071,Demo user 071,5,2026-09-30,Performance is fast and smooth. Delivery took four days.
+AX5-0072,Demo user 072,4,2026-08-14,Fast delivery and well packed.
+AX5-0073,Demo user 073,3,2026-08-05,Screen size is normal.
+AX5-0074,Demo user 074,2,2026-10-24,Battery backup is poor after a few weeks.
+AX5-0075,Demo user 075,4,2026-08-27,Great value for the price.
+AX5-0076,Demo user 076,3,2026-08-19,Worth every rupee. The display is dim in sunlight.
+AX5-0077,Demo user 077,1,2026-10-26,"The phone needs charging twice a day, battery is weak. Screen size is normal."
+AX5-0078,Demo user 078,5,2026-09-15,Fast delivery and well packed. The camera is okay for daylight photos.
+AX5-0079,Demo user 079,5,2026-10-05,The camera takes excellent photos.
+AX5-0080,Demo user 080,5,2026-08-31,Charging is quick and the battery is reliable. The display is easy to read outdoors.
+AX5-0081,Demo user 081,1,2026-10-27,Screen size is normal. Overpriced for what you get.
+AX5-0082,Demo user 082,1,2026-10-29,Too expensive compared to similar phones.
+AX5-0083,Demo user 083,4,2026-08-25,The display is easy to read outdoors.
+AX5-0084,Demo user 084,3,2026-10-25,"The phone needs charging twice a day, battery is weak. The display is bright and sharp."
+AX5-0085,Demo user 085,5,2026-09-15,Fast delivery and well packed. Great value for the price.
+AX5-0086,Demo user 086,5,2026-10-19,Performance is fast and smooth.
+AX5-0087,Demo user 087,5,2026-10-22,The display is bright and sharp. The camera takes excellent photos.
+AX5-0088,Demo user 088,2,2026-10-14,The display is dim in sunlight.
+AX5-0089,Demo user 089,1,2026-09-29,Overpriced for what you get.
+AX5-0090,Demo user 090,2,2026-08-17,The camera is blurry in low light.
+AX5-0091,Demo user 091,2,2026-09-02,The camera is blurry in low light.
+AX5-0092,Demo user 092,2,2026-09-21,Too expensive compared to similar phones. Performance is as expected for the price.
+AX5-0093,Demo user 093,3,2026-08-12,The price is reasonable.
+AX5-0094,Demo user 094,3,2026-09-03,Delivery took four days.
+AX5-0095,Demo user 095,4,2026-08-29,Night photos from the camera are impressive.
+AX5-0096,Demo user 096,2,2026-08-15,Delivery was late by a week.
+AX5-0097,Demo user 097,5,2026-08-28,"Great camera, portraits look natural."
+AX5-0098,Demo user 098,5,2026-09-21,"No lag at all, performance is great for gaming."
+AX5-0099,Demo user 099,5,2026-08-21,Charging is quick and the battery is reliable. The display is easy to read outdoors.
+AX5-0100,Demo user 100,4,2026-09-19,The camera takes excellent photos.
+AX5-0101,Demo user 101,4,2026-10-18,Performance is fast and smooth.
+AX5-0102,Demo user 102,5,2026-08-04,Performance is fast and smooth.
+AX5-0103,Demo user 103,3,2026-08-13,The price is reasonable.
+AX5-0104,Demo user 104,3,2026-09-01,Fast delivery and well packed. The battery drains far too fast.
+AX5-0105,Demo user 105,3,2026-10-05,Performance is as expected for the price.
+AX5-0106,Demo user 106,2,2026-10-24,Too expensive compared to similar phones. Screen size is normal.
+AX5-0107,Demo user 107,4,2026-08-22,The camera takes excellent photos.
+AX5-0108,Demo user 108,3,2026-09-04,Performance is as expected for the price.
+AX5-0109,Demo user 109,4,2026-08-16,"The price is reasonable. Battery life is excellent, two days with light use."
+AX5-0110,Demo user 110,5,2026-08-29,Charging is quick and the battery is reliable.
+AX5-0111,Demo user 111,5,2026-10-25,"The display is bright and sharp. Battery life is excellent, two days with light use."
+AX5-0112,Demo user 112,4,2026-09-25,Fast delivery and well packed.
+AX5-0113,Demo user 113,3,2026-09-08,Too expensive compared to similar phones. Performance is fast and smooth.
+AX5-0114,Demo user 114,1,2026-10-14,Overpriced for what you get.
+AX5-0115,Demo user 115,5,2026-09-06,Performance is fast and smooth. Worth every rupee.
+AX5-0116,Demo user 116,5,2026-09-19,Performance is as expected for the price. The display is easy to read outdoors.
+AX5-0117,Demo user 117,4,2026-09-05,The camera takes excellent photos.
+AX5-0118,Demo user 118,5,2026-09-19,Night photos from the camera are impressive.
+AX5-0119,Demo user 119,5,2026-08-23,The display is easy to read outdoors.
+AX5-0120,Demo user 120,3,2026-09-05,The display is fine.
+AX5-0121,Demo user 121,4,2026-08-03,"Battery life is excellent, two days with light use."
+AX5-0122,Demo user 122,5,2026-08-03,The camera takes excellent photos. The price is reasonable.
+AX5-0123,Demo user 123,4,2026-08-15,Fast delivery and well packed. The price is reasonable.
+AX5-0124,Demo user 124,2,2026-09-13,Delivery was late by a week.
+AX5-0125,Demo user 125,2,2026-08-06,The battery drains far too fast.
+AX5-0126,Demo user 126,5,2026-09-13,"Lovely screen, colours look great."
+AX5-0127,Demo user 127,4,2026-08-30,The camera is okay for daylight photos. Fast delivery and well packed.
+AX5-0128,Demo user 128,3,2026-09-07,Delivery was late by a week. Performance is fast and smooth.
+AX5-0129,Demo user 129,3,2026-10-04,The price is reasonable.
+AX5-0130,Demo user 130,2,2026-09-20,Delivery was late by a week.
+AX5-0131,Demo user 131,5,2026-09-29,"No lag at all, performance is great for gaming. Great camera, portraits look natural."
+AX5-0132,Demo user 132,3,2026-09-06,The camera is okay for daylight photos.
+AX5-0133,Demo user 133,2,2026-08-19,Screen scratches far too easily.
+AX5-0134,Demo user 134,3,2026-10-02,"Lovely screen, colours look great. Overpriced for what you get."
+AX5-0135,Demo user 135,4,2026-08-25,Fast delivery and well packed.
+AX5-0136,Demo user 136,5,2026-08-17,"Lovely screen, colours look great. Performance is fast and smooth."
+AX5-0137,Demo user 137,4,2026-08-27,Night photos from the camera are impressive.
+AX5-0138,Demo user 138,5,2026-08-24,Worth every rupee. The display is fine.
+AX5-0139,Demo user 139,3,2026-09-11,The camera is okay for daylight photos. Delivery took four days.
+AX5-0140,Demo user 140,1,2026-10-22,Battery backup is poor after a few weeks.
+AX5-0141,Demo user 141,3,2026-08-22,"Great camera, portraits look natural. The battery drains far too fast."
+AX5-0142,Demo user 142,3,2026-09-07,Delivery took four days.
+AX5-0143,Demo user 143,4,2026-08-16,Delivery took four days. Night photos from the camera are impressive.
+AX5-0144,Demo user 144,5,2026-08-19,The display is easy to read outdoors. Fast delivery and well packed.
+AX5-0145,Demo user 145,2,2026-09-18,Battery backup is poor after a few weeks.
+AX5-0146,Demo user 146,3,2026-09-14,"The phone needs charging twice a day, battery is weak. Night photos from the camera are impressive."
+AX5-0147,Demo user 147,3,2026-08-26,"No lag at all, performance is great for gaming. Too expensive compared to similar phones."
+AX5-0148,Demo user 148,4,2026-10-16,Fast delivery and well packed. Screen size is normal.
+AX5-0149,Demo user 149,1,2026-09-05,"The phone needs charging twice a day, battery is weak."
+AX5-0150,Demo user 150,3,2026-09-05,The price is reasonable.

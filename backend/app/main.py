@@ -14,6 +14,7 @@ from . import config
 from .api import ai, compare, health, history, products, reviews, sites, uploads
 from .database import init_db
 from .errors import register_error_handlers
+from .version import VERSION
 
 logging.basicConfig(level=logging.INFO)
 
@@ -27,8 +28,21 @@ product links on supported websites (currently the Apple App Store).
 **Link flow:** `POST /api/products/from-url` → `GET /api/products/{id}/analysis`.
 `GET /api/sites` lists which websites are recognised and which can be collected.
 
-Sentiment is rule-based (VADER), features come from a keyword list, and
-summaries are built from the computed numbers — nothing is invented.
+**Sentiment:** a pretrained model (Twitter-RoBERTa, Cardiff NLP) when its files are installed, otherwise VADER
+(rule-based); every run records which one it used. Only English is analysed: reviews in other languages (e.g. Hindi or
+Hinglish) are marked "not analysed" and left out of the sentiment figures. Features come from keyword lists, and
+summaries are built only from the computed numbers and exact review excerpts — nothing is invented.
+
+**Reports:** `GET /api/products/{id}/report.pdf` and `report.csv` for any stored run (`analysis_id`); reviewer names are
+left out unless `include_reviewer=true` is added to the CSV request.
+
+**Comparison:** `GET /api/compare` puts two stored runs side by side (two products, or two runs of one product) with 95%
+intervals and sample-size caveats.
+
+**Optional AI overview:** off unless the server is started with `AI_SUMMARIES=on`; uses a local Ollama model only, and
+a checker rejects detectable errors (wrong numbers, invented quotes) but can't guarantee accuracy
+(`GET /api/ai/status`).
+
 All errors return `{"detail": "<readable message>"}`.
 """
 
@@ -40,7 +54,7 @@ async def lifespan(_: FastAPI):
 
 
 def create_app() -> FastAPI:
-    app = FastAPI(title="Reviews Dekho AI API", version="0.4.0", description=DESCRIPTION, lifespan=lifespan)
+    app = FastAPI(title="Reviews Dekho AI API", version=VERSION, description=DESCRIPTION, lifespan=lifespan)
     app.add_middleware(
         CORSMiddleware,
         allow_origins=config.CORS_ORIGINS,

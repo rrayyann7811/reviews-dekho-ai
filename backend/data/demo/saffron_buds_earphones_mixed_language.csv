@@ -1,0 +1,73 @@
+review_id,reviewer_name,rating,review_date,review_text
+SB-0001,Demo user 001,5,2026-09-25,The case charges quickly and the battery is good. Great sound quality for calls and music.
+SB-0002,Demo user 002,4,2026-10-11,Good value for the price.
+SB-0003,Demo user 003,5,2026-09-04,Good value for the price. Battery is average.
+SB-0004,Demo user 004,3,2026-09-27,Price is fair.
+SB-0005,Demo user 005,4,2026-09-10,The case charges quickly and the battery is good.
+SB-0006,Demo user 006,1,2026-09-10,Overpriced for the sound.
+SB-0007,Demo user 007,3,2026-10-02,Sound is decent.
+SB-0008,Demo user 008,4,2026-09-19,Great sound quality for calls and music.
+SB-0009,Demo user 009,5,2026-09-18,Great sound quality for calls and music.
+SB-0010,Demo user 010,4,2026-10-09,Good value for the price.
+SB-0011,Demo user 011,4,2026-10-04,Great sound quality for calls and music.
+SB-0012,Demo user 012,4,2026-10-15,"Solid build, fits comfortably."
+SB-0013,Demo user 013,4,2026-09-17,"Solid build, fits comfortably."
+SB-0014,Demo user 014,1,2026-09-14,The sound crackles at high volume.
+SB-0015,Demo user 015,2,2026-10-14,Overpriced for the sound.
+SB-0016,Demo user 016,5,2026-09-29,Build quality feels premium.
+SB-0017,Demo user 017,4,2026-09-25,Build quality feels premium.
+SB-0018,Demo user 018,2,2026-09-13,The sound crackles at high volume.
+SB-0019,Demo user 019,5,2026-10-28,Good value for the price.
+SB-0020,Demo user 020,4,2026-09-28,Good value for the price.
+SB-0021,Demo user 021,4,2026-10-28,Great sound quality for calls and music.
+SB-0022,Demo user 022,4,2026-10-21,Build quality feels premium.
+SB-0023,Demo user 023,1,2026-09-02,Overpriced for the sound. Battery drains in two hours.
+SB-0024,Demo user 024,1,2026-10-15,The case broke within a month. Battery drains in two hours.
+SB-0025,Demo user 025,5,2026-10-22,The case charges quickly and the battery is good.
+SB-0026,Demo user 026,3,2026-09-11,Battery is average.
+SB-0027,Demo user 027,4,2026-10-10,The sound is clear with deep bass.
+SB-0028,Demo user 028,5,2026-09-15,Good value for the price.
+SB-0029,Demo user 029,3,2026-09-14,Overpriced for the sound. The case charges quickly and the battery is good.
+SB-0030,Demo user 030,3,2026-09-09,Battery is average.
+SB-0031,Demo user 031,4,2026-10-27,The sound is clear with deep bass.
+SB-0032,Demo user 032,3,2026-09-17,Battery drains in two hours. Good value for the price.
+SB-0033,Demo user 033,3,2026-10-02,Price is fair.
+SB-0034,Demo user 034,3,2026-09-03,Good value for the price. Sound is tinny and the bass is weak.
+SB-0035,Demo user 035,5,2026-10-29,Sound is decent. Build quality feels premium.
+SB-0036,Demo user 036,5,2026-09-27,The sound is clear with deep bass.
+SB-0037,Demo user 037,4,2026-09-19,The sound is clear with deep bass.
+SB-0038,Demo user 038,2,2026-09-15,The sound crackles at high volume.
+SB-0039,Demo user 039,5,2026-09-29,Battery lasts the whole day. Great sound quality for calls and music.
+SB-0040,Demo user 040,5,2026-09-17,The case charges quickly and the battery is good. Good value for the price.
+SB-0041,Demo user 041,3,2026-09-25,Battery lasts the whole day. Sound is tinny and the bass is weak.
+SB-0042,Demo user 042,3,2026-09-25,Battery is average.
+SB-0043,Demo user 043,2,2026-09-03,Sound is tinny and the bass is weak.
+SB-0044,Demo user 044,2,2026-10-26,Battery drains in two hours.
+SB-0045,Demo user 045,4,2026-09-08,The case charges quickly and the battery is good.
+SB-0046,Demo user 046,5,2026-09-16,The case charges quickly and the battery is good.
+SB-0047,Demo user 047,3,2026-10-20,Build quality is cheap and flimsy. The sound is clear with deep bass.
+SB-0048,Demo user 048,5,2026-10-07,The sound is clear with deep bass.
+SB-0049,Demo user 049,4,2026-09-22,Good value for the price. Sound is decent.
+SB-0050,Demo user 050,5,2026-10-30,Good value for the price. Sound is decent.
+SB-0051,Demo user 051,1,2026-09-08,The case broke within a month.
+SB-0052,Demo user 052,3,2026-09-16,Price is fair.
+SB-0053,Demo user 053,3,2026-10-08,Sound is tinny and the bass is weak. Build quality feels premium.
+SB-0054,Demo user 054,5,2026-09-12,Build quality feels premium.
+SB-0055,Demo user 055,5,2026-09-28,Battery lasts the whole day.
+SB-0056,Demo user 056,4,2026-10-28,The case charges quickly and the battery is good.
+SB-0057,Demo user 057,3,2026-10-22,Build quality feels premium. Battery drains in two hours.
+SB-0058,Demo user 058,2,2026-09-26,The case broke within a month.
+SB-0059,Demo user 059,4,2026-09-10,Good value for the price. Sound is decent.
+SB-0060,Demo user 060,5,2026-09-16,"Solid build, fits comfortably."
+SB-0061,Demo user 061,5,2026-10-16,"bahut accha product hai yaar, sound ekdum mast"
+SB-0062,Demo user 062,1,2026-09-08,"bakwas earphones hai, paisa barbaad ho gaya"
+SB-0063,Demo user 063,3,2026-09-13,"sound quality theek thaak hai, battery jaldi khatam ho jati hai"
+SB-0064,Demo user 064,5,2026-10-29,"ekdum paisa vasool, bass bahut badhiya"
+SB-0065,Demo user 065,1,2026-10-29,"bilkul bekar hai, ek mahine mein kharab ho gaya"
+SB-0066,Demo user 066,4,2026-09-07,accha hai lekin case thoda kamzor hai
+SB-0067,Demo user 067,4,2026-09-18,"bahut accha product hai yaar, sound ekdum mast"
+SB-0068,Demo user 068,1,2026-10-04,"bakwas earphones hai, paisa barbaad ho gaya"
+SB-0069,Demo user 069,5,2026-10-29,"sound quality theek thaak hai, battery jaldi khatam ho jati hai"
+SB-0070,Demo user 070,5,2026-09-29,"ekdum paisa vasool, bass bahut badhiya"
+SB-0071,Demo user 071,1,2026-09-27,"bilkul bekar hai, ek mahine mein kharab ho gaya"
+SB-0072,Demo user 072,5,2026-10-25,accha hai lekin case thoda kamzor hai

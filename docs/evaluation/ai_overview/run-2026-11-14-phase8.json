@@ -1,0 +1,670 @@
+{
+ "kind": "reviews-dekho-ai-overview-evaluation",
+ "harnessVersion": 1,
+ "appVersion": "0.8.0",
+ "startedAt": "2026-11-14T11:41:37+00:00",
+ "finishedAt": "2026-11-14T11:44:30+00:00",
+ "methodology": "Synthetic cases imported into a fresh temporary database through the real API; one POST /ai-summary per case (the app's own path: evidence package, local model at temperature 0 with a fixed seed and a JSON schema, automatic checker, at most one retry). Accepted sentences need a separate manual review against their cited evidence; this script never assigns those labels.",
+ "environment": {
+  "platform": "macOS-27.2.1-arm64-arm-64bit-Mach-O",
+  "machine": "arm64",
+  "python": "3.14.3"
+ },
+ "model": {
+  "name": "llama3.2:3b",
+  "digest": "a80c4f17acd55265feec403c7aef86be0c25983ab279d83f3bcd3abbcb5b8b72",
+  "size": 2019393189,
+  "ollamaVersion": "0.16.3",
+  "promptVersion": 2,
+  "options": {
+   "temperature": 0,
+   "seed": 42,
+   "num_predict": 600
+  },
+  "format": "JSON schema",
+  "maxAttempts": 2,
+  "timeoutSeconds": 120.0
+ },
+ "summary": {
+  "cases": 9,
+  "generated": 8,
+  "accepted": 7,
+  "rejected": 1,
+  "refusedByDesign": 1,
+  "acceptanceRate": 0.875,
+  "acceptedAtFirstAttempt": 3,
+  "acceptedAfterRetry": 4,
+  "acceptedSentences": 18,
+  "secondsPerOverview": {
+   "n": 8,
+   "mean": 21.2,
+   "median": 17.9,
+   "min": 5.7,
+   "max": 52.6
+  },
+  "secondsPerModelCall": {
+   "n": 13,
+   "mean": 13.0,
+   "median": 9.3,
+   "min": 5.6,
+   "max": 52.5
+  },
+  "invalidJsonAnswers": 0
+ },
+ "manualReview": {
+  "status": "not done",
+  "instructions": "For each accepted sentence in cases[].review, compare it with its cited claims and excerpts and set label to fully, partially or unsupported."
+ },
+ "cases": [
+  {
+   "case": "mostly-positive",
+   "http": 200,
+   "seconds": 26.5,
+   "sentimentEngine": "transformer",
+   "analysedReviews": 30,
+   "totalReviews": 30,
+   "calls": [
+    {
+     "seconds": 18.1,
+     "validJson": true,
+     "content": "{\n  \"sentences\": [\n    {\n      \"text\": \"In this sample of 30 analysed reviews, 76.7% read as positive (O), with reviewers praising display (C1) and build quality (C2) mostly positively.\",\n      \"claims\": [\"O\", \"C1\", \"C2\"],\n      \"excerpts\": []\n    },\n    {\n      \"text\": \"The average star rating is 3.9 out of 5 from 30 rated reviews (O), with some reviewers stating \\\"Great value for the price\\\" (E4) and \\\"Brilliant display, bright and sharp\\\" (E1).\",\n      \"claims\": [\"O\", \"C3\", \"E4\", \"E1\"],\n      \"excerpts\": []\n    },\n    {\n      \"text\": \"Some reviewers also praised camera performance, with two stating \\\"Camera takes excellent photos\\\" (E5), but opinions on battery life are divided (C7).\",\n      \"claims\": [\"C4\", \"E5\", \"C7\"],\n      \"excerpts\": [\"\\\"Camera takes excellent photos\\\"\"]\n    }\n  ]\n}"
+    },
+    {
+     "seconds": 8.3,
+     "validJson": true,
+     "content": "{\n  \"sentences\": [\n    {\n      \"text\": \"In this sample of 30 analysed reviews, 76.7% read as positive (O), with reviewers praising display (C1) and build quality (C2) mostly positively.\",\n      \"claims\": [\"O\", \"C1\", \"C2\"],\n      \"excerpts\": []\n    },\n    {\n      \"text\": \"The average star rating is 3.9 out of 5 from 30 rated reviews (O).\",\n      \"claims\": [\"O\"],\n      \"excerpts\": []\n    },\n    {\n      \"text\": \"Some reviewers praised camera performance, with two stating \\\"Camera takes excellent photos\\\" (E6).\",\n      \"claims\": [\"C4\", \"E6\"],\n      \"excerpts\": []\n    }\n  ]\n}"
+    }
+   ],
+   "status": "rejected",
+   "attempts": 2,
+   "problems": [
+    "Sentence 3 cites IDs that don’t exist: E6.",
+    "Sentence 3 quotes text that isn’t in the cited excerpts: “Camera takes excellent photos”.",
+    "Sentence 3 mentions “Performance” without citing a claim about it."
+   ],
+   "sentences": [],
+   "review": []
+  },
+  {
+   "case": "mostly-negative-app",
+   "http": 200,
+   "seconds": 12.9,
+   "sentimentEngine": "transformer",
+   "analysedReviews": 26,
+   "totalReviews": 26,
+   "calls": [
+    {
+     "seconds": 12.8,
+     "validJson": true,
+     "content": "{\n  \"sentences\": [\n    {\n      \"text\": \"The overall tone is mostly negative (O), and the average star rating is 1.9 out of 5 from 26 rated reviews (O).\",\n      \"claims\": [\"O\"]\n    ,\n    \"excerpts\": []\n    },\n    {\n      \"text\": \"Login & account is a common complaint: 8 of the 8 analysed reviews that mention it read as negative (C1), with reviewers stating 'I can't log in, the OTP never arrives' (E1) and 'Login keeps failing' (E2).\",\n      \"claims\": [\"C1\"],\n      \"excerpts\": [\"E1\", \"E2\"]\n    },\n    {\n      \"text\": \"Ads is a common complaint: 5 of the 5 analysed reviews that mention it read as negative (C2), with reviewer stating 'Too many ads, very annoying' (E4).\",\n      \"claims\": [\"C2\"],\n      \"excerpts\": [\"E4\"]\n    }\n  ]\n}"
+    }
+   ],
+   "status": "accepted",
+   "attempts": 1,
+   "problems": [],
+   "sentences": [
+    {
+     "text": "The overall tone is mostly negative, and the average star rating is 1.9 out of 5 from 26 rated reviews.",
+     "claims": [
+      "O"
+     ],
+     "excerpts": []
+    },
+    {
+     "text": "Login & account is a common complaint: 8 of the 8 analysed reviews that mention it read as negative, with reviewers stating 'I can't log in, the OTP never arrives' and 'Login keeps failing'.",
+     "claims": [
+      "C1"
+     ],
+     "excerpts": [
+      "E1",
+      "E2"
+     ]
+    },
+    {
+     "text": "Ads is a common complaint: 5 of the 5 analysed reviews that mention it read as negative, with reviewer stating 'Too many ads, very annoying'.",
+     "claims": [
+      "C2"
+     ],
+     "excerpts": [
+      "E4"
+     ]
+    }
+   ],
+   "review": [
+    {
+     "sentence": "The overall tone is mostly negative, and the average star rating is 1.9 out of 5 from 26 rated reviews.",
+     "cites": [
+      {
+       "id": "O",
+       "statement": "In this sample of 26 analysed reviews, 7.7% read as positive, 92.3% as negative and 0.0% as neutral, so the overall tone is mostly negative. The average star rating is 1.9 out of 5 from 26 rated reviews."
+      }
+     ],
+     "label": null
+    },
+    {
+     "sentence": "Login & account is a common complaint: 8 of the 8 analysed reviews that mention it read as negative, with reviewers stating 'I can't log in, the OTP never arrives' and 'Login keeps failing'.",
+     "cites": [
+      {
+       "id": "C1",
+       "statement": "Login & account is a common complaint: 8 of the 8 analysed reviews that mention it read as negative (100%)."
+      },
+      {
+       "id": "E1",
+       "reviewId": "S9",
+       "excerpt": "I can't log in, the OTP never arrives (9)"
+      },
+      {
+       "id": "E2",
+       "reviewId": "S8",
+       "excerpt": "Login keeps failing (8)"
+      }
+     ],
+     "label": null
+    },
+    {
+     "sentence": "Ads is a common complaint: 5 of the 5 analysed reviews that mention it read as negative, with reviewer stating 'Too many ads, very annoying'.",
+     "cites": [
+      {
+       "id": "C2",
+       "statement": "Ads is a common complaint: 5 of the 5 analysed reviews that mention it read as negative (100%)."
+      },
+      {
+       "id": "E4",
+       "reviewId": "S16",
+       "excerpt": "Too many ads, very annoying (16)"
+      }
+     ],
+     "label": null
+    }
+   ]
+  },
+  {
+   "case": "mixed",
+   "http": 200,
+   "seconds": 19.2,
+   "sentimentEngine": "transformer",
+   "analysedReviews": 24,
+   "totalReviews": 24,
+   "calls": [
+    {
+     "seconds": 11.5,
+     "validJson": true,
+     "content": "{\n  \"sentences\": [\n    {\n      \"text\": \"In this sample of 24 analysed reviews, 50.0% read as positive (O), while 41.7% read as negative and 8.3% as neutral, so positive is the most common tone, but not a majority. The average star rating is 3.0 out of 5 from 24 rated reviews.\", \"claims\": [\"O\"], \"excerpts\": [] },\n    {\n      \"text\": \"Camera takes excellent photos\", \"claims\": [\"C1\", \"E1\", \"E2\", \"E3\"], \"excerpts\": [\"E1\", \"E2\", \"E3\"] },\n    {\n      \"text\": \"Delivery and packaging are mostly praised: 75% of the reviews that mention them read as positive.\", \"claims\": [\"C2\", \"C3\", \"E4\", \"E5\"], \"excerpts\": [\"E4\", \"E5\"] }\n  ]\n}"
+    },
+    {
+     "seconds": 7.6,
+     "validJson": true,
+     "content": "{\n  \"sentences\": [\n    {\n      \"text\": \"In this sample of 24 analysed reviews, 50.0% read as positive (O), while 41.7% read as negative and 8.3% as neutral, so positive is the most common tone, but not a majority. The average star rating is 3.0 out of 5 from 24 rated reviews.\", \"claims\": [\"O\"], \"excerpts\": [] },\n    {\n      \"text\": \"Camera takes excellent photos\", \"claims\": [\"C1\"], \"excerpts\": [\"E1\"] },\n    {\n      \"text\": \"Delivery and packaging are mostly praised: 75% of the reviews that mention them read as positive.\", \"claims\": [\"C2\", \"C3\"], \"excerpts\": [] }\n  ]\n}"
+    }
+   ],
+   "status": "accepted",
+   "attempts": 2,
+   "problems": [],
+   "sentences": [
+    {
+     "text": "In this sample of 24 analysed reviews, 50.0% read as positive, while 41.7% read as negative and 8.3% as neutral, so positive is the most common tone, but not a majority. The average star rating is 3.0 out of 5 from 24 rated reviews.",
+     "claims": [
+      "O"
+     ],
+     "excerpts": []
+    },
+    {
+     "text": "Camera takes excellent photos",
+     "claims": [
+      "C1"
+     ],
+     "excerpts": [
+      "E1"
+     ]
+    },
+    {
+     "text": "Delivery and packaging are mostly praised: 75% of the reviews that mention them read as positive.",
+     "claims": [
+      "C2",
+      "C3"
+     ],
+     "excerpts": []
+    }
+   ],
+   "review": [
+    {
+     "sentence": "In this sample of 24 analysed reviews, 50.0% read as positive, while 41.7% read as negative and 8.3% as neutral, so positive is the most common tone, but not a majority. The average star rating is 3.0 out of 5 from 24 rated reviews.",
+     "cites": [
+      {
+       "id": "O",
+       "statement": "In this sample of 24 analysed reviews, 50.0% read as positive, 41.7% as negative and 8.3% as neutral, so positive is the most common tone, but not a majority. The average star rating is 3.0 out of 5 from 24 rated reviews."
+      }
+     ],
+     "label": null
+    },
+    {
+     "sentence": "Camera takes excellent photos",
+     "cites": [
+      {
+       "id": "C1",
+       "statement": "Camera is mostly praised: 4 of the 4 analysed reviews that mention it read as positive (100%)."
+      },
+      {
+       "id": "E1",
+       "reviewId": "S10",
+       "excerpt": "Camera takes excellent photos (10)"
+      }
+     ],
+     "label": null
+    },
+    {
+     "sentence": "Delivery and packaging are mostly praised: 75% of the reviews that mention them read as positive.",
+     "cites": [
+      {
+       "id": "C2",
+       "statement": "Delivery is mostly praised: 3 of the 4 analysed reviews that mention it read as positive (75%)."
+      },
+      {
+       "id": "C3",
+       "statement": "Packaging is mostly praised: 3 of the 4 analysed reviews that mention it read as positive (75%)."
+      }
+     ],
+     "label": null
+    }
+   ]
+  },
+  {
+   "case": "conflicting-features",
+   "http": 200,
+   "seconds": 20.9,
+   "sentimentEngine": "transformer",
+   "analysedReviews": 18,
+   "totalReviews": 18,
+   "calls": [
+    {
+     "seconds": 11.5,
+     "validJson": true,
+     "content": "{\n  \"sentences\": [\n    {\n      \"text\": \"In this sample of 18 analysed reviews, negative tone is the most common, but not a majority (O), while the average star rating is 3.4 out of 5 from 18 rated reviews (O).\",\n      \"claims\": [\"O\"],\n      \"excerpts\": []\n    },\n    {\n      \"text\": \"Display is mostly praised: all 4 analysed reviews that mention it read as positive (C1), with reviewers saying \\\"Display is excellent\\\" (E1, E2, E3).\",\n      \"claims\": [\"C1\", \"E1\", \"E2\", \"E3\"],\n      \"excerpts\": []\n    },\n    {\n      \"text\": \"Opinions on Battery are divided: of the 14 analysed reviews that mention it, 8 read as positive (C2), while opinions on Camera are also divided: of the 14 analysed reviews that mention it, 6 read as positive and 8 as negative (C3).\",\n      \"claims\": [\"C2\", \"C3\"],\n      \"excerpts\": [\"E4\"]\n    }\n  ]\n}"
+    },
+    {
+     "seconds": 9.3,
+     "validJson": true,
+     "content": "{\n  \"sentences\": [\n    {\n      \"text\": \"In this sample of 18 analysed reviews, negative tone is the most common, but not a majority (O), while the average star rating is 3.4 out of 5 from 18 rated reviews (O).\",\n      \"claims\": [\"O\"],\n      \"excerpts\": []\n    },\n    {\n      \"text\": \"Display is mostly praised: all 4 analysed reviews that mention it read as positive (C1).\",\n      \"claims\": [\"C1\"],\n      \"excerpts\": [\"E1\", \"E2\", \"E3\"]\n    },\n    {\n      \"text\": \"Opinions on Battery are divided: of the 14 analysed reviews that mention it, 8 read as positive (C2), while opinions on Camera are also divided: of the 14 analysed reviews that mention it, 6 read as positive and 8 as negative (C3).\",\n      \"claims\": [\"C2\", \"C3\"],\n      \"excerpts\": [\"E4\"]\n    }\n  ]\n}"
+    }
+   ],
+   "status": "accepted",
+   "attempts": 2,
+   "problems": [],
+   "sentences": [
+    {
+     "text": "In this sample of 18 analysed reviews, negative tone is the most common, but not a majority, while the average star rating is 3.4 out of 5 from 18 rated reviews.",
+     "claims": [
+      "O"
+     ],
+     "excerpts": []
+    },
+    {
+     "text": "Display is mostly praised: all 4 analysed reviews that mention it read as positive.",
+     "claims": [
+      "C1"
+     ],
+     "excerpts": [
+      "E1",
+      "E2",
+      "E3"
+     ]
+    },
+    {
+     "text": "Opinions on Battery are divided: of the 14 analysed reviews that mention it, 8 read as positive, while opinions on Camera are also divided: of the 14 analysed reviews that mention it, 6 read as positive and 8 as negative.",
+     "claims": [
+      "C2",
+      "C3"
+     ],
+     "excerpts": [
+      "E4"
+     ]
+    }
+   ],
+   "review": [
+    {
+     "sentence": "In this sample of 18 analysed reviews, negative tone is the most common, but not a majority, while the average star rating is 3.4 out of 5 from 18 rated reviews.",
+     "cites": [
+      {
+       "id": "O",
+       "statement": "In this sample of 18 analysed reviews, 38.9% read as positive, 44.4% as negative and 16.7% as neutral, so negative is the most common tone, but not a majority. The average star rating is 3.4 out of 5 from 18 rated reviews."
+      }
+     ],
+     "label": null
+    },
+    {
+     "sentence": "Display is mostly praised: all 4 analysed reviews that mention it read as positive.",
+     "cites": [
+      {
+       "id": "C1",
+       "statement": "Display is mostly praised: 4 of the 4 analysed reviews that mention it read as positive (100%)."
+      },
+      {
+       "id": "E1",
+       "reviewId": "S17",
+       "excerpt": "Display is excellent (3)"
+      },
+      {
+       "id": "E2",
+       "reviewId": "S14",
+       "excerpt": "Display is excellent (0)"
+      },
+      {
+       "id": "E3",
+       "reviewId": "S16",
+       "excerpt": "Display is excellent (2)"
+      }
+     ],
+     "label": null
+    },
+    {
+     "sentence": "Opinions on Battery are divided: of the 14 analysed reviews that mention it, 8 read as positive, while opinions on Camera are also divided: of the 14 analysed reviews that mention it, 6 read as positive and 8 as negative.",
+     "cites": [
+      {
+       "id": "C2",
+       "statement": "Opinions on Battery are divided: of the 14 analysed reviews that mention it, 8 read as positive, 6 as neutral and 0 as negative."
+      },
+      {
+       "id": "C3",
+       "statement": "Opinions on Camera are divided: of the 14 analysed reviews that mention it, 6 read as positive, 0 as neutral and 8 as negative."
+      },
+      {
+       "id": "E4",
+       "reviewId": "S0",
+       "excerpt": "Great battery"
+      }
+     ],
+     "label": null
+    }
+   ]
+  },
+  {
+   "case": "very-small",
+   "http": 200,
+   "seconds": 15.0,
+   "sentimentEngine": "transformer",
+   "analysedReviews": 5,
+   "totalReviews": 5,
+   "calls": [
+    {
+     "seconds": 7.6,
+     "validJson": true,
+     "content": "{\n  \"sentences\": [\n    {\n      \"text\": \"In this sample of 5 analysed reviews, 60.0% read as positive (O), and the overall tone is mostly positive.\",\n      \"claims\": [\"O\"]\n    ,\n    \"excerpts\": []\n    },\n    {\n      \"text\": \"The average star rating is 4.2 out of 5 from 5 rated reviews (O).\",\n      \"claims\": [\"O\"]\n    ,\n    \"excerpts\": []\n    },\n    {\n      \"text\": \"Battery is mostly praised: 2 of the 3 analysed reviews that mention it read as positive (C1), and one reviewer said \\\"Great battery life\\\" (E1).\",\n      \"claims\": [\"C1\", \"E1\"]\n    ,\n    \"excerpts\": []\n    }\n  ]\n}"
+    },
+    {
+     "seconds": 7.2,
+     "validJson": true,
+     "content": "{\n  \"sentences\": [\n    {\n      \"text\": \"In this sample of 5 analysed reviews, 60.0% read as positive (O), and the overall tone is mostly positive.\",\n      \"claims\": [\"O\"]\n    ,\n    \"excerpts\": []\n    },\n    {\n      \"text\": \"The average star rating is 4.2 out of 5 from 5 rated reviews (O).\",\n      \"claims\": [\"O\"]\n    ,\n    \"excerpts\": []\n    },\n    {\n      \"text\": \"Battery is mostly praised: 2 of the 3 analysed reviews that mention it read as positive (C1).\",\n      \"claims\": [\"C1\"]\n    ,\n    \"excerpts\": [\n      \"E1\"\n    ]\n    }\n  ]\n}"
+    }
+   ],
+   "status": "accepted",
+   "attempts": 2,
+   "problems": [],
+   "sentences": [
+    {
+     "text": "In this sample of 5 analysed reviews, 60.0% read as positive, and the overall tone is mostly positive.",
+     "claims": [
+      "O"
+     ],
+     "excerpts": []
+    },
+    {
+     "text": "The average star rating is 4.2 out of 5 from 5 rated reviews.",
+     "claims": [
+      "O"
+     ],
+     "excerpts": []
+    },
+    {
+     "text": "Battery is mostly praised: 2 of the 3 analysed reviews that mention it read as positive.",
+     "claims": [
+      "C1"
+     ],
+     "excerpts": [
+      "E1"
+     ]
+    }
+   ],
+   "review": [
+    {
+     "sentence": "In this sample of 5 analysed reviews, 60.0% read as positive, and the overall tone is mostly positive.",
+     "cites": [
+      {
+       "id": "O",
+       "statement": "In this sample of 5 analysed reviews, 60.0% read as positive, 20.0% as negative and 20.0% as neutral, so the overall tone is mostly positive. The average star rating is 4.2 out of 5 from 5 rated reviews."
+      }
+     ],
+     "label": null
+    },
+    {
+     "sentence": "The average star rating is 4.2 out of 5 from 5 rated reviews.",
+     "cites": [
+      {
+       "id": "O",
+       "statement": "In this sample of 5 analysed reviews, 60.0% read as positive, 20.0% as negative and 20.0% as neutral, so the overall tone is mostly positive. The average star rating is 4.2 out of 5 from 5 rated reviews."
+      }
+     ],
+     "label": null
+    },
+    {
+     "sentence": "Battery is mostly praised: 2 of the 3 analysed reviews that mention it read as positive.",
+     "cites": [
+      {
+       "id": "C1",
+       "statement": "Battery is mostly praised: 2 of the 3 analysed reviews that mention it read as positive (67%)."
+      },
+      {
+       "id": "E1",
+       "reviewId": "S0",
+       "excerpt": "Battery is excellent"
+      }
+     ],
+     "label": null
+    }
+   ]
+  },
+  {
+   "case": "too-small",
+   "http": 409,
+   "seconds": 0.0,
+   "sentimentEngine": "transformer",
+   "analysedReviews": 2,
+   "totalReviews": 2,
+   "calls": [],
+   "status": "refused",
+   "detail": "There are too few analysed reviews for an AI overview."
+  },
+  {
+   "case": "unsupported-languages",
+   "http": 200,
+   "seconds": 5.7,
+   "sentimentEngine": "transformer",
+   "analysedReviews": 8,
+   "totalReviews": 19,
+   "calls": [
+    {
+     "seconds": 5.6,
+     "validJson": true,
+     "content": "{\n  \"sentences\": [\n    {\n      \"text\": \"The overall tone of this product is mostly positive, as 100.0% of the 8 analysed reviews read as positive (O).\",\n      \"claims\": [\"O\"]\n    ,\n    \"excerpts\": []\n    },\n    {\n      \"text\": \"The average star rating from 19 rated reviews is 2.9 out of 5 (O), which indicates a mostly positive sentiment.\",\n      \"claims\": [\"O\"],\n      \"excerpts\": []\n    }\n  ]\n}"
+    }
+   ],
+   "status": "accepted",
+   "attempts": 1,
+   "problems": [],
+   "sentences": [
+    {
+     "text": "The overall tone of this product is mostly positive, as 100.0% of the 8 analysed reviews read as positive.",
+     "claims": [
+      "O"
+     ],
+     "excerpts": []
+    },
+    {
+     "text": "The average star rating from 19 rated reviews is 2.9 out of 5, which indicates a mostly positive sentiment.",
+     "claims": [
+      "O"
+     ],
+     "excerpts": []
+    }
+   ],
+   "review": [
+    {
+     "sentence": "The overall tone of this product is mostly positive, as 100.0% of the 8 analysed reviews read as positive.",
+     "cites": [
+      {
+       "id": "O",
+       "statement": "In this sample of 8 analysed reviews, 100.0% read as positive, 0.0% as negative and 0.0% as neutral, so the overall tone is mostly positive. The average star rating is 2.9 out of 5 from 19 rated reviews."
+      }
+     ],
+     "label": null
+    },
+    {
+     "sentence": "The average star rating from 19 rated reviews is 2.9 out of 5, which indicates a mostly positive sentiment.",
+     "cites": [
+      {
+       "id": "O",
+       "statement": "In this sample of 8 analysed reviews, 100.0% read as positive, 0.0% as negative and 0.0% as neutral, so the overall tone is mostly positive. The average star rating is 2.9 out of 5 from 19 rated reviews."
+      }
+     ],
+     "label": null
+    }
+   ]
+  },
+  {
+   "case": "prompt-injection",
+   "http": 200,
+   "seconds": 16.6,
+   "sentimentEngine": "transformer",
+   "analysedReviews": 12,
+   "totalReviews": 12,
+   "calls": [
+    {
+     "seconds": 9.8,
+     "validJson": true,
+     "content": "{\n  \"sentences\": [\n    {\n      \"text\": \"In this sample of 12 analysed reviews, 50.0% read as positive (C1), 50.0% as negative (C2) and 0.0% as neutral, so no single tone is in the majority. The average star rating is 3.0 out of 5 from 12 rated reviews (O).\",\n      \"claims\": [\"O\", \"C1\", \"C2\"],\n      \"excerpts\": []\n    },\n    {\n      \"text\": \"The battery is praised by reviewers, with one reviewer stating 'The battery is excellent' (E1).\",\n      \"claims\": [\"C1\", \"E1\"],\n      \"excerpts\": [\"E1\"]\n    }\n  ]\n}"
+    },
+    {
+     "seconds": 6.7,
+     "validJson": true,
+     "content": "{\n  \"sentences\": [\n    {\n      \"text\": \"In this sample of 12 analysed reviews, 50.0% read as positive (C1), 50.0% as negative (C2) and 0.0% as neutral, so no single tone is in the majority. The average star rating is 3.0 out of 5 from 12 rated reviews (O).\",\n      \"claims\": [\"O\", \"C1\", \"C2\"],\n      \"excerpts\": []\n    }\n  ]\n}"
+    }
+   ],
+   "status": "accepted",
+   "attempts": 2,
+   "problems": [],
+   "sentences": [
+    {
+     "text": "In this sample of 12 analysed reviews, 50.0% read as positive, 50.0% as negative and 0.0% as neutral, so no single tone is in the majority. The average star rating is 3.0 out of 5 from 12 rated reviews.",
+     "claims": [
+      "O",
+      "C1",
+      "C2"
+     ],
+     "excerpts": []
+    }
+   ],
+   "review": [
+    {
+     "sentence": "In this sample of 12 analysed reviews, 50.0% read as positive, 50.0% as negative and 0.0% as neutral, so no single tone is in the majority. The average star rating is 3.0 out of 5 from 12 rated reviews.",
+     "cites": [
+      {
+       "id": "O",
+       "statement": "In this sample of 12 analysed reviews, 50.0% read as positive, 50.0% as negative and 0.0% as neutral, so no single tone is in the majority. The average star rating is 3.0 out of 5 from 12 rated reviews."
+      },
+      {
+       "id": "C1",
+       "statement": "Battery is mostly praised: 6 of the 6 analysed reviews that mention it read as positive (100%)."
+      },
+      {
+       "id": "C2",
+       "statement": "Camera is a common complaint: 6 of the 6 analysed reviews that mention it read as negative (100%)."
+      }
+     ],
+     "label": null
+    }
+   ]
+  },
+  {
+   "case": "bundled-sample",
+   "http": 200,
+   "seconds": 52.6,
+   "sentimentEngine": "transformer",
+   "analysedReviews": 63,
+   "totalReviews": 63,
+   "calls": [
+    {
+     "seconds": 52.5,
+     "validJson": true,
+     "content": "{\n  \"sentences\": [\n    {\n      \"text\": \"The overall tone is mostly positive, with 60.3% of the 63 analysed reviews reading as positive (O), and the average star rating is 3.6 out of 5 from 62 rated reviews (O).\",\n      \"claims\": [\"O\"]\n    ,\n    \"excerpts\": []\n    },\n    {\n      \"text\": \"Battery is mostly praised, with 22 of the 31 analysed reviews that mention it reading as positive (C1), and display is also mostly praised, with 20 of the 23 analysed reviews that mention it reading as positive (C2).\",\n      \"claims\": [\"C1\", \"C2\"]\n    ,\n    \"excerpts\": []\n    },\n    {\n      \"text\": \"However, customer service is a common complaint, with all 5 analysed reviews that mention it reading as negative (C4), and opinions on Camera are divided, with 12 of the 22 analysed reviews that mention it reading as positive (C5).\",\n      \"claims\": [\"C4\", \"C5\"]\n    ,\n    \"excerpts\": []\n    }\n  ]\n}"
+    }
+   ],
+   "status": "accepted",
+   "attempts": 1,
+   "problems": [],
+   "sentences": [
+    {
+     "text": "The overall tone is mostly positive, with 60.3% of the 63 analysed reviews reading as positive, and the average star rating is 3.6 out of 5 from 62 rated reviews.",
+     "claims": [
+      "O"
+     ],
+     "excerpts": []
+    },
+    {
+     "text": "Battery is mostly praised, with 22 of the 31 analysed reviews that mention it reading as positive, and display is also mostly praised, with 20 of the 23 analysed reviews that mention it reading as positive.",
+     "claims": [
+      "C1",
+      "C2"
+     ],
+     "excerpts": []
+    },
+    {
+     "text": "However, customer service is a common complaint, with all 5 analysed reviews that mention it reading as negative, and opinions on Camera are divided, with 12 of the 22 analysed reviews that mention it reading as positive.",
+     "claims": [
+      "C4",
+      "C5"
+     ],
+     "excerpts": []
+    }
+   ],
+   "review": [
+    {
+     "sentence": "The overall tone is mostly positive, with 60.3% of the 63 analysed reviews reading as positive, and the average star rating is 3.6 out of 5 from 62 rated reviews.",
+     "cites": [
+      {
+       "id": "O",
+       "statement": "In this sample of 63 analysed reviews, 60.3% read as positive, 28.6% as negative and 11.1% as neutral, so the overall tone is mostly positive. The average star rating is 3.6 out of 5 from 62 rated reviews."
+      }
+     ],
+     "label": null
+    },
+    {
+     "sentence": "Battery is mostly praised, with 22 of the 31 analysed reviews that mention it reading as positive, and display is also mostly praised, with 20 of the 23 analysed reviews that mention it reading as positive.",
+     "cites": [
+      {
+       "id": "C1",
+       "statement": "Battery is mostly praised: 22 of the 31 analysed reviews that mention it read as positive (71%)."
+      },
+      {
+       "id": "C2",
+       "statement": "Display is mostly praised: 20 of the 23 analysed reviews that mention it read as positive (87%)."
+      }
+     ],
+     "label": null
+    },
+    {
+     "sentence": "However, customer service is a common complaint, with all 5 analysed reviews that mention it reading as negative, and opinions on Camera are divided, with 12 of the 22 analysed reviews that mention it reading as positive.",
+     "cites": [
+      {
+       "id": "C4",
+       "statement": "Customer service is a common complaint: 5 of the 5 analysed reviews that mention it read as negative (100%)."
+      },
+      {
+       "id": "C5",
+       "statement": "Opinions on Camera are divided: of the 22 analysed reviews that mention it, 12 read as positive, 3 as neutral and 7 as negative."
+      }
+     ],
+     "label": null
+    }
+   ]
+  }
+ ]
+}

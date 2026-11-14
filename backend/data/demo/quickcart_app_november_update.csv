@@ -1,0 +1,91 @@
+review_id,reviewer_name,rating,review_date,review_text
+QC-0121,Demo user 121,1,2026-11-03,The app is very slow to load.
+QC-0122,Demo user 122,1,2026-11-05,"The app is very slow to load. I can't log in, the OTP never arrives."
+QC-0123,Demo user 123,1,2026-11-07,The app keeps crashing after the update.
+QC-0124,Demo user 124,1,2026-11-05,"I can't log in, the OTP never arrives."
+QC-0125,Demo user 125,2,2026-11-09,The app keeps crashing after the update.
+QC-0126,Demo user 126,1,2026-11-04,The app keeps crashing after the update.
+QC-0127,Demo user 127,5,2026-11-13,Payments are quick and easy.
+QC-0128,Demo user 128,2,2026-11-13,Login keeps failing.
+QC-0129,Demo user 129,5,2026-11-11,"No crashes so far, very stable."
+QC-0130,Demo user 130,1,2026-11-10,Payments keep failing at checkout. It crashes every time I open the cart.
+QC-0131,Demo user 131,1,2026-11-01,The app keeps crashing after the update. Login keeps failing.
+QC-0132,Demo user 132,3,2026-11-12,"UPI payment works every time. I can't log in, the OTP never arrives."
+QC-0133,Demo user 133,4,2026-11-07,Login with OTP is quick.
+QC-0134,Demo user 134,2,2026-11-03,The app is very slow to load.
+QC-0135,Demo user 135,3,2026-11-13,Speed is okay.
+QC-0136,Demo user 136,2,2026-11-08,The app keeps crashing after the update.
+QC-0137,Demo user 137,3,2026-11-09,It crashes every time I open the cart. Payments are quick and easy.
+QC-0138,Demo user 138,2,2026-11-12,The app keeps crashing after the update.
+QC-0139,Demo user 139,5,2026-11-08,UPI payment works every time.
+QC-0140,Demo user 140,2,2026-11-10,The app is very slow to load.
+QC-0141,Demo user 141,3,2026-11-12,Login with OTP is quick. The app is very slow to load.
+QC-0142,Demo user 142,2,2026-11-08,Login keeps failing.
+QC-0143,Demo user 143,1,2026-11-08,Payment failed but money was deducted. The app keeps crashing after the update.
+QC-0144,Demo user 144,1,2026-11-11,It crashes every time I open the cart. Speed is okay.
+QC-0145,Demo user 145,1,2026-11-06,Payment failed but money was deducted. The app is very slow to load.
+QC-0146,Demo user 146,4,2026-11-08,Payments are quick and easy.
+QC-0147,Demo user 147,1,2026-11-05,The app keeps crashing after the update. Payment failed but money was deducted.
+QC-0148,Demo user 148,1,2026-11-01,Login keeps failing.
+QC-0149,Demo user 149,1,2026-11-11,The app is very slow to load.
+QC-0150,Demo user 150,1,2026-11-11,"The app keeps crashing after the update. I can't log in, the OTP never arrives."
+QC-0151,Demo user 151,2,2026-11-05,Payment failed but money was deducted.
+QC-0152,Demo user 152,1,2026-11-07,Login keeps failing. It crashes every time I open the cart.
+QC-0153,Demo user 153,1,2026-11-06,The app keeps crashing after the update. The app is very slow to load.
+QC-0154,Demo user 154,3,2026-11-02,Speed is okay.
+QC-0155,Demo user 155,2,2026-11-07,The app is very slow to load.
+QC-0156,Demo user 156,1,2026-11-10,"The app keeps crashing after the update. I can't log in, the OTP never arrives."
+QC-0157,Demo user 157,3,2026-11-05,Speed is okay.
+QC-0158,Demo user 158,1,2026-11-11,"The app keeps crashing after the update. I can't log in, the OTP never arrives."
+QC-0159,Demo user 159,4,2026-11-05,Payments are quick and easy. Speed is okay.
+QC-0160,Demo user 160,2,2026-11-05,Login keeps failing.
+QC-0161,Demo user 161,1,2026-11-07,Login keeps failing. It crashes every time I open the cart.
+QC-0162,Demo user 162,3,2026-11-07,Payment options are standard.
+QC-0163,Demo user 163,1,2026-11-05,The app is very slow to load.
+QC-0164,Demo user 164,3,2026-11-06,Speed is okay.
+QC-0165,Demo user 165,1,2026-11-12,"It crashes every time I open the cart. I can't log in, the OTP never arrives."
+QC-0166,Demo user 166,1,2026-11-03,The app keeps crashing after the update.
+QC-0167,Demo user 167,1,2026-11-03,The app is very slow to load.
+QC-0168,Demo user 168,1,2026-11-01,Login keeps failing.
+QC-0169,Demo user 169,4,2026-11-02,Payments are quick and easy.
+QC-0170,Demo user 170,2,2026-11-08,Speed is okay. It crashes every time I open the cart.
+QC-0171,Demo user 171,3,2026-11-05,Payments keep failing at checkout. Pages load quickly.
+QC-0172,Demo user 172,1,2026-11-13,"The app is very slow to load. I can't log in, the OTP never arrives."
+QC-0173,Demo user 173,3,2026-11-07,Payment failed but money was deducted. Login with OTP is quick.
+QC-0174,Demo user 174,2,2026-11-13,"I can't log in, the OTP never arrives."
+QC-0175,Demo user 175,1,2026-11-01,The app is very slow to load. Payments keep failing at checkout.
+QC-0176,Demo user 176,2,2026-11-08,The app is very slow to load.
+QC-0177,Demo user 177,1,2026-11-01,"I can't log in, the OTP never arrives."
+QC-0178,Demo user 178,1,2026-11-02,It crashes every time I open the cart. Payment failed but money was deducted.
+QC-0179,Demo user 179,1,2026-11-09,Login keeps failing.
+QC-0180,Demo user 180,1,2026-11-11,It crashes every time I open the cart. The app is very slow to load.
+QC-0181,Demo user 181,2,2026-11-04,The app is very slow to load.
+QC-0182,Demo user 182,1,2026-11-01,The app keeps crashing after the update. Payments keep failing at checkout.
+QC-0183,Demo user 183,1,2026-11-10,The app keeps crashing after the update.
+QC-0184,Demo user 184,1,2026-11-04,Login keeps failing.
+QC-0185,Demo user 185,4,2026-11-01,Payments are quick and easy.
+QC-0186,Demo user 186,2,2026-11-07,Login keeps failing.
+QC-0187,Demo user 187,2,2026-11-04,Speed is okay. Payments keep failing at checkout.
+QC-0188,Demo user 188,2,2026-11-01,Payment failed but money was deducted.
+QC-0189,Demo user 189,2,2026-11-08,Payments keep failing at checkout.
+QC-0190,Demo user 190,1,2026-11-11,The app keeps crashing after the update. Payment failed but money was deducted.
+QC-0191,Demo user 191,1,2026-11-02,"I can't log in, the OTP never arrives."
+QC-0192,Demo user 192,5,2026-11-06,Payments are quick and easy.
+QC-0193,Demo user 193,3,2026-11-02,The app is very slow to load. UPI payment works every time.
+QC-0194,Demo user 194,2,2026-11-08,Login keeps failing.
+QC-0195,Demo user 195,1,2026-11-12,Login keeps failing.
+QC-0196,Demo user 196,2,2026-11-02,The app keeps crashing after the update.
+QC-0197,Demo user 197,3,2026-11-01,"UPI payment works every time. I can't log in, the OTP never arrives."
+QC-0198,Demo user 198,3,2026-11-09,The app keeps crashing after the update. UPI payment works every time.
+QC-0199,Demo user 199,1,2026-11-13,The app is very slow to load.
+QC-0200,Demo user 200,5,2026-11-11,UPI payment works every time.
+QC-0201,Demo user 201,1,2026-11-10,The app keeps crashing after the update.
+QC-0202,Demo user 202,1,2026-11-03,"I can't log in, the OTP never arrives. The app is very slow to load."
+QC-0203,Demo user 203,3,2026-11-04,Payment options are standard.
+QC-0204,Demo user 204,5,2026-11-11,Login with OTP is quick.
+QC-0205,Demo user 205,1,2026-11-04,The app keeps crashing after the update.
+QC-0206,Demo user 206,3,2026-11-07,The app is very slow to load. UPI payment works every time.
+QC-0207,Demo user 207,3,2026-11-10,Payment options are standard.
+QC-0208,Demo user 208,1,2026-11-02,"I can't log in, the OTP never arrives."
+QC-0209,Demo user 209,1,2026-11-07,The app keeps crashing after the update.
+QC-0210,Demo user 210,2,2026-11-11,"I can't log in, the OTP never arrives."

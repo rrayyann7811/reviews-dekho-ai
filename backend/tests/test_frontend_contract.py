@@ -111,3 +111,22 @@ def test_collected_product_fields_the_analysis_page_uses(client):
     for model in (AnalysisProduct, ProductSummary):
         aliases = {f.alias for f in model.model_fields.values()}
         assert {"sourceUrl", "sourceSiteName", "sourceRegion", "collectedAt"} <= aliases
+
+
+def test_one_version_everywhere(client):
+    from app.collectors.http import USER_AGENT
+    from app.version import VERSION
+
+    package = json.loads((FRONTEND_DEMO_JSON.parents[2] / "package.json").read_text())
+    assert package["version"] == VERSION
+    assert client.get("/api/health").json()["version"] == VERSION
+    assert client.get("/openapi.json").json()["info"]["version"] == VERSION
+    assert USER_AGENT.startswith(f"ReviewsDekhoAI/{VERSION} ")
+
+
+def test_api_description_matches_the_current_method(client):
+    description = client.get("/openapi.json").json()["info"]["description"]
+    for phrase in ("Twitter-RoBERTa", "otherwise VADER", "Only English is analysed", "report.pdf", "report.csv",
+                   "/api/compare", "AI_SUMMARIES=on", "can't guarantee accuracy"):
+        assert phrase in description, phrase
+    assert "Sentiment is rule-based (VADER)" not in description

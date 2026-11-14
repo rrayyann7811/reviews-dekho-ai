@@ -163,6 +163,37 @@ describe('with the backend running', () => {
     expect(await screen.findByText(/No usable reviews were found/)).toBeInTheDocument()
   })
 
+  it('upload: large files get a time estimate before and a status message during the import', async () => {
+    let finish
+    mockBackend({
+      'GET /health': { status: 'ok' },
+      'GET /products': [],
+      'POST /uploads/preview': { fileName: 'big.csv', rowCount: 12000, columns: ['review'], sampleRows: [{ review: 'Good' }],
+        detected: { text: 'review' }, productName: null, warnings: [] },
+      'POST /uploads/import': () => new Promise((resolve) => { finish = () => resolve(json({ detail: 'stopped for the test' }, 422)) }),
+    })
+    renderAt('/upload')
+    fireEvent.change(screen.getByLabelText('Review file'), { target: { files: [new File(['review'], 'big.csv', { type: 'text/csv' })] } })
+    expect(await screen.findByText(/Analysing 12,000 reviews takes a while: about 2 minutes/)).toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: 'Import and analyse' }))
+    const progress = await screen.findByText('Importing and analysing 12,000 rows… this can take about 2 minutes. Keep this page open.')
+    expect(progress.closest('[role="status"]')).not.toBeNull()   // announced to screen readers
+    finish()
+    expect(await screen.findByText('stopped for the test')).toBeInTheDocument()
+  })
+
+  it('upload: small files show no time warning', async () => {
+    mockBackend({
+      'GET /health': { status: 'ok' },
+      'POST /uploads/preview': { fileName: 'r.csv', rowCount: 5000, columns: ['review'], sampleRows: [{ review: 'Good' }],
+        detected: { text: 'review' }, productName: null, warnings: [] },
+    })
+    renderAt('/upload')
+    fireEvent.change(screen.getByLabelText('Review file'), { target: { files: [new File(['review'], 'r.csv', { type: 'text/csv' })] } })
+    await screen.findByRole('button', { name: 'Import and analyse' })
+    expect(screen.queryByText(/takes a while/)).not.toBeInTheDocument()
+  })
+
   it('unsupported links show the backend’s answer', async () => {
     mockBackend({
       'GET /health': { status: 'ok' },

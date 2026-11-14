@@ -2,10 +2,11 @@
 import httpx
 
 from .. import config
+from ..version import VERSION
 from .base import SourceUnavailable
 
 # Identifies the app without any personal details.
-USER_AGENT = "ReviewsDekhoAI/0.3 (student project; review analysis)"
+USER_AGENT = f"ReviewsDekhoAI/{VERSION} (student project; review analysis)"
 
 
 def make_client() -> httpx.Client:

@@ -1,0 +1,121 @@
+review_id,reviewer_name,rating,review_date,review_text
+QC-0001,Demo user 001,5,2026-10-28,"Customer support solved my issue quickly. No crashes so far, very stable."
+QC-0002,Demo user 002,3,2026-10-08,The layout is fine.
+QC-0003,Demo user 003,5,2026-10-09,UPI payment works every time.
+QC-0004,Demo user 004,1,2026-10-21,The layout is fine. Too many ads and pop-ups.
+QC-0005,Demo user 005,4,2026-10-24,The design is clean and easy to use. Support replied after a day.
+QC-0006,Demo user 006,3,2026-10-28,"The design is clean and easy to use. Ads everywhere, very annoying."
+QC-0007,Demo user 007,5,2026-10-25,Payments are quick and easy.
+QC-0008,Demo user 008,3,2026-10-02,Speed is okay. The layout is fine.
+QC-0009,Demo user 009,5,2026-10-05,Login with OTP is quick.
+QC-0010,Demo user 010,4,2026-10-27,"Very simple to use, nice design."
+QC-0011,Demo user 011,4,2026-10-02,"No crashes so far, very stable."
+QC-0012,Demo user 012,3,2026-10-05,"Pages load quickly. Ads everywhere, very annoying."
+QC-0013,Demo user 013,2,2026-10-23,Login keeps failing.
+QC-0014,Demo user 014,3,2026-10-07,"No crashes so far, very stable. Payment failed but money was deducted."
+QC-0015,Demo user 015,1,2026-10-22,"I can't log in, the OTP never arrives."
+QC-0016,Demo user 016,5,2026-10-21,"Pages load quickly. No crashes so far, very stable."
+QC-0017,Demo user 017,3,2026-10-12,UPI payment works every time. Too many ads and pop-ups.
+QC-0018,Demo user 018,4,2026-10-31,"No crashes so far, very stable."
+QC-0019,Demo user 019,1,2026-10-16,"Ads everywhere, very annoying."
+QC-0020,Demo user 020,5,2026-10-09,"Pages load quickly. No crashes so far, very stable."
+QC-0021,Demo user 021,1,2026-10-15,Payments keep failing at checkout.
+QC-0022,Demo user 022,3,2026-10-09,"No crashes so far, very stable. Ads everywhere, very annoying."
+QC-0023,Demo user 023,4,2026-10-24,Pages load quickly.
+QC-0024,Demo user 024,1,2026-10-05,The app keeps crashing after the update.
+QC-0025,Demo user 025,5,2026-10-12,"No crashes so far, very stable."
+QC-0026,Demo user 026,1,2026-10-02,Login keeps failing. Support replied after a day.
+QC-0027,Demo user 027,5,2026-10-08,Payments are quick and easy.
+QC-0028,Demo user 028,5,2026-10-26,Payments are quick and easy.
+QC-0029,Demo user 029,1,2026-10-14,Too many ads and pop-ups.
+QC-0030,Demo user 030,2,2026-10-26,The app is very slow to load.
+QC-0031,Demo user 031,2,2026-10-29,My order arrived late again.
+QC-0032,Demo user 032,2,2026-10-27,Customer support never responds.
+QC-0033,Demo user 033,5,2026-10-18,Customer support solved my issue quickly. Pages load quickly.
+QC-0034,Demo user 034,3,2026-10-09,The layout is fine.
+QC-0035,Demo user 035,2,2026-10-09,Too many ads and pop-ups.
+QC-0036,Demo user 036,5,2026-10-20,Login with OTP is quick.
+QC-0037,Demo user 037,3,2026-10-28,"No crashes so far, very stable. Customer support never responds."
+QC-0038,Demo user 038,2,2026-10-04,Payments keep failing at checkout.
+QC-0039,Demo user 039,5,2026-10-03,"Login with OTP is quick. No crashes so far, very stable."
+QC-0040,Demo user 040,1,2026-10-28,Payments keep failing at checkout.
+QC-0041,Demo user 041,3,2026-10-19,"Ads everywhere, very annoying. Login with OTP is quick."
+QC-0042,Demo user 042,4,2026-10-11,Login with OTP is quick.
+QC-0043,Demo user 043,4,2026-10-11,"No crashes so far, very stable."
+QC-0044,Demo user 044,1,2026-10-13,Orders usually take a day. Payment failed but money was deducted.
+QC-0045,Demo user 045,1,2026-10-05,"Ads everywhere, very annoying. Login keeps failing."
+QC-0046,Demo user 046,4,2026-10-09,"No crashes so far, very stable."
+QC-0047,Demo user 047,3,2026-10-17,"I can't log in, the OTP never arrives. Orders arrive on time."
+QC-0048,Demo user 048,5,2026-10-20,Customer support solved my issue quickly. The app is fast and smooth.
+QC-0049,Demo user 049,3,2026-10-27,"Ads everywhere, very annoying. No crashes so far, very stable."
+QC-0050,Demo user 050,1,2026-10-05,My order arrived late again.
+QC-0051,Demo user 051,2,2026-10-25,The app is very slow to load.
+QC-0052,Demo user 052,4,2026-10-20,Delivery of my orders is always quick.
+QC-0053,Demo user 053,2,2026-10-27,"The layout is fine. Ads everywhere, very annoying."
+QC-0054,Demo user 054,4,2026-10-23,Customer support solved my issue quickly.
+QC-0055,Demo user 055,1,2026-10-21,The new design is confusing. My order arrived late again.
+QC-0056,Demo user 056,3,2026-10-18,Customer support never responds. Login with OTP is quick.
+QC-0057,Demo user 057,5,2026-10-04,Delivery of my orders is always quick.
+QC-0058,Demo user 058,3,2026-10-13,Orders usually take a day.
+QC-0059,Demo user 059,5,2026-10-17,UPI payment works every time.
+QC-0060,Demo user 060,4,2026-10-02,UPI payment works every time.
+QC-0061,Demo user 061,2,2026-10-02,Login keeps failing.
+QC-0062,Demo user 062,5,2026-10-07,Delivery of my orders is always quick.
+QC-0063,Demo user 063,3,2026-10-05,"No crashes so far, very stable. Too many ads and pop-ups."
+QC-0064,Demo user 064,4,2026-10-11,Orders arrive on time.
+QC-0065,Demo user 065,1,2026-10-15,"Ads everywhere, very annoying."
+QC-0066,Demo user 066,5,2026-10-20,Orders arrive on time.
+QC-0067,Demo user 067,2,2026-10-09,Payments keep failing at checkout.
+QC-0068,Demo user 068,3,2026-10-22,"The app is fast and smooth. Ads everywhere, very annoying."
+QC-0069,Demo user 069,3,2026-10-21,The layout is fine.
+QC-0070,Demo user 070,3,2026-10-09,"Login with OTP is quick. Ads everywhere, very annoying."
+QC-0071,Demo user 071,3,2026-10-25,Speed is okay.
+QC-0072,Demo user 072,3,2026-10-29,Orders usually take a day.
+QC-0073,Demo user 073,5,2026-10-14,Delivery of my orders is always quick. Payment options are standard.
+QC-0074,Demo user 074,1,2026-10-07,"Payment failed but money was deducted. Ads everywhere, very annoying."
+QC-0075,Demo user 075,3,2026-10-13,Support replied after a day.
+QC-0076,Demo user 076,2,2026-10-24,Too many ads and pop-ups.
+QC-0077,Demo user 077,4,2026-10-28,Orders arrive on time.
+QC-0078,Demo user 078,5,2026-10-08,The design is clean and easy to use. Customer support solved my issue quickly.
+QC-0079,Demo user 079,4,2026-10-17,Payments are quick and easy.
+QC-0080,Demo user 080,3,2026-10-16,Payment options are standard.
+QC-0081,Demo user 081,2,2026-10-16,"Too many menus, hard to use."
+QC-0082,Demo user 082,5,2026-10-03,Login with OTP is quick.
+QC-0083,Demo user 083,1,2026-10-12,Payments keep failing at checkout.
+QC-0084,Demo user 084,5,2026-10-20,"No crashes so far, very stable. Login with OTP is quick."
+QC-0085,Demo user 085,1,2026-10-16,The app is very slow to load. The layout is fine.
+QC-0086,Demo user 086,4,2026-10-20,Payments are quick and easy.
+QC-0087,Demo user 087,1,2026-10-02,Too many ads and pop-ups.
+QC-0088,Demo user 088,4,2026-10-01,Login with OTP is quick.
+QC-0089,Demo user 089,4,2026-10-09,Payments are quick and easy.
+QC-0090,Demo user 090,1,2026-10-16,Customer support never responds.
+QC-0091,Demo user 091,3,2026-10-22,The design is clean and easy to use. Payment failed but money was deducted.
+QC-0092,Demo user 092,3,2026-10-04,Orders usually take a day.
+QC-0093,Demo user 093,1,2026-10-04,"Ads everywhere, very annoying. Support replied after a day."
+QC-0094,Demo user 094,1,2026-10-13,Payments keep failing at checkout.
+QC-0095,Demo user 095,3,2026-10-31,"Too many menus, hard to use. No crashes so far, very stable."
+QC-0096,Demo user 096,5,2026-10-28,Pages load quickly.
+QC-0097,Demo user 097,4,2026-10-10,Login with OTP is quick.
+QC-0098,Demo user 098,5,2026-10-26,Login with OTP is quick. Payments are quick and easy.
+QC-0099,Demo user 099,5,2026-10-19,"Orders arrive on time. No crashes so far, very stable."
+QC-0100,Demo user 100,2,2026-10-13,"Ads everywhere, very annoying."
+QC-0101,Demo user 101,4,2026-10-16,"No crashes so far, very stable. Support replied after a day."
+QC-0102,Demo user 102,5,2026-10-28,"No crashes so far, very stable. Login with OTP is quick."
+QC-0103,Demo user 103,5,2026-10-17,Login with OTP is quick.
+QC-0104,Demo user 104,4,2026-10-11,Login with OTP is quick.
+QC-0105,Demo user 105,2,2026-10-02,Login keeps failing.
+QC-0106,Demo user 106,1,2026-10-13,Payments keep failing at checkout. Wrong items in my order twice.
+QC-0107,Demo user 107,2,2026-10-07,"Ads everywhere, very annoying."
+QC-0108,Demo user 108,4,2026-10-17,The design is clean and easy to use.
+QC-0109,Demo user 109,4,2026-10-02,Support replied after a day. Login with OTP is quick.
+QC-0110,Demo user 110,2,2026-10-16,Customer support never responds.
+QC-0111,Demo user 111,2,2026-10-31,Too many ads and pop-ups.
+QC-0112,Demo user 112,3,2026-10-11,"No crashes so far, very stable. Ads everywhere, very annoying."
+QC-0113,Demo user 113,2,2026-10-02,Too many ads and pop-ups.
+QC-0114,Demo user 114,3,2026-10-28,Too many ads and pop-ups. Login with OTP is quick.
+QC-0115,Demo user 115,1,2026-10-12,Customer support never responds. Orders usually take a day.
+QC-0116,Demo user 116,4,2026-10-07,"No crashes so far, very stable."
+QC-0117,Demo user 117,3,2026-10-14,"UPI payment works every time. Ads everywhere, very annoying."
+QC-0118,Demo user 118,2,2026-10-21,Too many ads and pop-ups.
+QC-0119,Demo user 119,3,2026-10-11,"No crashes so far, very stable. Too many ads and pop-ups."
+QC-0120,Demo user 120,5,2026-10-05,Login with OTP is quick.

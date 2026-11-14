@@ -4,6 +4,7 @@ import Panel from '../components/ui/Panel'
 import { api } from '../lib/api'
 import { useServerStatus } from '../lib/serverStatus'
 import { useSettings } from '../lib/settings'
+import { STATIC_DEMO, STATIC_DEMO_MESSAGE } from '../lib/staticDemo'
 
 const STATUS_TEXT = { online: 'Connected', offline: 'Not reachable', checking: 'Checking…' }
 
@@ -26,13 +27,19 @@ export default function Settings() {
       <div className="max-w-3xl space-y-6">
         <Panel title="Analysis server" bodyClassName="px-5">
           <dl className="divide-y divide-line">
-            <Row label="Address"><code className="text-[13px]">{api.baseUrl}</code></Row>
-            <Row label="Status">
-              <span className="flex items-center gap-3">
-                {STATUS_TEXT[status]}
-                <Button variant="secondary" size="sm" onClick={check} disabled={status === 'checking'}>Check again</Button>
-              </span>
-            </Row>
+            {STATIC_DEMO ? (
+              <Row label="Status">Not used: this is the online demo. {STATIC_DEMO_MESSAGE}</Row>
+            ) : (
+              <>
+                <Row label="Address"><code className="text-[13px]">{api.baseUrl}</code></Row>
+                <Row label="Status">
+                  <span className="flex items-center gap-3">
+                    {STATUS_TEXT[status]}
+                    <Button variant="secondary" size="sm" onClick={check} disabled={status === 'checking'}>Check again</Button>
+                  </span>
+                </Row>
+              </>
+            )}
           </dl>
         </Panel>
 
@@ -59,11 +66,23 @@ export default function Settings() {
           <dl className="space-y-4 text-[13px]">
             <div>
               <dt className="font-medium text-ink">Sentiment</dt>
-              <dd className="mt-0.5 text-ink-3">Each review is scored with VADER, a rule-based method that uses a dictionary of positive and negative words. Scores range from −1 to +1; above +0.05 is positive, below −0.05 negative, anything in between neutral. It can misread sarcasm and very short reviews.</dd>
+              <dd className="mt-0.5 text-ink-3">
+                By default each review is read by a pretrained language model (Twitter-RoBERTa by Cardiff NLP), which labels it
+                positive, neutral or negative. If the model files aren’t installed or the model fails, the whole run uses VADER instead,
+                a rule-based method that scores words from a dictionary. Every run records which method it used, and the analysis
+                page shows it. Both can misread sarcasm.
+              </dd>
+            </div>
+            <div>
+              <dt className="font-medium text-ink">Languages</dt>
+              <dd className="mt-0.5 text-ink-3">
+                Only English is analysed. Reviews that look like Hindi, Hinglish or another language are marked “Not analysed” and
+                left out of the sentiment and feature figures; their star ratings still count.
+              </dd>
             </div>
             <div>
               <dt className="font-medium text-ink">Product features</dt>
-              <dd className="mt-0.5 text-ink-3">Reviews are split into short phrases. A phrase that mentions a feature word (for example “battery” or “charging”) is scored on its own, so one review can praise one feature and criticise another.</dd>
+              <dd className="mt-0.5 text-ink-3">Reviews are split into short phrases. A phrase that mentions a feature word (for example “battery” or “login”) is scored on its own, so one review can praise one feature and criticise another. Features are found by keywords, so ones described in other words are missed.</dd>
             </div>
             <div>
               <dt className="font-medium text-ink">Star ratings</dt>

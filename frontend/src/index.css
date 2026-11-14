@@ -1,5 +1,29 @@
 @import "tailwindcss";
 
+/* IBM Plex Sans is bundled (SIL Open Font License, src/assets/fonts/LICENSE-IBM-Plex-Sans.txt), so pages load no
+   third-party fonts. Only the three weights the design uses are included. */
+@font-face {
+  font-family: "IBM Plex Sans";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("./assets/fonts/IBMPlexSans-Regular.woff2") format("woff2");
+}
+@font-face {
+  font-family: "IBM Plex Sans";
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("./assets/fonts/IBMPlexSans-Medium.woff2") format("woff2");
+}
+@font-face {
+  font-family: "IBM Plex Sans";
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("./assets/fonts/IBMPlexSans-SemiBold.woff2") format("woff2");
+}
+
 /* Design tokens — see docs/DESIGN_SYSTEM.md. Chart colours mirrored in src/lib/theme.js */
 @theme {
   --font-sans: "IBM Plex Sans", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;

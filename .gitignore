@@ -29,3 +29,6 @@ coverage/
 # Downloaded model weights and evaluation datasets (fetched by scripts)
 backend/models/
 backend/data/eval/
+
+# Static demo build (npm run build:demo)
+dist-demo/

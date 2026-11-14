@@ -1,4 +1,5 @@
 import { useServerStatus } from '../lib/serverStatus'
+import { STATIC_DEMO, STATIC_DEMO_MESSAGE } from '../lib/staticDemo'
 import Alert from './ui/Alert'
 import Button from './ui/Button'
 
@@ -6,6 +7,9 @@ import Button from './ui/Button'
 export default function ServerNotice({ feature, className = 'mb-6' }) {
   const { status, check } = useServerStatus()
   if (status !== 'offline') return null
+  if (STATIC_DEMO) {
+    return <Alert variant="info" title={`${feature} isn’t available in the online demo`} className={className}>{STATIC_DEMO_MESSAGE}</Alert>
+  }
   return (
     <Alert
       variant="warning"

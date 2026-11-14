@@ -25,7 +25,7 @@ Rules:
 
 ## Typography
 
-**IBM Plex Sans** (UI) with system fallback; numbers use `tabular-nums`.
+**IBM Plex Sans** (UI; weights 400, 500, 600 bundled locally in `frontend/src/assets/fonts/`, SIL OFL 1.1 — no third-party font requests) with system fallback; numbers use `tabular-nums`.
 
 | Role | Size / weight |
 |---|---|

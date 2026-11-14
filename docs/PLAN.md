@@ -92,8 +92,8 @@ reviews-dekho-ai/
 | 4 | NLP engine: pretrained model + VADER fallback, app features, language check, evaluation | ✅ Done 2026-11-14, committed `14c33f3` |
 | 5 | Analytics dashboard wired to stored results: server-side review paging, re-analyse, edge states | ✅ Done 2026-11-14, committed `d5c3f67` |
 | 6 | Evidence-backed summaries, PDF reports (6a); optional local AI overview (6b) | ✅ Done 2026-11-14, including live `llama3.2:3b` evaluation; committed `5950d89` |
-| 7 | Comparison: two stored runs side by side (two products or two runs of one), intervals, caveats | ✅ Implemented and verified 2026-11-14 (awaiting review and commit approval) |
-| 8 | QA, README, screenshots, GitHub | Tests green, push only after your confirmation |
+| 7 | Comparison: two stored runs side by side (two products or two runs of one), intervals, caveats | ✅ Done 2026-11-14, committed `b370e62` |
+| 8 | Portfolio readiness: correctness, reproducible demo and AI evaluation, accessibility, privacy, README, CI | ✅ Implemented and verified 2026-11-14 (awaiting review and commit approval; nothing pushed or deployed) |
 
 ## 7. Progress log
 
@@ -700,3 +700,112 @@ no shared features.
   "Speed & performance" excerpt is about delivery speed, not the app).
 * Product vs app comparisons share no feature lists, so only tone and ratings are compared.
 * No comparison export, and the demo product can't be compared.
+
+**2026-11-14 — Phase 8 (portfolio readiness, reproducibility, accessibility, final QA)** — not committed yet
+
+Phase 7 was committed first (`b370e62`). Approved decisions: MIT for original code (third-party licences kept); synthetic
+data only in public screenshots and examples; prepare (not deploy) a static demo-only frontend; add CI without pushing;
+verify Python 3.12 if available; the backend stays local-only.
+
+### 8A — Correctness and reproducibility
+* **Stale method text fixed** (bug since Phase 4): Settings and the Swagger description said every review is scored
+  with VADER. Both now say: RoBERTa by default when installed, VADER as the whole-run fallback, English only with other
+  languages excluded; Swagger also describes reports, comparison and the optional AI (with "can't guarantee accuracy").
+  Tests pin the wording (frontend Settings test, backend description test).
+* **Dependencies:** `nltk` removed (no import anywhere; all tests pass without it). `openpyxl` stays (pandas uses it
+  for Excel).
+* **One version, 0.8.0:** `backend/app/version.py` feeds the API, `/health`, OpenAPI and the collector User-Agent
+  (was 0.4.0 / 0.4.0 / 0.3); `frontend/package.json` and the lockfile root (was `frontend` 0.0.0) match. A contract
+  test checks all of them.
+* **Demo data:** `backend/data/demo/` — four synthetic CSVs (Aurora X5 phone 150, QuickCart app October 120 + November
+  90, Saffron Buds earphones 72 with 12 Hinglish), generated deterministically by `scripts/make_demo_data.py` (placeholder
+  names "Demo user NNN"; a README marks them synthetic). One demo phrase ("The display is smooth…") was reworded after the
+  screenshot review because "smooth" also matched Performance — a real keyword limitation, still documented, but not
+  something the demo should showcase by accident.
+* **`scripts/seed_demo.py`:** loads the bundled Kestrel sample and the demo files through the real API into a separate
+  database (default `backend/storage/demo.db`, git-ignored), adding the November reviews as QuickCart's second run.
+  Safety checks run before anything is opened: the real database and the file `DATABASE_URL` names are refused, names
+  must end in `.db` and contain "demo", no symlinks or folders, only `backend/storage/` or outside the repository, an
+  existing file only with `--reset` **and** the script's marker table. Prints a content digest of all stored results
+  (timestamps and IDs excluded). 11 tests (`tests/test_demo_seed.py`: every refusal, the real database's hash unchanged,
+  repeatability through `--reset` and a second file, contents, placeholder names, reproducible CSVs); mutation checks:
+  ignoring the marker or the real-database rule each fail tests.
+* **Repeatability measured:** VADER digest `c7f42cc6…` identical on fresh Python 3.12.16 and 3.14.3 and across runs;
+  RoBERTa digest identical across runs (`6ead4d5f…` for the final data).
+
+### 8B — AI evaluation reproducibility
+* `scripts/ai_eval_cases.py`: the Phase 6 synthetic cases, byte-identical (checked with `diff`); the two real App Store
+  cases are deliberately excluded. `scripts/evaluate_ai_overview.py`: imports each case plus the synthetic sample into a
+  temporary database, calls the real `POST /ai-summary`, records model name and digest, Ollama version, options,
+  prompt version, timestamps, per-case status/attempts/timings, raw answers and checker findings, and a review sheet with
+  each accepted sentence beside its cited claims and excerpts with an **empty** label. Without Ollama it says why and
+  exits with code 3, writing nothing.
+* `docs/evaluation/ai_overview/phase6-round4-historical.json`: the Phase 6 final round, written from its saved output,
+  kept separate and never regenerated; the two App Store cases keep numbers only (no answers, sentences or checker
+  messages). The 20 / 4 / 0 labels are recorded with who assigned them (the AI coding assistant during Phase 6, not
+  re-checked by a person).
+* `docs/evaluation/ai_overview/run-2026-11-14-phase8.json`: a new live run (Ollama 0.16.3, `llama3.2:3b`, digest
+  `a80c4f17acd5…` — the same model as Phase 6): **7 of 8 accepted** (1 rejected after the retry; "too small" refused by
+  design), 5.7–52.6 s per overview (mean 21.2). **Manual review not done; labels left empty.** It is not a reproduction
+  of Phase 6: the three cases whose input didn't change (mostly-negative-app, too-small, the sample) produced
+  byte-identical answers; the others changed because the overview wording changed with the majority fix.
+* 3 tests (`tests/test_ai_eval_files.py`): the cases are synthetic, missing Ollama gives exit 3 and no file, committed
+  runs contain no App Store text and no invented labels.
+
+### 8C — Accessibility, privacy, UX
+* **Fonts:** IBM Plex Sans 400/500/600 (official `@ibm/plex-sans` 1.1.0 package, complete woff2, 197 KB) bundled in
+  `frontend/src/assets/fonts/` with its SIL OFL licence; the three Google Fonts tags were removed. Vite fingerprints the
+  files and resolves them relative to the page.
+* **Audit** (axe-core 4.10.2 injected into headless Chrome; WCAG 2.0/2.1 A + AA and best practices, which include
+  colour contrast) on 16 routes — Overview, Analyse, Upload, History, product overview / reviews / features, an app with
+  two runs, the Hinglish product's reviews, the demo product, Compare (empty, two phones, two runs), Reports, Settings,
+  404 — at 375, 768 and 1440 px against the demo database. One moderate finding (404 page without an `h1`) was fixed
+  (it now uses the shared page header; the navigation test now requires an `h1` on every page). Final: **48 views, 0
+  violations of any impact, no horizontal overflow, every Tab stop with a visible focus ring, and no request to any
+  other origin than the app and its API**.
+* **Large analyses:** `lib/workload.js` estimates the time from the measured 190 texts/s (Apple M3, 8 GB) and about two
+  texts per review. Uploads over 5,000 reviews show the estimate before importing; every import now shows a visible,
+  screen-reader-announced status while it runs (previously only the button text changed); re-analysing more than 5,000
+  reviews shows the estimate too. 4 tests.
+* **Static demo build** (`npm run build:demo` → `dist-demo/`, git-ignored): Vite mode `staticdemo` with relative paths
+  and hash routing; it never calls `fetch` (not even the visitor's localhost), the server status starts "offline" without
+  pinging, and the notices say what needs the local app instead of how to start a server. 3 tests (no request at all; the
+  demo product works; the notices and Settings). Served from a sub-folder with a plain static server: 48 views at three
+  widths, 0 violations, no external requests. Not deployed.
+
+### 8D — Presentation
+* README rewritten for GitHub visitors: overview, features, six screenshots, two-minute demo, stack, Mermaid
+  architecture diagram, configuration, API table, evaluation methodology and results, comparison methodology, optional
+  AI with both evaluation runs and the checker's limits, security and privacy, local-only deployment and the static
+  demo, exact test results, limitations, licences. Every figure quoted was re-checked against its source (two wrong
+  example numbers typed into a draft were caught and replaced by the database's exact statements).
+* `LICENSE` (MIT, with the third-party font exceptions listed). Screenshots (`docs/screenshots/`, 392 KB, palette PNGs)
+  from the synthetic demo database only, each inspected.
+
+### 8E — CI and fresh install
+* `.github/workflows/ci.yml` (not pushed, so never run): backend on Python 3.12 and 3.14 with `SENTIMENT_ENGINE=vader`
+  (no model download, no Ollama), demo-seed repeatability, demo-file reproducibility; frontend `npm ci`, tests, lint,
+  build, static-demo build on Node 24. Read-only permissions. YAML validated locally.
+* **Fresh copy** of exactly the files Git would include (no venv, models, storage, databases or `node_modules`): new
+  virtualenvs on Python 3.12.16 and 3.14.3 → **395 passed, 11 skipped** each; `npm ci` → 130 passed, lint clean, both
+  builds OK; the README demo flow run literally (seed, uvicorn on `storage/demo.db`, products, comparison, PDF), and a
+  second seed refused.
+
+### Verification (exact)
+* Backend `pytest` (development setup, Python 3.14.3, model installed, Ollama off): **405 passed, 1 skipped** (the live
+  Ollama test); the live test passed separately with Ollama running. Without the model: 395 passed, 11 skipped. 16 new
+  tests (2 contract, 11 demo seed, 3 AI evaluation files) plus updated health test.
+* Frontend `vitest`: **130 passed** (8 new: Settings wording, two upload-size messages, two workload, three static demo);
+  `oxlint` clean; `vite build` and `build:demo` OK.
+* The real database `backend/storage/reviews_dekho.db` was never opened for writing: SHA-256 `ce263088…` before and after.
+  The `llama3` 8B model is untouched (files dated Feb 2026). Ollama, the verification servers and headless Chrome were
+  stopped.
+
+### Remaining limitations
+* CI has never run on GitHub (nothing pushed); it was simulated locally only.
+* The Phase 8 AI run's accepted sentences haven't been reviewed by a person; the Phase 6 labels were assigned by the AI
+  coding assistant.
+* Accessibility was checked automatically (axe) and with a keyboard Tab pass, not with a screen reader or by users with
+  disabilities.
+* Large analyses still run inside one request (no background jobs); the estimate is based on one machine.
+* The static demo shows one synthetic product only; it hasn't been deployed or tested on GitHub Pages itself.

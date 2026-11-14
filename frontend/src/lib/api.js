@@ -1,4 +1,6 @@
 // Single place for talking to the FastAPI backend.
+import { STATIC_DEMO, STATIC_DEMO_MESSAGE } from './staticDemo'
+
 const API_URL = (import.meta.env.VITE_API_URL || 'http://localhost:8000/api').replace(/\/$/, '')
 
 export class ApiError extends Error {
@@ -10,6 +12,7 @@ export class ApiError extends Error {
 }
 
 async function request(path, options = {}) {
+  if (STATIC_DEMO) throw new ApiError(STATIC_DEMO_MESSAGE, { offline: true })   // never contact any server
   let response
   try {
     response = await fetch(`${API_URL}${path}`, options)
@@ -78,6 +81,7 @@ export const api = {
   },
   /** Downloads a report file. Resolves to the file name; rejects with ApiError (e.g. the server's reason). */
   downloadReport: async (productId, format, analysisId) => {
+    if (STATIC_DEMO) throw new ApiError(STATIC_DEMO_MESSAGE, { offline: true })
     let response
     try {
       response = await fetch(api.reportUrl(productId, format, analysisId))

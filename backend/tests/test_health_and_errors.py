@@ -3,12 +3,13 @@ from fastapi import APIRouter
 from fastapi.testclient import TestClient
 
 from app.main import app
+from app.version import VERSION
 
 
 def test_health(client):
     response = client.get("/api/health")
     assert response.status_code == 200
-    assert response.json() == {"status": "ok", "database": "ok", "version": "0.4.0"}
+    assert response.json() == {"status": "ok", "database": "ok", "version": VERSION}
 
 
 def test_unknown_path_returns_readable_404(client):

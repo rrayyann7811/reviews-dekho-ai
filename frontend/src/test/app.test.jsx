@@ -37,8 +37,7 @@ describe('navigation', () => {
   ]
   it.each(pages)('%s renders its page', async (path, heading) => {
     renderAt(path)
-    const found = path === '/nowhere' ? screen.findByText(heading) : screen.findByRole('heading', { level: 1, name: heading })
-    expect(await found).toBeInTheDocument()
+    expect(await screen.findByRole('heading', { level: 1, name: heading })).toBeInTheDocument()   // every page has one h1
   })
 
   it('sidebar links move between pages', async () => {
@@ -137,5 +136,17 @@ describe('product analysis (demo)', () => {
     renderAt('/products/demo')
     fireEvent.click(await screen.findByRole('tab', { name: 'Features & keywords' }))
     expect(screen.getByRole('table')).toHaveTextContent('Battery')
+  })
+})
+
+describe('settings page', () => {
+  it('describes the current method: RoBERTa by default, VADER as the fallback, English only', async () => {
+    renderAt('/settings')
+    const method = (await screen.findByRole('heading', { name: 'How the analysis works' })).closest('section')
+    expect(method).toHaveTextContent('pretrained language model (Twitter-RoBERTa by Cardiff NLP)')
+    expect(method).toHaveTextContent('the whole run uses VADER instead')
+    expect(method).toHaveTextContent('Only English is analysed')
+    expect(method).toHaveTextContent('left out of the sentiment and feature figures')
+    expect(method).not.toHaveTextContent('Each review is scored with VADER')
   })
 })
