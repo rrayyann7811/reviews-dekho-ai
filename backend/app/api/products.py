@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, Response, status
+from fastapi import APIRouter, Depends, Query, Response, status
 from sqlalchemy.orm import Session
 
 from ..database import get_db
@@ -76,18 +76,20 @@ def delete_product(product_id: int, db: Session = Depends(get_db)):
 @router.get("/{product_id}/analysis", response_model=Analysis,
             responses=NOT_FOUND | {409: {"model": ErrorResponse, "description": "Not analysed yet"}},
             summary="Latest full analysis: stats, features, keywords, summary and every review")
-def get_analysis(product_id: int, db: Session = Depends(get_db)):
-    return analysis_service.analysis_out(product_service.get_product(db, product_id))
+def get_analysis(product_id: int, include_reviews: bool = Query(True, description="Include every review"),
+                 db: Session = Depends(get_db)):
+    return analysis_service.analysis_out(product_service.get_product(db, product_id), include_reviews)
 
 
 @router.post("/{product_id}/analyze", response_model=Analysis,
              responses=NOT_FOUND | {422: {"model": ErrorResponse, "description": "No reviews to analyse"}},
              summary="Run the analysis again (for example after adding reviews)")
-def reanalyze(product_id: int, db: Session = Depends(get_db)):
+def reanalyze(product_id: int, include_reviews: bool = Query(True, description="Include every review"),
+              db: Session = Depends(get_db)):
     product = product_service.get_product(db, product_id)
     analysis_service.run_analysis(db, product)
     db.commit()
-    return analysis_service.analysis_out(product)
+    return analysis_service.analysis_out(product, include_reviews)
 
 
 @router.post("/{product_id}/refresh", response_model=ProductSummary, responses=NOT_FOUND | COLLECTION_ERRORS,

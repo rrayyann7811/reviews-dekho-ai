@@ -90,7 +90,7 @@ reviews-dekho-ai/
 | 2 | FastAPI, models, schemas, CRUD, Swagger, **CSV/XLSX ingestion with column detection and preview** (moved up from Phase 3), history, frontend wired to the API | ✅ Done 2026-11-14 |
 | 3 | URL review collection through permitted sources (adapters), history integrity, schema migrations | ✅ Done 2026-11-14 |
 | 4 | NLP engine: pretrained model + VADER fallback, app features, language check, evaluation | ✅ Done 2026-11-14 (awaiting commit approval) |
-| 5 | Analytics dashboard wired to the API | All charts/filters use backend data |
+| 5 | Analytics dashboard wired to stored results: server-side review paging, re-analyse, edge states | ✅ Implemented and verified 2026-11-14 (awaiting review and commit approval) |
 | 6 | Grounded summaries (+ optional Ollama) | Summaries cite counts and real quotes |
 | 7 | Comparison | Side-by-side view with sample-size caveats |
 | 8 | QA, README, screenshots, GitHub | Tests green, push only after your confirmation |
@@ -402,3 +402,60 @@ reproduced the frontend demo snapshot exactly.
   uncommon words can still be flagged. Hinglish is detected and excluded, **not** analysed.
 * Port 8000 is used by another app on this machine; set `VITE_API_URL` or stop that app when running both.
 * `nltk` is listed in `requirements.txt` from Phase 0 but is not used (left unchanged in this phase).
+
+**2026-11-14 — Phase 5 implemented (analytics dashboard on stored results)** — not committed yet
+
+Phase 4 was committed first (`14c33f3`, "feat: add pretrained sentiment model, app features, language check and
+evaluation") after the requested pre-commit audit: repository root confirmed; no env files, databases, model weights or
+evaluation data staged; EVALUATION.md gained a Methodology section (label mapping, averaging, why E1 macro F1 > accuracy,
+full development/evaluation overlap) and the untouched SentiMix **test** split; README added with model install,
+fallback, English-only limitations, licences and attribution.
+
+### What the dashboard now does
+Every number comes from the stored analysis run being viewed; nothing is computed or invented in the browser for
+stored products.
+
+| Area | Implementation |
+|---|---|
+| Overview | `GET /products/{id}/analysis?include_reviews=false` — stats, features, keywords, summary, engine, without the review list (a 20,000-review product no longer sends every review to the page). |
+| Stat tiles | Reviews analysed + how many were not in English; average rating; positive / neutral / negative. When nothing could be analysed the percentages show "—" and "Not measurable", not 0%. |
+| Charts | Tone of the text and star ratings stay separate. New **tone of the text by star rating** (per star: positive / neutral / negative and "not analysed"), derived on the server from the stored per-review results (`review_query.tone_by_rating`); the demo snapshot uses the same function. |
+| Features | Mention counts and positive / neutral / negative split bars (shared `SplitBar`), verdicts, example quotes. |
+| Reviews | Server-side search (title, text, reviewer), sentiment filters (incl. mixed, stars-disagree, not analysed), rating filters (incl. no rating), sorting (missing dates/scores last) and pages of 20 with "Show N more" — `GET /products/{id}/reviews`, pinned to the run being viewed with `analysis_id`. The offline demo filters locally with the same rules; one shared fixture (`frontend/src/test/fixtures/review-query-cases.json`, 15 cases) is checked by both test suites. Loading, error-with-retry and empty states. |
+| Read review | Opens a pinned "Selected review" panel (`GET /products/{id}/reviews/{reviewId}`), whichever page the review is on. |
+| Engine | Named in the page header ("Sentiment: RoBERTa sentiment model", "(backup method)" on fallback) and in the method note with the fallback reason. |
+| Re-analyse | Header button → inline confirmation explaining that a new run is added and earlier ones are kept → spinner and disabled button while running → "Analysis updated" or the server's error. Not offered for the demo. |
+| Edge states | No analysis yet / old run without per-review results (409) → empty state with "Analyse now"; unknown product (404); no star ratings; no features or keywords; all reviews in another language (explanation instead of an empty chart; history shows "—" instead of 0%). |
+
+### Bugs found while verifying (all fixed, with tests or browser checks)
+* **Horizontal overflow at 375 px**: the tone-by-rating rows (non-wrapping counts + minimum bar width) made the page
+  418 px wide. Phones now show the counts above a full-width bar; desktop layout unchanged.
+* **Wrong bar labels (from Phase 1)**: Recharts' label index skips zero-length bars, so with an empty category the
+  labels moved to the wrong rows (an all-Hinglish product showed "0 · 0%" on full 1★/2★ bars). Value text is now a
+  second category axis, so each row is labelled by its own category, zero rows included.
+* **Misleading zeros**: "0% positive" for products with nothing analysed (tiles, history table, summary wording).
+* Header meta spacing, and a leading "·" when a product has no brand/category/dates.
+
+### Verification (exact)
+* Backend `pytest`: **273 passed** with the model; without it **263 passed, 10 skipped** (the model tests).
+  25 new dashboard API tests in `tests/test_dashboard_api.py`.
+* Frontend `vitest`: **93 passed** (30 new in `src/test/dashboard.test.jsx`, including the 15 shared parity cases).
+  `oxlint` clean; `vite build` OK.
+* Real browser (headless Chrome 157 driven over the DevTools protocol, live backend, real data: WhatsApp IN 500
+  App Store reviews, the sample CSV, an all-Hinglish CSV, an empty product): **17 interaction checks passed**, each
+  compared with the API — paging (20 → 40 of 500), negative filter (253), search within it (75), oldest-first order,
+  clear filters, not-analysed filter (10), stars-disagree filter (62), Read review → pinned panel → back, re-analyse
+  confirm / cancel (no new run) / confirm (exactly one new run), empty product → "Analyse now" → server's reason,
+  unknown product, all-Hinglish reviews listed as not analysed.
+* Layout: page width measured on **14 routes × 375 / 768 / 1440 px = 42 views, no horizontal overflow**. Screenshots
+  inspected: overview (375 / 768 / 1440), reviews (375 / 1440), features (1440), all-Hinglish (1440), empty (1440).
+  Note: `--window-size` below ~500 px is not honoured by headless Chrome, so true 375 px screenshots were taken with
+  device emulation.
+
+### Remaining limitations
+* Feature matching is keyword-based, so some example quotes are loosely related (WhatsApp's "Crashes & stability"
+  example is really about an account ban, matched by "stuck").
+* Zero-count bars show no grey track (Recharts draws nothing for zero-length bars); the value "0 · 0%" is shown.
+* The tab bar scrolls horizontally on phones (existing Phase 1 design; it does not widen the page).
+* Re-analysis runs inside the request; for very large products the page shows a spinner until it finishes.
+* Comparison, PDF reports and product delete/rename in the UI are still to come (later phases).

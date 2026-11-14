@@ -7,6 +7,13 @@ from ..models import AnalysisResult, Product, Review
 from .analysis import as_utc, source_out
 
 
+def _percentages(analysis: AnalysisResult) -> tuple[float | None, float | None]:
+    """None (shown as "—") when no review could be analysed, e.g. all of them in another language."""
+    if (analysis.stats or {}).get("analysedReviews", analysis.total_reviews) == 0:
+        return None, None
+    return analysis.positive_percent, analysis.negative_percent
+
+
 def get_product(db: Session, product_id: int) -> Product:
     product = db.get(Product, product_id)
     if product is None:
@@ -28,7 +35,7 @@ def summary_out(product: Product) -> dict:
         # The number the latest analysis covered, so the list always agrees with the analysis page.
         "totalReviews": latest.total_reviews if latest else len(product.reviews),
         "averageRating": latest.average_rating if latest else None,
-        "positivePercent": latest.positive_percent if latest else None,
+        "positivePercent": _percentages(latest)[0] if latest else None,
         "analyzedAt": as_utc(latest.created_at) if latest else None,
     } | source_out(product)
 
@@ -87,8 +94,8 @@ def history_out(analysis: AnalysisResult, product_name: str, source: str, detail
         "createdAt": as_utc(analysis.created_at),
         "totalReviews": analysis.total_reviews,
         "averageRating": analysis.average_rating,
-        "positivePercent": analysis.positive_percent,
-        "negativePercent": analysis.negative_percent,
+        "positivePercent": _percentages(analysis)[0],
+        "negativePercent": _percentages(analysis)[1],
         "engine": analysis.engine,
     }
     if detail:

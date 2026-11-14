@@ -30,9 +30,10 @@ export default function StatStrip({ stats, ingestion }) {
       <Stat label="Reviews analysed" value={analysed} detail={detail} />
       <Stat label="Average rating" value={stats.averageRating ? `${formatRating(stats.averageRating)} / 5` : '—'}
         detail={stats.ratedReviews ? `From ${plural(stats.ratedReviews, 'rated review')}` : 'No star ratings in data'} />
-      <Stat label="Positive" swatch="bg-pos" value={formatPercent(p.positive)} detail={plural(c.positive, 'review')} />
-      <Stat label="Neutral" swatch="bg-neu" value={formatPercent(p.neutral)} detail={plural(c.neutral, 'review')} />
-      <Stat label="Negative" swatch="bg-neg" value={formatPercent(p.negative)} detail={plural(c.negative, 'review')} />
+      {/* With nothing analysed a percentage would be a misleading 0%, so show "—" instead. */}
+      <Stat label="Positive" swatch="bg-pos" value={analysed ? formatPercent(p.positive) : '—'} detail={analysed ? plural(c.positive, 'review') : 'Not measurable'} />
+      <Stat label="Neutral" swatch="bg-neu" value={analysed ? formatPercent(p.neutral) : '—'} detail={analysed ? plural(c.neutral, 'review') : 'Not measurable'} />
+      <Stat label="Negative" swatch="bg-neg" value={analysed ? formatPercent(p.negative) : '—'} detail={analysed ? plural(c.negative, 'review') : 'Not measurable'} />
     </dl>
   )
 }

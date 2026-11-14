@@ -122,7 +122,10 @@ class ReviewOut(ApiModel):
 
 
 class ReviewPage(ApiModel):
+    analysis_id: int | None = None
     total: int
+    offset: int = 0
+    limit: int = 20
     items: list[ReviewOut]
 
 
@@ -149,6 +152,9 @@ class Analysis(ApiModel):
     ingestion: dict | None
     analyzed_at: dt.datetime
     engine: dict | None = Field(default=None, description="Sentiment engine and pipeline version used for this run")
+    tone_by_rating: list[dict] = Field(default_factory=list,
+                                       description="Per star rating: reviews reading positive / neutral / negative")
+    reviews_included: bool = Field(default=True, description="False when requested with include_reviews=false")
 
 
 class HistoryEntry(ApiModel):
@@ -159,8 +165,8 @@ class HistoryEntry(ApiModel):
     created_at: dt.datetime
     total_reviews: int
     average_rating: float | None
-    positive_percent: float
-    negative_percent: float
+    positive_percent: float | None
+    negative_percent: float | None
     engine: dict | None = None
 
 

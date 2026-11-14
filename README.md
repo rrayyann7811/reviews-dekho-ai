@@ -77,12 +77,12 @@ and the analysis page shows it. `SENTIMENT_ENGINE=vader` always uses VADER.
 ## Tests
 
 ```bash
-cd backend && .venv/bin/python -m pytest          # 248 tests; 10 of them need the model
-cd frontend && npm test && npm run lint && npm run build   # 63 tests
+cd backend && .venv/bin/python -m pytest          # 273 tests; 10 of them need the model
+cd frontend && npm test && npm run lint && npm run build   # 93 tests
 ```
 
-With the model installed: 248 passed. Without it: 238 passed and the 10 model tests are **skipped** (not run).
-Frontend: 63 passed. Re-run the sentiment evaluation with `.venv/bin/python scripts/evaluate_sentiment.py --app-store`.
+With the model installed: 273 passed. Without it: 263 passed and the 10 model tests are **skipped** (not run).
+Frontend: 93 passed. Re-run the sentiment evaluation with `.venv/bin/python scripts/evaluate_sentiment.py --app-store`.
 
 ## Project layout
 

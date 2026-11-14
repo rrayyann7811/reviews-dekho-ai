@@ -1,0 +1,28 @@
+{
+  "about": "Shared by backend/tests/test_dashboard_api.py and frontend/src/test/logic.test.js so the server's review query and the offline demo's filtering always behave the same way. Expected IDs were worked out by hand.",
+  "mismatchIds": ["d"],
+  "reviews": [
+    {"id": "a", "text": "Great battery", "title": "Love it", "reviewer": "Asha", "rating": 5, "date": "2026-10-03", "sentiment": "positive", "score": 0.9, "mixed": false, "aspects": [], "status": "analysed", "language": "en", "usedTitle": false},
+    {"id": "b", "text": "Awful camera", "title": null, "reviewer": null, "rating": 1, "date": "2026-10-01", "sentiment": "negative", "score": -0.8, "mixed": false, "aspects": [], "status": "analysed", "language": "en", "usedTitle": false},
+    {"id": "c", "text": "It is a phone", "title": null, "reviewer": null, "rating": null, "date": null, "sentiment": "neutral", "score": 0.0, "mixed": false, "aspects": [], "status": "analysed", "language": "en", "usedTitle": false},
+    {"id": "d", "text": "Nice screen but slow", "title": null, "reviewer": null, "rating": 2, "date": "2026-10-02", "sentiment": "positive", "score": 0.4, "mixed": true, "aspects": [], "status": "analysed", "language": "en", "usedTitle": false},
+    {"id": "e", "text": "bakwas hai", "title": null, "reviewer": "Ravi", "rating": 1, "date": "2026-10-04", "sentiment": null, "score": null, "mixed": false, "aspects": [], "status": "language_not_supported", "language": "hinglish", "usedTitle": false}
+  ],
+  "cases": [
+    {"filters": {}, "expected": ["e", "a", "d", "b", "c"]},
+    {"filters": {"sort": "oldest"}, "expected": ["b", "d", "a", "e", "c"]},
+    {"filters": {"sort": "positive"}, "expected": ["a", "d", "c", "b", "e"]},
+    {"filters": {"sort": "negative"}, "expected": ["b", "c", "d", "a", "e"]},
+    {"filters": {"sentiment": "positive"}, "expected": ["a", "d"]},
+    {"filters": {"sentiment": "mixed"}, "expected": ["d"]},
+    {"filters": {"sentiment": "mismatch"}, "expected": ["d"]},
+    {"filters": {"sentiment": "unanalysed"}, "expected": ["e"]},
+    {"filters": {"rating": "none"}, "expected": ["c"]},
+    {"filters": {"rating": "1"}, "expected": ["e", "b"]},
+    {"filters": {"query": "asha"}, "expected": ["a"]},
+    {"filters": {"query": "LOVE"}, "expected": ["a"]},
+    {"filters": {"query": " phone "}, "expected": ["c"]},
+    {"filters": {"sentiment": "negative", "rating": "1"}, "expected": ["b"]},
+    {"filters": {"query": "zzz"}, "expected": []}
+  ]
+}

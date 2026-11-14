@@ -5,6 +5,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { AppRoutes } from '../App'
 import demo from '../demo/demoAnalysis.json'
 import { api, ApiError } from '../lib/api'
+import { filterReviews } from '../lib/reviewFilters'
 import { ServerStatusProvider } from '../lib/serverStatus'
 import { SettingsProvider } from '../lib/settings'
 
@@ -24,14 +25,26 @@ const STORED_ANALYSIS = {
   ingestion: { ...demo.ingestion, fileName: 'blender.csv', invalidRatings: 0, invalidDates: 0, truncated: 0, imported: 63 },
 }
 
-/** Route table for the mocked backend: { 'GET /products': body | (init) => Promise<Response> }. */
+/** Route table for the mocked backend: { 'GET /products': body | (init, params) => Promise<Response> }. Query strings are ignored for matching. */
 function mockBackend(routes) {
   globalThis.fetch = vi.fn((url, init = {}) => {
-    const path = url.replace(api.baseUrl, '')
+    const [path, query = ''] = url.replace(api.baseUrl, '').split('?')
     const handler = routes[`${init.method ?? 'GET'} ${path}`]
     if (handler === undefined) return json({ detail: 'This address doesn’t exist on the API.' }, 404)
-    return typeof handler === 'function' ? handler(init) : json(handler)
+    return typeof handler === 'function' ? handler(init, new URLSearchParams(query)) : json(handler)
   })
+}
+
+/** A stand-in for GET /products/{id}/reviews, using the same rules as the server (shared fixture test). */
+function serveReviews(analysis) {
+  return (_init, params) => {
+    const filters = { query: params.get('search') ?? '', sentiment: params.get('sentiment') ?? 'all',
+      rating: params.get('rating') ?? 'all', sort: params.get('sort') ?? 'newest' }
+    const all = filterReviews(analysis.reviews, filters, analysis.stats.ratingSentimentMismatches)
+    const offset = Number(params.get('offset') ?? 0)
+    const limit = Number(params.get('limit') ?? 20)
+    return json({ analysisId: analysis.analysisId, total: all.length, offset, limit, items: all.slice(offset, offset + limit) })
+  }
 }
 
 function renderAt(path) {
@@ -105,7 +118,7 @@ describe('with the backend running', () => {
     expect(await screen.findByRole('heading', { level: 1, name: 'Uploaded Blender' })).toBeInTheDocument()
     expect(screen.getByText('Uploaded file')).toBeInTheDocument()
     expect(screen.queryByText('Demo data', { selector: 'p' })).not.toBeInTheDocument()
-    expect(fetch).toHaveBeenCalledWith(`${api.baseUrl}/products/7/analysis`, {})
+    expect(fetch).toHaveBeenCalledWith(`${api.baseUrl}/products/7/analysis?include_reviews=false`, {})
   })
 
   it('shows a clear message for a product that no longer exists', async () => {
@@ -295,20 +308,22 @@ describe('NLP results (Phase 4)', () => {
     engine: { id: 'transformer', name: 'RoBERTa sentiment model', pipelineVersion: 2, fallbackReason: null, domain: 'product' },
   }
   const render7 = (analysis, path = '/products/7') => {
-    mockBackend({ 'GET /health': { status: 'ok' }, 'GET /products/7/analysis': analysis })
+    mockBackend({ 'GET /health': { status: 'ok' }, 'GET /products/7/analysis': analysis,
+      'GET /products/7/reviews': serveReviews(analysis) })
     renderAt(path)
   }
 
   it('names the engine that produced the run', async () => {
     render7(withLanguage)
-    expect(await screen.findByText('RoBERTa sentiment model')).toBeInTheDocument()
+    expect(await screen.findAllByText('RoBERTa sentiment model')).toHaveLength(2) // page header + method note
     expect(screen.getByText(/chance it is positive minus the chance it is negative/)).toBeInTheDocument()
   })
 
   it('warns when the run fell back to VADER', async () => {
     render7({ ...withLanguage, engine: { id: 'vader', pipelineVersion: 2, fallbackReason: 'The sentiment model couldn’t be used, so VADER was used instead (model files are not installed).' } })
     expect(await screen.findByText('Analysed with the backup method')).toBeInTheDocument()
-    expect(screen.getByText('VADER (rule-based)')).toBeInTheDocument()
+    expect(screen.getAllByText('VADER (rule-based)')).toHaveLength(2)
+    expect(screen.getByText('(backup method)')).toBeInTheDocument()
     expect(screen.getByText(/between −0.05 and \+0.05 count as neutral/)).toBeInTheDocument()
   })
 

@@ -3,7 +3,7 @@
 
 def test_list_reviews_with_filters_and_paging(client, product):
     url = f"/api/products/{product['id']}/reviews"
-    everything = client.get(url).json()
+    everything = client.get(url, params={"sort": "oldest"}).json()
     assert everything["total"] == 6
     first = everything["items"][0]
     assert first["id"] == "A1" and first["rating"] == 5 and first["date"] == "2026-10-01"
@@ -15,7 +15,7 @@ def test_list_reviews_with_filters_and_paging(client, product):
     assert client.get(url, params={"search": "100%_"}).json()["total"] == 0  # wildcards are escaped
     negatives = client.get(url, params={"sentiment": "negative"}).json()
     assert negatives["total"] >= 1 and all(r["sentiment"] == "negative" for r in negatives["items"])
-    page = client.get(url, params={"offset": 4, "limit": 10}).json()
+    page = client.get(url, params={"offset": 4, "limit": 10, "sort": "oldest"}).json()
     assert page["total"] == 6 and [r["id"] for r in page["items"]] == ["A5", "A6"]
 
 
@@ -23,6 +23,7 @@ def test_list_reviews_rejects_bad_filters(client, product):
     url = f"/api/products/{product['id']}/reviews"
     assert client.get(url, params={"sentiment": "happy"}).status_code == 422
     assert client.get(url, params={"rating": 6}).status_code == 422
+    assert client.get(url, params={"sort": "random"}).status_code == 422
     assert client.get(url, params={"limit": 0}).status_code == 422
 
 

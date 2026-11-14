@@ -16,6 +16,7 @@ import pandas as pd
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from app.nlp.pipeline import analyze_reviews  # noqa: E402
 from app.nlp.preprocess import normalize_text  # noqa: E402
+from app.services.review_query import tone_by_rating  # noqa: E402
 
 ROOT = Path(__file__).resolve().parents[2]
 SOURCE = ROOT / "backend/data/sample/demo_kestrel_orbit_5g.csv"
@@ -43,6 +44,7 @@ product = {"id": "demo", "name": df["product_name"].iloc[0], "brand": "Kestrel (
 result = analyze_reviews(reviews, domain="product", category=product["category"], product_name=product["name"],
                          brand="Kestrel")
 result["product"] = product
+result["toneByRating"] = tone_by_rating(result["reviews"])  # same derivation as the API
 result["ingestion"] = {"rowsInFile": rows_in_file, "duplicatesRemoved": duplicates,
                        "emptyRemoved": empty, "fileName": SOURCE.name}
 result["analyzedAt"] = datetime.now(timezone.utc).isoformat(timespec="seconds")

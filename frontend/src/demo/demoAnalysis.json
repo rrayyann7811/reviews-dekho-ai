@@ -2249,11 +2249,53 @@
   "source": "demo",
   "domain": "product"
  },
+ "toneByRating": [
+  {
+   "stars": 5,
+   "reviews": 22,
+   "positive": 20,
+   "neutral": 1,
+   "negative": 1,
+   "notAnalysed": 0
+  },
+  {
+   "stars": 4,
+   "reviews": 16,
+   "positive": 14,
+   "neutral": 2,
+   "negative": 0,
+   "notAnalysed": 0
+  },
+  {
+   "stars": 3,
+   "reviews": 9,
+   "positive": 4,
+   "neutral": 3,
+   "negative": 2,
+   "notAnalysed": 0
+  },
+  {
+   "stars": 2,
+   "reviews": 8,
+   "positive": 0,
+   "neutral": 0,
+   "negative": 8,
+   "notAnalysed": 0
+  },
+  {
+   "stars": 1,
+   "reviews": 7,
+   "positive": 0,
+   "neutral": 0,
+   "negative": 7,
+   "notAnalysed": 0
+  }
+ ],
  "ingestion": {
   "rowsInFile": 65,
   "duplicatesRemoved": 1,
   "emptyRemoved": 1,
   "fileName": "demo_kestrel_orbit_5g.csv"
  },
- "analyzedAt": "2026-11-14T00:42:59+00:00"
+ "analyzedAt": "2026-11-14T01:06:11+00:00"
 }

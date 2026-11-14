@@ -29,7 +29,18 @@ export const api = {
   baseUrl: API_URL,
   health: () => request('/health'),
   listProducts: () => request('/products'),
-  getAnalysis: (productId) => request(`/products/${encodeURIComponent(productId)}/analysis`),
+  // The dashboard pages through reviews separately, so the analysis is loaded without them.
+  getAnalysis: (productId) => request(`/products/${encodeURIComponent(productId)}/analysis?include_reviews=false`),
+  reanalyze: (productId) =>
+    request(`/products/${encodeURIComponent(productId)}/analyze?include_reviews=false`, { method: 'POST' }),
+  listReviews: (productId, { analysisId, sentiment = 'all', rating = 'all', query = '', sort = 'newest', offset = 0, limit = 20 }) => {
+    const params = new URLSearchParams({ sentiment, rating: String(rating), sort, offset: String(offset), limit: String(limit) })
+    if (analysisId) params.set('analysis_id', String(analysisId))
+    if (query.trim()) params.set('search', query.trim())
+    return request(`/products/${encodeURIComponent(productId)}/reviews?${params}`)
+  },
+  getReview: (productId, reviewId, analysisId) =>
+    request(`/products/${encodeURIComponent(productId)}/reviews/${encodeURIComponent(reviewId)}${analysisId ? `?analysis_id=${analysisId}` : ''}`),
   analyzeUrl: (url) =>
     request('/products/from-url', {
       method: 'POST',

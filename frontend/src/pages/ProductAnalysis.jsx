@@ -1,4 +1,4 @@
-import { Columns2, ExternalLink, RefreshCw } from 'lucide-react'
+import { Columns2, ExternalLink, FileQuestion, RefreshCw, RotateCcw } from 'lucide-react'
 import { useState } from 'react'
 import { useParams, useSearchParams } from 'react-router-dom'
 import AspectTable from '../components/analysis/AspectTable'
@@ -19,9 +19,32 @@ import { api } from '../lib/api'
 import { describeEngine } from '../lib/engine'
 import { formatDate, formatRating, plural } from '../lib/format'
 import { DEFAULT_FILTERS } from '../lib/reviewFilters'
+import { DEMO_ID } from '../demo/demo'
 import { useAnalysis } from '../lib/useData'
 
 const BACK = { to: '/history', label: 'Analysis history' }
+
+/** Re-analyse: asks first, then shows progress, the result or the error. `state`: idle | confirm | running | done. */
+function ReanalysePanel({ state, error, totalReviews, onConfirm, onCancel }) {
+  if (state === 'confirm') {
+    return (
+      <Alert title="Run the analysis again?" className="mb-6"
+        action={
+          <div className="flex flex-wrap gap-2">
+            <Button size="sm" onClick={onConfirm}>Re-analyse</Button>
+            <Button size="sm" variant="secondary" onClick={onCancel}>Cancel</Button>
+          </div>
+        }>
+        {totalReviews ? `The ${plural(totalReviews, 'stored review')} will be analysed` : 'The stored reviews will be analysed'} again
+        with the current method, and the result is added to the history as a new run. Earlier results are kept unchanged.
+      </Alert>
+    )
+  }
+  if (state === 'running') return <Spinner className="mb-6" label="Re-analysing… this can take a few seconds for large products." />
+  if (error) return <Alert variant="error" title="Couldn’t re-analyse" className="mb-6">{error}</Alert>
+  if (state === 'done') return <Alert className="mb-6" title="Analysis updated">This page now shows the new run. The previous one is still in the history.</Alert>
+  return null
+}
 
 function CollectedNote({ product, stats, ingestion = {}, onRefresh, refreshing, refreshError }) {
   const store = product.sourceRegion ? ` (${product.sourceRegion.toUpperCase()} store)` : ''
@@ -131,6 +154,7 @@ export default function ProductAnalysis() {
   const { productId } = useParams()
   const { data, loading, error, reload } = useAnalysis(productId)
   const [refresh, setRefresh] = useState({ busy: false, error: '' })
+  const [rerun, setRerun] = useState({ state: 'idle', error: '' })
   const [params, setParams] = useSearchParams()
   const [filters, setFilters] = useState(DEFAULT_FILTERS)
   const [focus, setFocus] = useState(null)
@@ -160,8 +184,40 @@ export default function ProductAnalysis() {
     setTab('reviews')
   }
 
-  if (loading) return <Spinner label="Loading analysis…" />
+  async function reanalyse() {
+    setRerun({ state: 'running', error: '' })
+    try {
+      await api.reanalyze(productId)
+      reload()
+      setRerun({ state: 'done', error: '' })
+    } catch (err) {
+      setRerun({ state: 'idle', error: err.message })
+    }
+  }
+  const rerunPanel = (totalReviews) => (
+    <ReanalysePanel state={rerun.state} error={rerun.error} totalReviews={totalReviews} onConfirm={reanalyse}
+      onCancel={() => setRerun({ state: 'idle', error: '' })} />
+  )
+
+  if (loading && !data) return <Spinner label="Loading analysis…" />
   if (error) {
+    // 409: the product exists but has no usable analysis (never analysed, or an old run without per-review results).
+    if (error.status === 409) {
+      return (
+        <>
+          <PageHeader title="Analysis" back={BACK} />
+          {rerunPanel()}
+          <Panel>
+            <EmptyState icon={FileQuestion} title="There is no analysis to show yet"
+              action={rerun.state === 'idle' && (
+                <Button onClick={() => setRerun({ state: 'confirm', error: '' })}><RotateCcw aria-hidden className="size-4" /> Analyse now</Button>
+              )}>
+              {error.message} If the product has no reviews yet, upload them first.
+            </EmptyState>
+          </Panel>
+        </>
+      )
+    }
     return (
       <>
         <PageHeader title="Analysis" back={BACK} />
@@ -173,6 +229,11 @@ export default function ProductAnalysis() {
   }
 
   const { product, stats } = data
+  const isDemo = productId === DEMO_ID
+  const engineInfo = describeEngine(data.engine)
+  const reviewSource = isDemo || data.reviewsIncluded !== false
+    ? { kind: 'local', reviews: data.reviews, mismatchIds: stats.ratingSentimentMismatches }
+    : { kind: 'remote', productId, analysisId: data.analysisId }
   return (
     <>
       <PageHeader
@@ -182,13 +243,27 @@ export default function ProductAnalysis() {
           <>
             <SourceBadge source={product.source} />
             <span className="text-[13px] text-ink-3">
-              {[product.brand, product.category].filter(Boolean).join(' · ')}
-              {stats.dateRange && ` · Reviews from ${formatDate(stats.dateRange.from)} to ${formatDate(stats.dateRange.to)}`}
+              {[product.brand, product.category,
+                stats.dateRange && `Reviews from ${formatDate(stats.dateRange.from)} to ${formatDate(stats.dateRange.to)}`,
+              ].filter(Boolean).map((part) => `${part} · `).join('')}
+              Sentiment: <span className="text-ink-2">{engineInfo.name}</span>
+              {data.engine?.fallbackReason && <span className="text-mix"> (backup method)</span>}
             </span>
           </>
         }
-        actions={<Button to="/compare" variant="secondary"><Columns2 aria-hidden className="size-4" /> Compare</Button>}
+        actions={
+          <>
+            {!isDemo && (
+              <Button variant="secondary" onClick={() => setRerun({ state: 'confirm', error: '' })}
+                disabled={rerun.state === 'running' || rerun.state === 'confirm'}>
+                <RotateCcw aria-hidden className="size-4" /> {rerun.state === 'running' ? 'Re-analysing…' : 'Re-analyse'}
+              </Button>
+            )}
+            <Button to="/compare" variant="secondary"><Columns2 aria-hidden className="size-4" /> Compare</Button>
+          </>
+        }
       />
+      {rerunPanel(stats.totalReviews)}
       <DataSourceNote data={data} onRefresh={collectLatest} refreshing={refresh.busy} refreshError={refresh.error} />
 
       <Tabs
@@ -206,14 +281,15 @@ export default function ProductAnalysis() {
         {tab === 'overview' && (
           <div className="space-y-6">
             <StatStrip stats={stats} ingestion={data.ingestion} />
-            <DistributionCharts stats={stats} engine={data.engine} onShowMismatches={showMismatches} />
+            <DistributionCharts stats={stats} engine={data.engine} toneByRating={data.toneByRating}
+              onShowMismatches={showMismatches} />
             <SummaryPanel summary={data.summary} onOpenReview={openReview} />
             <EngineNote engine={data.engine} analyzedAt={data.analyzedAt} />
           </div>
         )}
         {tab === 'reviews' && (
-          <ReviewExplorer reviews={data.reviews} mismatchIds={stats.ratingSentimentMismatches}
-            filters={filters} onFiltersChange={setFilters} focus={focus} />
+          <ReviewExplorer key={data.analysisId ?? 'demo'} source={reviewSource} totalReviews={stats.totalReviews}
+            mismatchIds={stats.ratingSentimentMismatches} filters={filters} onFiltersChange={setFilters} focus={focus} />
         )}
         {tab === 'aspects' && <AspectsTab data={data} onOpenReview={openReview} />}
       </div>

@@ -1,23 +1,24 @@
-import { ChevronDown, Search, SearchX } from 'lucide-react'
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { ChevronDown, Search, SearchX, X } from 'lucide-react'
+import { useEffect, useRef, useState } from 'react'
 import { formatDate } from '../../lib/format'
-import { DEFAULT_FILTERS, filterReviews } from '../../lib/reviewFilters'
+import { DEFAULT_FILTERS } from '../../lib/reviewFilters'
+import { PAGE_SIZE, useReview, useReviewPages } from '../../lib/useReviewPages'
+import Alert from '../ui/Alert'
 import { Badge, SentimentBadge } from '../ui/Badge'
 import Button from '../ui/Button'
 import EmptyState from '../ui/EmptyState'
 import { Input, Select } from '../ui/Field'
+import Spinner from '../ui/Spinner'
 import Stars from '../ui/Stars'
-
-const PAGE_SIZE = 20
 
 const LANGUAGE_NOTE = {
   hinglish: 'This review looks like Hindi written in English letters (Hinglish).',
   unknown: 'This review doesn’t look like English.',
 }
 
-function ReviewItem({ review, expanded, onToggle, mismatch, itemRef }) {
+function ReviewItem({ review, expanded, onToggle, mismatch, as: Tag = 'li' }) {
   return (
-    <li ref={itemRef} className={`border-t border-line first:border-t-0 ${expanded ? 'bg-subtle' : ''}`}>
+    <Tag className={`border-t border-line first:border-t-0 ${expanded ? 'bg-subtle' : ''}`}>
       <button type="button" onClick={onToggle} aria-expanded={expanded} className="flex w-full gap-4 px-5 py-4 text-left hover:bg-subtle">
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
@@ -76,29 +77,46 @@ function ReviewItem({ review, expanded, onToggle, mismatch, itemRef }) {
           </div>
         </div>
       )}
-    </li>
+    </Tag>
   )
 }
 
-/** `focus` is { id, seq }; seq changes on every request so the same review can be focused twice. */
-export default function ReviewExplorer({ reviews, mismatchIds, filters, onFiltersChange, focus }) {
-  const focusId = focus?.id
-  const [expanded, setExpanded] = useState(() => new Set(focusId ? [focusId] : []))
-  const [limit, setLimit] = useState(PAGE_SIZE)
-  const focusRef = useRef(null)
-
-  const visible = useMemo(() => filterReviews(reviews, filters, mismatchIds), [reviews, filters, mismatchIds])
-  const set = (patch) => { onFiltersChange({ ...filters, ...patch }); setLimit(PAGE_SIZE) }
-
-  // When opened from "Read review", make sure that review is visible and in view.
+/** "Read review": the chosen review, pinned above the list whichever page it is on. */
+function SelectedReview({ source, reviewId, mismatchIds, onClose }) {
+  const { review, loading, error } = useReview(source, reviewId)
+  const ref = useRef(null)
   useEffect(() => {
-    if (!focusId) return
-    setExpanded((prev) => new Set(prev).add(focusId))
-    const index = visible.findIndex((r) => r.id === focusId)
-    if (index >= limit) setLimit(index + 1)
-    requestAnimationFrame(() => focusRef.current?.scrollIntoView({ block: 'center' }))
-    // oxlint-disable-next-line react-hooks/exhaustive-deps
-  }, [focus])
+    if (review) ref.current?.scrollIntoView?.({ block: 'nearest' })
+  }, [review])
+  return (
+    <section ref={ref} aria-label="Selected review" className="border-b border-line">
+      <div className="flex items-center justify-between bg-brand-50 px-5 py-2 text-[13px]">
+        <span className="font-medium text-brand-700">Selected review</span>
+        <button type="button" onClick={onClose} className="inline-flex items-center gap-1 font-medium text-brand-600 hover:underline">
+          <X aria-hidden className="size-3.5" /> Back to all reviews
+        </button>
+      </div>
+      {loading && <div className="px-5 py-4"><Spinner label="Loading review…" /></div>}
+      {error && <Alert variant="error" className="m-5">{error.message}</Alert>}
+      {review && <ReviewItem as="div" review={review} expanded onToggle={() => {}} mismatch={mismatchIds.includes(review.id)} />}
+    </section>
+  )
+}
+
+/**
+ * `source`: { kind: 'local', reviews, mismatchIds } for the demo, or { kind: 'remote', productId, analysisId }.
+ * `focus` is { id, seq }; seq changes on every request so the same review can be selected twice.
+ */
+export default function ReviewExplorer({ source, totalReviews, mismatchIds, filters, onFiltersChange, focus }) {
+  const [expanded, setExpanded] = useState(() => new Set())
+  const [selected, setSelected] = useState(focus?.id ?? null)
+  const [focusSeq, setFocusSeq] = useState(focus?.seq)
+  if (focus?.seq !== focusSeq) { // a new "Read review" request
+    setFocusSeq(focus?.seq)
+    setSelected(focus?.id ?? null)
+  }
+  const page = useReviewPages(source, filters)
+  const set = (patch) => onFiltersChange({ ...filters, ...patch })
 
   const toggle = (id) => setExpanded((prev) => {
     const next = new Set(prev)
@@ -108,9 +126,11 @@ export default function ReviewExplorer({ reviews, mismatchIds, filters, onFilter
   })
 
   const isFiltered = JSON.stringify(filters) !== JSON.stringify(DEFAULT_FILTERS)
+  const firstLoad = page.loading && page.items.length === 0
 
   return (
     <div className="rounded-lg border border-line bg-surface">
+      {selected && <SelectedReview source={source} reviewId={selected} mismatchIds={mismatchIds} onClose={() => setSelected(null)} />}
       <div className="grid gap-2 border-b border-line px-5 py-3 sm:grid-cols-2 lg:grid-cols-[1fr_190px_150px_170px]">
         <div className="relative sm:col-span-2 lg:col-span-1">
           <Search aria-hidden className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-ink-3" />
@@ -139,24 +159,33 @@ export default function ReviewExplorer({ reviews, mismatchIds, filters, onFilter
       </div>
 
       <div className="flex items-center justify-between px-5 py-2.5 text-[13px] text-ink-3" aria-live="polite">
-        <span>Showing {Math.min(limit, visible.length)} of {visible.length} matching reviews ({reviews.length} total)</span>
+        <span>{firstLoad ? 'Loading reviews…' : `Showing ${page.items.length} of ${page.total} matching reviews (${totalReviews} total)`}</span>
         {isFiltered && <button type="button" className="font-medium text-brand-600 hover:underline" onClick={() => set(DEFAULT_FILTERS)}>Clear filters</button>}
       </div>
 
-      {visible.length === 0 ? (
-        <EmptyState icon={SearchX} title="No reviews match these filters" className="border-t border-line"
-          action={<Button variant="secondary" onClick={() => set(DEFAULT_FILTERS)}>Clear filters</Button>} />
+      {page.error ? (
+        <Alert variant="error" title="Couldn’t load reviews" className="m-5"
+          action={<Button variant="secondary" size="sm" onClick={page.retry}>Try again</Button>}>
+          {page.error.message}
+        </Alert>
+      ) : firstLoad ? (
+        <div className="border-t border-line px-5 py-8"><Spinner label="Loading reviews…" /></div>
+      ) : page.items.length === 0 ? (
+        <EmptyState icon={SearchX} title={totalReviews === 0 ? 'No reviews' : 'No reviews match these filters'} className="border-t border-line"
+          action={isFiltered && <Button variant="secondary" onClick={() => set(DEFAULT_FILTERS)}>Clear filters</Button>} />
       ) : (
         <ul className="border-t border-line">
-          {visible.slice(0, limit).map((r) => (
+          {page.items.map((r) => (
             <ReviewItem key={r.id} review={r} expanded={expanded.has(r.id)} onToggle={() => toggle(r.id)}
-              mismatch={mismatchIds.includes(r.id)} itemRef={r.id === focusId ? focusRef : undefined} />
+              mismatch={mismatchIds.includes(r.id)} />
           ))}
         </ul>
       )}
-      {visible.length > limit && (
+      {page.hasMore && !page.error && (
         <div className="border-t border-line px-5 py-3 text-center">
-          <Button variant="secondary" onClick={() => setLimit(limit + PAGE_SIZE)}>Show {Math.min(PAGE_SIZE, visible.length - limit)} more</Button>
+          <Button variant="secondary" onClick={page.loadMore} disabled={page.loading}>
+            {page.loading ? 'Loading…' : `Show ${Math.min(PAGE_SIZE, page.total - page.items.length)} more`}
+          </Button>
         </div>
       )}
     </div>

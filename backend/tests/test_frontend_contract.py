@@ -53,7 +53,11 @@ def test_every_path_in_the_frontend_client_exists(client):
     for frontend_path, api_path in {
         "'/health'": "/api/health",
         "'/products'": "/api/products",
-        "/analysis`": "/api/products/{product_id}/analysis",
+        "/analysis?include_reviews=false`": "/api/products/{product_id}/analysis",
+        "/analyze?include_reviews=false`": "/api/products/{product_id}/analyze",
+        "/reviews?${params}`": "/api/products/{product_id}/reviews",
+        "/reviews/${encodeURIComponent(reviewId)}": "/api/products/{product_id}/reviews/{review_id}",
+        "/refresh`": "/api/products/{product_id}/refresh",
         "'/products/from-url'": "/api/products/from-url",
         "'/uploads/preview'": "/api/uploads/preview",
         "'/uploads/import'": "/api/uploads/import",

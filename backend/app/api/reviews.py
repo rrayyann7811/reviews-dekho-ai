@@ -3,32 +3,48 @@ from sqlalchemy.orm import Session
 
 from ..database import get_db
 from ..errors import NotFound
-from ..schemas import ErrorResponse, ProductSummary, ReviewPage, ReviewsCreate
+from ..schemas import ErrorResponse, ProductSummary, ReviewOut, ReviewPage, ReviewsCreate
 from ..services import analysis as analysis_service
 from ..services import products as product_service
+from ..services import review_query
+from ..services.review_query import RATING_FILTERS, SENTIMENT_FILTERS, SORTS
 
 router = APIRouter(prefix="/products/{product_id}/reviews", tags=["Reviews"])
 NOT_FOUND = {404: {"model": ErrorResponse, "description": "Product or review not found"}}
 
 
-@router.get("", response_model=ReviewPage, responses=NOT_FOUND, summary="List a product's reviews")
+NOT_ANALYSED = {409: {"model": ErrorResponse, "description": "Not analysed yet, or a run without per-review results"}}
+
+
+def _pattern(values):
+    return "^(" + "|".join(values) + ")$"
+
+
+@router.get("", response_model=ReviewPage, responses=NOT_FOUND | NOT_ANALYSED,
+            summary="Search, filter, sort and page the reviews of an analysis run")
 def list_reviews(
     product_id: int,
-    sentiment: str | None = Query(None, pattern="^(positive|neutral|negative)$"),
-    rating: int | None = Query(None, ge=1, le=5),
+    analysis_id: int | None = Query(None, description="A specific run (default: the latest)"),
+    sentiment: str = Query("all", pattern=_pattern(SENTIMENT_FILTERS)),
+    rating: str = Query("all", pattern=_pattern(RATING_FILTERS)),
     search: str | None = Query(None, max_length=200),
+    sort: str = Query("newest", pattern=_pattern(SORTS)),
     offset: int = Query(0, ge=0),
-    limit: int = Query(50, ge=1, le=500),
+    limit: int = Query(20, ge=1, le=500),
     db: Session = Depends(get_db),
 ):
-    """Results come from the latest analysis run, so they match the product page exactly."""
-    rows = analysis_service.current_reviews(product_service.get_product(db, product_id))
-    needle = (search or "").strip().casefold()
-    rows = [r for r in rows
-            if (not sentiment or r["sentiment"] == sentiment)
-            and (not rating or r["rating"] == rating)
-            and (not needle or needle in r["text"].casefold())]
-    return {"total": len(rows), "items": rows[offset:offset + limit]}
+    """Every value comes from the stored results of one run, so pages always agree with the dashboard."""
+    run = review_query.pick_run(product_service.get_product(db, product_id), analysis_id)
+    return review_query.query_reviews(run, sentiment=sentiment, rating=rating, search=search or "", sort=sort,
+                                      offset=offset, limit=limit)
+
+
+@router.get("/{review_id}", response_model=ReviewOut, responses=NOT_FOUND | NOT_ANALYSED,
+            summary="One review as analysed in a run")
+def get_review(product_id: int, review_id: str, analysis_id: int | None = Query(None),
+               db: Session = Depends(get_db)):
+    run = review_query.pick_run(product_service.get_product(db, product_id), analysis_id)
+    return review_query.find_review(run, review_id)
 
 
 @router.post("", response_model=ProductSummary, status_code=status.HTTP_201_CREATED,

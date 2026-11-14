@@ -1,20 +1,7 @@
 import { Fragment, useState } from 'react'
 import { ChevronDown } from 'lucide-react'
+import SplitBar from '../charts/SplitBar'
 import { SentimentBadge } from '../ui/Badge'
-
-function SplitBar({ row }) {
-  const parts = [
-    { key: 'positive', value: row.positive, className: 'bg-pos' },
-    { key: 'neutral', value: row.neutral, className: 'bg-neu' },
-    { key: 'negative', value: row.negative, className: 'bg-neg' },
-  ].filter((p) => p.value > 0)
-  return (
-    <div className="flex h-2.5 w-full min-w-[120px] gap-0.5 overflow-hidden rounded-sm"
-      title={`${row.positive} positive, ${row.neutral} neutral, ${row.negative} negative`}>
-      {parts.map((p) => <div key={p.key} className={p.className} style={{ width: `${(100 * p.value) / row.mentions}%` }} />)}
-    </div>
-  )
-}
 
 function Example({ label, example, onOpenReview }) {
   if (!example) return null
@@ -48,7 +35,8 @@ export default function AspectTable({ aspects, onOpenReview }) {
                 <td className="px-3 py-3 text-right tabular-nums">{row.mentions}</td>
                 <td className="px-3 py-3">
                   <div className="flex items-center gap-3">
-                    <SplitBar row={row} />
+                    <SplitBar positive={row.positive} neutral={row.neutral} negative={row.negative} total={row.mentions}
+                      label={`${row.aspect}: ${row.positive} positive, ${row.neutral} neutral, ${row.negative} negative mentions`} />
                     <span className="text-xs whitespace-nowrap text-ink-3 tabular-nums">{row.positive} / {row.neutral} / {row.negative}</span>
                   </div>
                 </td>

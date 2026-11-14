@@ -33,9 +33,10 @@ def _language_note(stats: dict) -> list[str]:
 def build_summary(stats: dict, aspects: list[dict]) -> dict:
     total = stats.get("analysedReviews", stats["totalReviews"])
     if total < MIN_REVIEWS_FOR_SUMMARY:
-        return {"overview": None, "strengths": [], "complaints": [], "mixed": [], "notes": [
-            f"Only {total} review(s) could be analysed. At least {MIN_REVIEWS_FOR_SUMMARY} are needed for a "
-            "meaningful summary.", *_language_note(stats)]}
+        first = ("No review could be analysed, so there is no summary." if total == 0 else
+                 f"Only {total} review(s) could be analysed. At least {MIN_REVIEWS_FOR_SUMMARY} are needed for a "
+                 "meaningful summary.")
+        return {"overview": None, "strengths": [], "complaints": [], "mixed": [], "notes": [first, *_language_note(stats)]}
 
     pct = stats["sentimentPercent"]
     lead = max(("positive", "neutral", "negative"), key=lambda s: pct[s])

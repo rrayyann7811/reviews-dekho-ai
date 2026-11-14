@@ -11,6 +11,7 @@ from ..collectors.registry import site_name
 from ..errors import AppError
 from ..models import AnalysisResult, Product, Review
 from ..nlp.pipeline import analyze_reviews
+from .review_query import tone_by_rating
 
 REVIEW_FIELDS = ("id", "text", "rating", "date", "title", "reviewer", "sentiment", "score", "mixed", "aspects",
                  "status", "language", "usedTitle")
@@ -90,8 +91,12 @@ def source_out(product: Product) -> dict:
     }
 
 
-def analysis_out(product: Product) -> dict:
-    """The full analysis for the product page: the latest run, exactly as it was stored."""
+def analysis_out(product: Product, include_reviews: bool = True) -> dict:
+    """The full analysis for the product page: the latest run, exactly as it was stored.
+
+    The dashboard asks for include_reviews=False and pages through reviews separately
+    (GET /products/{id}/reviews), so large products don't send every review at once.
+    """
     analysis = product.latest_analysis
     if analysis is None:
         raise AppError("This product hasn’t been analysed yet.", 409)
@@ -107,7 +112,9 @@ def analysis_out(product: Product) -> dict:
         "aspects": analysis.aspects,
         "keywords": analysis.keywords,
         "summary": analysis.summary,
-        "reviews": analysis.review_results,
+        "reviews": analysis.review_results if include_reviews else [],
+        "reviewsIncluded": include_reviews,
+        "toneByRating": tone_by_rating(analysis.review_results),
         "ingestion": analysis.ingestion,
         "analyzedAt": as_utc(analysis.created_at),
     }
