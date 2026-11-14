@@ -265,3 +265,25 @@ def test_ai_summaries_table_is_added_without_touching_runs(tmp_path):
     assert columns == ["id", "analysis_id", "created_at", "model", "prompt_version", "status", "attempts",
                        "sentences", "problems"]
     con.close()
+
+
+# ---------- Migration 6: ownership is additive and legacy data remains local ----------
+
+def test_ownership_upgrade_preserves_local_records_and_scopes_collector_index(tmp_path, monkeypatch):
+    path = tmp_path / 'before-auth.db'
+    make_phase2_database(path)
+    engine = make_engine(f'sqlite:///{path}')
+    with monkeypatch.context() as patch:
+        patch.setattr(migrations, 'MIGRATIONS', migrations.MIGRATIONS[:5])
+        patch.setattr(migrations, 'LATEST_VERSION', 5)
+        migrations.upgrade(engine)
+    with engine.connect() as conn:
+        snapshots = conn.exec_driver_sql('SELECT id, review_results FROM analysis_results').all()
+    assert migrations.upgrade(engine) == 1
+    with engine.connect() as conn:
+        assert conn.exec_driver_sql('SELECT id, owner_id, expires_at FROM products').all() == [(1, 'local', None)]
+        assert conn.exec_driver_sql('SELECT id, review_results FROM analysis_results').all() == snapshots
+    index = next(i for i in inspect(engine).get_indexes('products') if i['name'] == 'uq_collected_product')
+    assert index['column_names'] == ['owner_id', 'source_site', 'external_product_id', 'source_region']
+    assert index['unique']
+    assert migrations.upgrade(engine) == 0

@@ -12,6 +12,7 @@ import Overview from './pages/Overview'
 import Reports from './pages/Reports'
 import Settings from './pages/Settings'
 import UploadReviews from './pages/UploadReviews'
+import HostedApp from './components/HostedApp'
 
 // The analysis and comparison pages are the largest, so they load on demand.
 const ProductAnalysis = lazy(() => import('./pages/ProductAnalysis'))
@@ -39,6 +40,8 @@ export function AppRoutes() {
 const Router = STATIC_DEMO ? HashRouter : BrowserRouter
 
 export default function App() {
+  // An unknown configured auth mode fails closed to the unconfigured sign-in screen.
+  if (!STATIC_DEMO && (import.meta.env.VITE_AUTH_MODE || 'local') !== 'local') return <HostedApp />
   return (
     <SettingsProvider>
       <ServerStatusProvider>

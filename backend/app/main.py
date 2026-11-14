@@ -11,6 +11,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from . import config
+from .auth import AuthMiddleware, TokenVerifier
 from .api import ai, compare, health, history, products, reviews, sites, uploads
 from .database import init_db
 from .errors import register_error_handlers
@@ -54,12 +55,16 @@ async def lifespan(_: FastAPI):
 
 
 def create_app() -> FastAPI:
+    if config.AUTH_MODE not in {"local", "jwt"}:
+        raise ValueError("AUTH_MODE must be local or jwt")
+    verifier = TokenVerifier() if config.AUTH_MODE == "jwt" else None
     app = FastAPI(title="Reviews Dekho AI API", version=VERSION, description=DESCRIPTION, lifespan=lifespan)
+    app.add_middleware(AuthMiddleware, mode=config.AUTH_MODE, verifier=verifier)
     app.add_middleware(
         CORSMiddleware,
         allow_origins=config.CORS_ORIGINS,
         allow_methods=["GET", "POST", "PATCH", "DELETE"],
-        allow_headers=["Content-Type"],
+        allow_headers=["Content-Type", "Authorization"],
         expose_headers=["Content-Disposition"],
     )
     register_error_handlers(app)

@@ -15,21 +15,86 @@ export class ApiError extends Error {
   }
 }
 
+// The identity-provider integration can supply its current/refreshed access token per request.
+// No passwords, refresh tokens or browser-persisted secrets are managed by this API client.
+let accessTokenProvider = null
+let unauthorized = null
+let requestEpoch = 0
+const pendingRequests = new Set()
+const downloadUrls = new Set()
+
+const cancelled = () => new DOMException('The account session changed. This result was discarded.', 'AbortError')
+
+export function invalidateAuthenticatedRequests() {
+  if (STATIC_DEMO) return
+  requestEpoch++
+  for (const controller of pendingRequests) controller.abort()
+  pendingRequests.clear()
+  for (const url of downloadUrls) URL.revokeObjectURL(url)
+  downloadUrls.clear()
+}
+
+export function setAccessTokenProvider(provider, { onUnauthorized = null } = {}) {
+  if (STATIC_DEMO) return
+  if (provider !== null && typeof provider !== 'function') throw new TypeError('Expected a token provider or null')
+  invalidateAuthenticatedRequests()
+  accessTokenProvider = provider
+  unauthorized = onUnauthorized
+}
+
+async function authenticatedOptions(options = {}) {
+  if (STATIC_DEMO || !accessTokenProvider) return options
+  let token
+  try {
+    token = await accessTokenProvider()
+  } catch {
+    throw new ApiError('Couldn’t verify your session. Sign in again.', { status: 401 })
+  }
+  if (typeof token !== 'string' || !token.trim()) {
+    throw new ApiError('Sign in to access your review data.', { status: 401 })
+  }
+  return { ...options, headers: { ...options.headers, Authorization: `Bearer ${token}` } }
+}
+
 async function request(path, options = {}) {
   if (STATIC_DEMO) throw new ApiError(STATIC_DEMO_MESSAGE, { offline: true })   // never contact any server
+  return scopedRequest(`${API_URL}${path}`, options, async (response, scope) => {
+    const body = response.headers.get('content-type')?.includes('application/json') ? await response.json() : null
+    scope.check()
+    if (!response.ok) {
+      scope.reject(response.status)
+      const detail = body?.detail
+      const message = typeof detail === 'string' ? detail : detail?.message || `Request failed (${response.status}).`
+      throw new ApiError(message, { status: response.status })
+    }
+    return body
+  })
+}
+
+async function scopedRequest(url, options, consume) {
+  const epoch = requestEpoch
+  const check = () => { if (epoch !== requestEpoch) throw cancelled() }
+  let authenticated
+  try { authenticated = await authenticatedOptions(options) } catch (err) { check(); throw err }
+  check() // a refresh or sign-out may have changed accounts while acquiring the token
+  const controller = accessTokenProvider ? new AbortController() : null
+  if (controller) pendingRequests.add(controller)
+  const token = authenticated.headers?.Authorization?.slice(7)
+  const reject = (status) => { if (status === 401 && token) unauthorized?.(token) }
   let response
   try {
-    response = await fetch(`${API_URL}${path}`, options)
-  } catch {
-    throw new ApiError('Can’t reach the analysis server. Make sure the backend is running.', { offline: true })
+    try {
+      response = await fetch(url, controller ? { ...authenticated, signal: controller.signal } : authenticated)
+    } catch (err) {
+      check()
+      if (err.name === 'AbortError') throw err
+      throw new ApiError('Can’t reach the analysis server. Make sure the backend is running.', { offline: true })
+    }
+    check()
+    return await consume(response, { check, reject })
+  } finally {
+    if (controller) pendingRequests.delete(controller)
   }
-  const body = response.headers.get('content-type')?.includes('application/json') ? await response.json() : null
-  if (!response.ok) {
-    const detail = body?.detail
-    const message = typeof detail === 'string' ? detail : detail?.message || `Request failed (${response.status}).`
-    throw new ApiError(message, { status: response.status })
-  }
-  return body
 }
 
 export const api = {
@@ -86,23 +151,24 @@ export const api = {
   /** Downloads a report file. Resolves to the file name; rejects with ApiError (e.g. the server's reason). */
   downloadReport: async (productId, format, analysisId) => {
     if (STATIC_DEMO) throw new ApiError(STATIC_DEMO_MESSAGE, { offline: true })
-    let response
-    try {
-      response = await fetch(api.reportUrl(productId, format, analysisId))
-    } catch {
-      throw new ApiError('Can’t reach the analysis server. Make sure the backend is running.', { offline: true })
-    }
-    if (!response.ok) {
-      const body = response.headers.get('content-type')?.includes('application/json') ? await response.json() : null
-      throw new ApiError(typeof body?.detail === 'string' ? body.detail : `Download failed (${response.status}).`, { status: response.status })
-    }
-    const name = /filename="([^"]+)"/.exec(response.headers.get('content-disposition') ?? '')?.[1] ?? `report.${format}`
-    const url = URL.createObjectURL(await response.blob())
-    const link = Object.assign(document.createElement('a'), { href: url, download: name })
-    document.body.append(link)
-    link.click()
-    link.remove()
-    setTimeout(() => URL.revokeObjectURL(url), 1000)
-    return name
+    return scopedRequest(api.reportUrl(productId, format, analysisId), {}, async (response, scope) => {
+      if (!response.ok) {
+        const body = response.headers.get('content-type')?.includes('application/json') ? await response.json() : null
+        scope.check()
+        scope.reject(response.status)
+        throw new ApiError(typeof body?.detail === 'string' ? body.detail : `Download failed (${response.status}).`, { status: response.status })
+      }
+      const name = /filename="([^"]+)"/.exec(response.headers.get('content-disposition') ?? '')?.[1] ?? `report.${format}`
+      const blob = await response.blob()
+      scope.check() // never create/click a download from a previous account, even if abort was ignored
+      const url = URL.createObjectURL(blob)
+      downloadUrls.add(url)
+      const link = Object.assign(document.createElement('a'), { href: url, download: name })
+      document.body.append(link)
+      link.click()
+      link.remove()
+      setTimeout(() => { if (downloadUrls.delete(url)) URL.revokeObjectURL(url) }, 1000)
+      return name
+    })
   },
 }

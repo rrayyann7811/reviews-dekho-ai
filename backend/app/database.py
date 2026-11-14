@@ -5,6 +5,7 @@ from pathlib import Path
 from sqlalchemy import create_engine, event
 from sqlalchemy.engine import Engine
 from sqlalchemy.orm import DeclarativeBase, Session, sessionmaker
+from fastapi import Request
 
 from . import config
 
@@ -47,9 +48,12 @@ def init_db(bind: Engine | None = None) -> None:
     migrations.upgrade(bind or engine)
 
 
-def get_db() -> Iterator[Session]:
+def get_db(request: Request) -> Iterator[Session]:
     """FastAPI dependency: one session per request, always closed."""
     db = SessionLocal()
+    principal = getattr(request.state, "principal", None)
+    if principal is not None:
+        db.info["principal"] = principal
     try:
         yield db
     finally:

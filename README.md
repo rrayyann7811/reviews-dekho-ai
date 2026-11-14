@@ -245,8 +245,9 @@ and uses synthetic cases, writing results under git-ignored `storage/ai_eval/` b
   Review text and quoted excerpts can still contain personal information; inspect exports before sharing them.
 - CSV cells are protected against spreadsheet formula injection and PDF text is escaped. Database files, model weights,
   downloaded evaluation data and `.env` files are git-ignored. No API keys are required.
-- The backend has **no authentication or rate limiting**. Keep it bound to localhost; CORS is not access control.
-  Public backend hosting is not supported by this project as shipped.
+- Default local mode is restricted to loopback clients and has no account sign-in. An optional JWT/ownership
+  boundary is implemented for local testing; public hosting remains blocked by rate limiting, upload hardening and
+  other safeguards. CORS is not access control. See [Phase 2A security preparation](docs/PHASE2A_SECURITY.md).
 
 ## Static-demo build and deployment
 

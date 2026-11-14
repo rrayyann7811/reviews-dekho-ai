@@ -27,10 +27,14 @@ def utcnow() -> datetime:
 class Product(Base):
     __tablename__ = "products"
     # A collected product (e.g. one App Store app in one country) is stored once and refreshed, not duplicated.
-    __table_args__ = (Index("uq_collected_product", "source_site", "external_product_id", "source_region",
+    __table_args__ = (Index("uq_collected_product", "owner_id", "source_site", "external_product_id", "source_region",
                             unique=True),)
 
     id: Mapped[int] = mapped_column(primary_key=True)
+    # Derived exclusively from a verified (issuer, subject), or the reserved local workspace.
+    owner_id: Mapped[str] = mapped_column(String(64), default="local", server_default="local", index=True)
+    # Fixed product lifetime: refreshing/re-analysing never extends retention. Local data is not expired.
+    expires_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), index=True)
     name: Mapped[str] = mapped_column(String(200))
     brand: Mapped[str | None] = mapped_column(String(120))
     category: Mapped[str | None] = mapped_column(String(120))

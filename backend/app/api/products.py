@@ -9,6 +9,7 @@ from ..services import analysis as analysis_service
 from ..services import products as product_service
 from ..reports.pdf import build_report
 from ..services import collection, reports, review_query
+from ..services.ownership import new_product_identity
 
 router = APIRouter(prefix="/products", tags=["Products"])
 NOT_FOUND = {404: {"model": ErrorResponse, "description": "Product not found"}}
@@ -23,7 +24,8 @@ def list_products(db: Session = Depends(get_db)):
 @router.post("", response_model=ProductSummary, status_code=status.HTTP_201_CREATED,
              summary="Create an empty product (add reviews to it afterwards)")
 def create_product(body: ProductCreate, db: Session = Depends(get_db)):
-    product = Product(name=body.name, brand=body.brand, category=body.category, domain=body.domain, source="manual")
+    product = Product(**new_product_identity(db), name=body.name, brand=body.brand, category=body.category,
+                      domain=body.domain, source="manual")
     db.add(product)
     db.commit()
     return product_service.summary_out(product)

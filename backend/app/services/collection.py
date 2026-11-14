@@ -19,6 +19,8 @@ from ..models import Product
 from .analysis import run_analysis
 from .ingestion import clean_records
 from .products import add_reviews
+from .ownership import new_product_identity, principal, product_scope
+from .retention import purge_expired_products
 
 
 def supported_sites_text() -> str:
@@ -34,9 +36,10 @@ def collect_from_url(db: Session, raw_url: str, http=None) -> tuple[Product, boo
                               f"{supported_sites_text()}. For any other website, upload the reviews as a CSV or "
                               "Excel file.")
     ref = adapter.parse(url)  # raises a clear error for websites that can't be collected
+    purge_expired_products(db, owner_id=principal(db).owner_id)
     existing = db.scalar(select(Product).where(
         Product.source_site == ref.site, Product.external_product_id == ref.product_id,
-        Product.source_region == ref.region))
+        Product.source_region == ref.region, product_scope(db)))
     product = _collect(db, adapter, ref, existing, http)
     return product, existing is None
 
@@ -71,7 +74,7 @@ def _collect(db: Session, adapter: SourceAdapter, ref: ProductRef, product: Prod
     # 3. Store.
     now = datetime.now(timezone.utc)
     if product is None:
-        product = Product(name=collected.name[:200], brand=(collected.brand or "")[:120] or None,
+        product = Product(**new_product_identity(db), name=collected.name[:200], brand=(collected.brand or "")[:120] or None,
                           category=(collected.category or "")[:120] or None, source="url", domain=adapter.domain,
                           source_url=collected.url, source_site=ref.site, external_product_id=ref.product_id,
                           source_region=ref.region)

@@ -5,6 +5,7 @@ from sqlalchemy.orm import Session, selectinload
 from ..errors import AppError, NotFound
 from ..models import AnalysisResult, Product, Review
 from .analysis import as_utc, source_out
+from .ownership import product_scope
 
 
 def _percentages(analysis: AnalysisResult) -> tuple[float | None, float | None]:
@@ -15,7 +16,7 @@ def _percentages(analysis: AnalysisResult) -> tuple[float | None, float | None]:
 
 
 def get_product(db: Session, product_id: int) -> Product:
-    product = db.get(Product, product_id)
+    product = db.scalar(select(Product).where(Product.id == product_id, product_scope(db)))
     if product is None:
         raise NotFound(f"Product {product_id} doesn’t exist. It may have been deleted.")
     return product
@@ -41,7 +42,7 @@ def summary_out(product: Product) -> dict:
 
 
 def list_products(db: Session) -> list[Product]:
-    query = (select(Product)
+    query = (select(Product).where(product_scope(db))
              .options(selectinload(Product.reviews).load_only(Review.id), selectinload(Product.analyses))
              .order_by(Product.created_at.desc(), Product.id.desc()))
     return list(db.scalars(query))
@@ -79,9 +80,10 @@ def add_reviews(db: Session, product: Product, reviews: list[dict], skip_existin
     return added, len(duplicates)
 
 
-def history_query():
+def history_query(db):
     return (select(AnalysisResult, Product.name, Product.source)
             .join(Product, AnalysisResult.product_id == Product.id)
+            .where(product_scope(db))
             .order_by(AnalysisResult.created_at.desc(), AnalysisResult.id.desc()))
 
 

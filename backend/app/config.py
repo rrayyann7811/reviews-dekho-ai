@@ -52,3 +52,11 @@ AI_SUMMARIES_ENABLED = os.getenv("AI_SUMMARIES", "off").strip().lower() in ("on"
 OLLAMA_URL = os.getenv("OLLAMA_URL", "http://127.0.0.1:11434").rstrip("/")
 OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", "llama3.2:3b")
 OLLAMA_TIMEOUT_SECONDS = float(os.getenv("OLLAMA_TIMEOUT_SECONDS", "120"))
+
+# Explicitly select JWT mode before hosted use. Local mode is restricted to loopback clients.
+AUTH_MODE = os.getenv("AUTH_MODE", "local")
+AUTH_ISSUER = os.getenv("AUTH_ISSUER", "")
+AUTH_AUDIENCE = os.getenv("AUTH_AUDIENCE", "")
+AUTH_ALGORITHM = os.getenv("AUTH_ALGORITHM", "ES256")
+AUTH_JWKS_URL = os.getenv("AUTH_JWKS_URL", "")
+AUTH_JWKS_FILE = os.getenv("AUTH_JWKS_FILE", "")  # public keys only; supports offline verification/testing

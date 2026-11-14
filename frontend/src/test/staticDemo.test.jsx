@@ -4,7 +4,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 vi.mock('../lib/staticDemo', async () => ({ ...(await vi.importActual('../lib/staticDemo')), STATIC_DEMO: true }))
 const { default: App } = await import('../App')
-const { api } = await import('../lib/api')
+const { api, setAccessTokenProvider } = await import('../lib/api')
 
 beforeEach(() => {
   localStorage.clear()
@@ -18,6 +18,25 @@ function openAt(hash) {
 }
 
 describe('static demo build', () => {
+  it('ignores hosted-auth configuration and never gates the synthetic demo behind sign-in', async () => {
+    vi.stubEnv('VITE_AUTH_MODE', 'hosted')
+    try {
+      openAt('#/history')
+      await screen.findByRole('heading', { name: 'Analysis history' })
+      expect(screen.queryByRole('button', { name: 'Sign in' })).not.toBeInTheDocument()
+      expect(fetch).not.toHaveBeenCalled()
+    } finally { vi.unstubAllEnvs() }
+  })
+
+  it('never invokes an installed identity-provider hook', async () => {
+    const provider = vi.fn(() => { throw new Error('identity provider must not run in the static demo') })
+    setAccessTokenProvider(provider)
+    await expect(api.listProducts()).rejects.toMatchObject({ offline: true })
+    await expect(api.downloadReport(1, 'pdf')).rejects.toMatchObject({ offline: true })
+    expect(provider).not.toHaveBeenCalled()
+    expect(fetch).not.toHaveBeenCalled()
+  })
+
   it('carries no API address and fails every API call before fetch', async () => {
     expect(api.baseUrl).toBe('')
     expect(api.reportUrl(7, 'pdf')).not.toMatch(/localhost|https?:/)

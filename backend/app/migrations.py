@@ -123,12 +123,24 @@ def _v5_ai_summaries(conn: Connection) -> None:
     conn.exec_driver_sql("CREATE INDEX ix_ai_summaries_analysis_id ON ai_summaries (analysis_id)")
 
 
+def _v6_product_ownership(conn: Connection) -> None:
+    """Old records remain local; never assign pre-authentication data to an account automatically."""
+    conn.exec_driver_sql("ALTER TABLE products ADD COLUMN owner_id VARCHAR(64) NOT NULL DEFAULT 'local'")
+    conn.exec_driver_sql("ALTER TABLE products ADD COLUMN expires_at DATETIME")
+    conn.exec_driver_sql("CREATE INDEX ix_products_owner_id ON products (owner_id)")
+    conn.exec_driver_sql("CREATE INDEX ix_products_expires_at ON products (expires_at)")
+    conn.exec_driver_sql("DROP INDEX uq_collected_product")
+    conn.exec_driver_sql("CREATE UNIQUE INDEX uq_collected_product "
+                         "ON products (owner_id, source_site, external_product_id, source_region)")
+
+
 MIGRATIONS: list[tuple[str, Callable[[Connection], None]]] = [
     ("baseline (Phase 2 schema)", _v1_baseline),
     ("per-review results stored on each analysis run", _v2_review_snapshots),
     ("source details for products collected from links", _v3_collected_products),
     ("product domain and sentiment engine per analysis run", _v4_engine_and_domain),
     ("table for optional AI-written overviews", _v5_ai_summaries),
+    ("owner-scoped products and fixed account-data expiry", _v6_product_ownership),
 ]
 LATEST_VERSION = len(MIGRATIONS)
 

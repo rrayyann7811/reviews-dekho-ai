@@ -13,6 +13,7 @@ from ..schemas import ColumnMap, ErrorResponse, ProductSummary, UploadPreview
 from ..services import analysis as analysis_service
 from ..services import ingestion
 from ..services import products as product_service
+from ..services.ownership import new_product_identity
 
 router = APIRouter(prefix="/uploads", tags=["Uploads"])
 FILE_ERRORS = {
@@ -57,7 +58,7 @@ async def import_upload(
     df = ingestion.read_table(name, content)
     reviews, report = ingestion.clean_reviews(df, column_map.model_dump(by_alias=True))
 
-    product = Product(name=product_name.strip(), brand=(brand or "").strip() or None,
+    product = Product(**new_product_identity(db), name=product_name.strip(), brand=(brand or "").strip() or None,
                       category=(category or "").strip() or None, domain=domain, source="upload", file_name=name)
     db.add(product)
     product_service.add_reviews(db, product, reviews)
