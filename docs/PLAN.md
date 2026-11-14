@@ -89,11 +89,11 @@ reviews-dekho-ai/
 | 1 | Design system + frontend shell, all pages, demo mode | Every route renders, layout tested at 375/768/1440 px |
 | 2 | FastAPI, models, schemas, CRUD, Swagger, **CSV/XLSX ingestion with column detection and preview** (moved up from Phase 3), history, frontend wired to the API | ✅ Done 2026-11-14 |
 | 3 | URL review collection through permitted sources (adapters), history integrity, schema migrations | ✅ Done 2026-11-14 |
-| 4 | NLP engine: pretrained model + VADER fallback, app features, language check, evaluation | ✅ Done 2026-11-14, committed `14c33f3` |
-| 5 | Analytics dashboard wired to stored results: server-side review paging, re-analyse, edge states | ✅ Done 2026-11-14, committed `d5c3f67` |
-| 6 | Evidence-backed summaries, PDF reports (6a); optional local AI overview (6b) | ✅ Done 2026-11-14, including live `llama3.2:3b` evaluation; committed `5950d89` |
-| 7 | Comparison: two stored runs side by side (two products or two runs of one), intervals, caveats | ✅ Done 2026-11-14, committed `b370e62` |
-| 8 | Portfolio readiness: correctness, reproducible demo and AI evaluation, accessibility, privacy, README, CI | ✅ Implemented and verified 2026-11-14 (awaiting review and commit approval; nothing pushed or deployed) |
+| 4 | NLP engine: pretrained model + VADER fallback, app features, language check, evaluation | ✅ Done 2026-11-14, committed `101920f` |
+| 5 | Analytics dashboard wired to stored results: server-side review paging, re-analyse, edge states | ✅ Done 2026-11-14, committed `a26188b` |
+| 6 | Evidence-backed summaries, PDF reports (6a); optional local AI overview (6b) | ✅ Done 2026-11-14, including live `llama3.2:3b` evaluation; committed `5ef55a5` |
+| 7 | Comparison: two stored runs side by side (two products or two runs of one), intervals, caveats | ✅ Done 2026-11-14, committed `5961617` |
+| 8 | Portfolio readiness: correctness, reproducible demo and AI evaluation, accessibility, privacy, README, CI | ✅ Done 2026-11-14, committed `b5db84d` |
 
 ## 7. Progress log
 
@@ -405,7 +405,7 @@ reproduced the frontend demo snapshot exactly.
 
 **2026-11-14 — Phase 5 implemented (analytics dashboard on stored results)** — not committed yet
 
-Phase 4 was committed first (`14c33f3`, "feat: add pretrained sentiment model, app features, language check and
+Phase 4 was committed first (`101920f`, "feat: add pretrained sentiment model, app features, language check and
 evaluation") after the requested pre-commit audit: repository root confirmed; no env files, databases, model weights or
 evaluation data staged; EVALUATION.md gained a Methodology section (label mapping, averaging, why E1 macro F1 > accuracy,
 full development/evaluation overlap) and the untouched SentiMix **test** split; README added with model install,
@@ -462,7 +462,7 @@ stored products.
 
 **2026-11-14 — Phase 6 (evidence-backed summaries, PDF reports, optional local AI overview)** — not committed yet
 
-Phase 5 was committed first (`d5c3f67`).
+Phase 5 was committed first (`a26188b`).
 
 ### 6a — Evidence-backed summary (summary version 2)
 `app/nlp/summary.py` was extended, not replaced. Each claim (strength, complaint, mixed) now stores:
@@ -618,7 +618,7 @@ Final run, after the live evaluation finished and Ollama was idle:
 
 **2026-11-14 — Phase 7 (side-by-side comparison)** — not committed yet
 
-Phase 6 was committed first (`5950d89`). Approved decisions: two products **or** two runs of one product; thresholds of
+Phase 6 was committed first (`5ef55a5`). Approved decisions: two products **or** two runs of one product; thresholds of
 30 analysed reviews per side for "clear separation", a warning at a 5× size gap and when more than 10% of a side wasn't
 analysed; no comparison PDF/CSV; no database change; no AI text and no overall winner.
 
@@ -703,7 +703,7 @@ no shared features.
 
 **2026-11-14 — Phase 8 (portfolio readiness, reproducibility, accessibility, final QA)** — not committed yet
 
-Phase 7 was committed first (`b370e62`). Approved decisions: MIT for original code (third-party licences kept); synthetic
+Phase 7 was committed first (`5961617`). Approved decisions: MIT for original code (third-party licences kept); synthetic
 data only in public screenshots and examples; prepare (not deploy) a static demo-only frontend; add CI without pushing;
 verify Python 3.12 if available; the backend stays local-only.
 
@@ -809,3 +809,37 @@ verify Python 3.12 if available; the backend stays local-only.
   disabilities.
 * Large analyses still run inside one request (no background jobs); the estimate is based on one machine.
 * The static demo shows one synthetic product only; it hasn't been deployed or tested on GitHub Pages itself.
+
+**2026-11-15 — Publication preparation (local only; no repository, remote, push or deployment)**
+
+* **Commit e-mail.** Before anything is published, the eight existing commits were rewritten so that author and
+  committer use the GitHub no-reply address (`195581326+rrayyann7811@users.noreply.github.com`, read from the
+  authenticated GitHub API) instead of a personal address. Names, dates, messages and every file tree are unchanged
+  (all eight tree hashes identical; metadata compared field by field). New commits use the same address through the
+  repository's local Git config. Commit hashes in this log were updated to the rewritten history:
+
+  | Phase | Before | After |
+  |---|---|---|
+  | 1 | `e2587f8` | `18d94b6` |
+  | 2 | `1b9df42` | `d671346` |
+  | 3 | `044a8e4` | `a13e807` |
+  | 4 | `14c33f3` | `101920f` |
+  | 5 | `d5c3f67` | `a26188b` |
+  | 6 | `5950d89` | `5ef55a5` |
+  | 7 | `b370e62` | `5961617` |
+  | 8 | `febfccd` | `b5db84d` |
+
+  The old history is kept only in the local reference `refs/backup/pre-email-rewrite` (not a branch or tag, so a push of
+  `main` never sends it); it can be deleted with `git update-ref -d refs/backup/pre-email-rewrite` once publication is
+  done.
+* **GitHub Pages workflow** (`.github/workflows/pages.yml`): manual trigger only; Node 24, `npm ci`, the frontend tests,
+  `npm run build:demo`, a check that the output is the demo-only build (relative paths, no source maps, no third-party
+  font URLs), then GitHub's official `configure-pages`, `upload-pages-artifact` (only `frontend/dist-demo`) and
+  `deploy-pages` actions. The build job can only read the repository; only the deploy job has `pages: write` and
+  `id-token: write`. No backend, no secrets, no API address; the demo contains only the built-in synthetic product.
+* **CI compatibility review** (no changes needed): the full backend dependency tree resolves to 60 binary wheels for
+  Linux x86_64 on CPython 3.12 and 3.14 (`pip install --dry-run --only-binary=:all:` for manylinux 2.17–2.28), including
+  `onnxruntime` 1.32.0 and `tokenizers` 0.23.3 (abi3), so the optional model packages install without the model being
+  downloaded; the lockfile includes the Linux x64 binaries of oxlint, rolldown, Tailwind's oxide and lightningcss; all
+  240 relative frontend imports match the file names' case exactly; both suites pass with `TZ=UTC` and `C.UTF-8` as on
+  the runners (backend 395 passed, 11 skipped in the CI configuration; frontend 130 passed).

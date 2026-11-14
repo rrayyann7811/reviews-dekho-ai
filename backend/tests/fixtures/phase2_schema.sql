@@ -1,4 +1,4 @@
--- Database schema as shipped in Phase 2 (commit 1b9df42). Used to test upgrades.
+-- Database schema as shipped in Phase 2 (commit d671346). Used to test upgrades.
 
 CREATE TABLE products (
 	id INTEGER NOT NULL, 
