@@ -7,7 +7,7 @@ from ..models import Product
 from ..schemas import Analysis, ErrorResponse, ProductCreate, ProductSummary, ProductUpdate, UrlRequest
 from ..services import analysis as analysis_service
 from ..services import products as product_service
-from ..services import reports, sites
+from ..services import collection, reports
 
 router = APIRouter(prefix="/products", tags=["Products"])
 NOT_FOUND = {404: {"model": ErrorResponse, "description": "Product not found"}}
@@ -27,11 +27,24 @@ def create_product(body: ProductCreate, db: Session = Depends(get_db)):
     return product_service.summary_out(product)
 
 
+COLLECTION_ERRORS = {
+    404: {"model": ErrorResponse, "description": "The product doesn’t exist on the website"},
+    422: {"model": ErrorResponse, "description": "Invalid link, website not supported or not permitted, or no reviews"},
+    502: {"model": ErrorResponse, "description": "The website couldn’t be reached or answered unexpectedly"},
+    503: {"model": ErrorResponse, "description": "The website is rate-limiting requests"},
+    504: {"model": ErrorResponse, "description": "The website took too long to respond"},
+}
+
+
 @router.post("/from-url", response_model=ProductSummary, status_code=status.HTTP_201_CREATED,
-             responses={422: {"model": ErrorResponse, "description": "Website not supported"}},
-             summary="Analyse a product from its link (only permitted sources)")
-def product_from_url(body: UrlRequest):
-    sites.collect_from_url(str(body.url))  # raises a clear 422 explaining why the link can't be used
+             responses=COLLECTION_ERRORS | {200: {"model": ProductSummary, "description": "Collected before: refreshed"}},
+             summary="Collect and analyse reviews from a product link (permitted sources only)")
+def product_from_url(body: UrlRequest, response: Response, db: Session = Depends(get_db)):
+    """Supported: Apple App Store app links. Amazon and Flipkart links are recognised but can’t be collected.
+    Collecting the same product again adds any new reviews and runs a new analysis (status 200)."""
+    product, created = collection.collect_from_url(db, body.url)
+    response.status_code = status.HTTP_201_CREATED if created else status.HTTP_200_OK
+    return product_service.summary_out(product)
 
 
 @router.get("/{product_id}", response_model=ProductSummary, responses=NOT_FOUND, summary="Get one product")
@@ -75,6 +88,13 @@ def reanalyze(product_id: int, db: Session = Depends(get_db)):
     analysis_service.run_analysis(db, product)
     db.commit()
     return analysis_service.analysis_out(product)
+
+
+@router.post("/{product_id}/refresh", response_model=ProductSummary, responses=NOT_FOUND | COLLECTION_ERRORS,
+             summary="Collect the latest reviews again for a product added from a link")
+def refresh_product(product_id: int, db: Session = Depends(get_db)):
+    product = collection.refresh_product(db, product_service.get_product(db, product_id))
+    return product_service.summary_out(product)
 
 
 @router.get("/{product_id}/report.csv", responses=NOT_FOUND, response_class=Response,

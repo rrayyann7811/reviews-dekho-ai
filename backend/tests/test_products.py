@@ -77,9 +77,10 @@ def test_delete_product_cascades_to_reviews_and_history(client, product):
 
 def test_from_url_explains_why_links_cannot_be_collected(client):
     cases = {
-        "https://www.amazon.in/dp/B0TEST": "Amazon doesn’t provide public access",
-        "https://www.flipkart.com/item/p/itm123": "Flipkart doesn’t provide public access",
+        "https://www.amazon.in/dp/B0TESTTEST": "Amazon’s official APIs don’t provide review text",
+        "https://www.flipkart.com/item/p/itm123": "Flipkart’s official API doesn’t provide reviews",
         "https://shop.example.com/product/1": "shop.example.com isn’t a supported website",
+        "https://apps.apple.com/in/charts/iphone": "isn’t an app page",
         "https://demo.reviewsdekho.test/product/kestrel-orbit-5g": "demo product is built into the app",
     }
     for url, message in cases.items():
@@ -90,7 +91,7 @@ def test_from_url_explains_why_links_cannot_be_collected(client):
 
 
 def test_from_url_rejects_invalid_urls(client):
-    for body in ({"url": "not a url"}, {"url": "ftp://x.com/a"}, {}):
+    for body in ({"url": "not a url"}, {"url": "ftp://x.com/a"}, {"url": ""}, {}):
         response = client.post("/api/products/from-url", json=body)
         assert response.status_code == 422
         assert isinstance(response.json()["detail"], str)

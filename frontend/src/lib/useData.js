@@ -36,6 +36,7 @@ export function useProducts() {
 export function useAnalysis(productId) {
   const isDemo = productId === DEMO_ID
   const [result, setResult] = useState({ id: null, data: null, error: null })
+  const [version, setVersion] = useState(0) // bump to load the analysis again
 
   useEffect(() => {
     if (isDemo) return
@@ -47,9 +48,10 @@ export function useAnalysis(productId) {
     return () => {
       active = false
     }
-  }, [productId, isDemo])
+  }, [productId, isDemo, version])
 
-  if (isDemo) return { data: demoAnalysis, loading: false, error: null }
+  const reload = () => setVersion((v) => v + 1)
+  if (isDemo) return { data: demoAnalysis, loading: false, error: null, reload }
   const current = result.id === productId
-  return { data: current ? result.data : null, loading: !current, error: current ? result.error : null }
+  return { data: current ? result.data : null, loading: !current, error: current ? result.error : null, reload }
 }

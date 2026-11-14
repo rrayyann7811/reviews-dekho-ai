@@ -47,3 +47,52 @@ def test_history_errors(client):
     assert client.get("/api/history/999").status_code == 404
     assert client.delete("/api/history/999").json()["detail"] == "Analysis 999 doesn’t exist."
     assert client.get("/api/history", params={"limit": 0}).status_code == 422
+
+
+# ---------- Historical integrity: every run is an unchanging snapshot ----------
+
+def _run_ids(client):
+    return sorted(h["id"] for h in client.get("/api/history").json())
+
+
+def test_old_runs_keep_their_review_level_results(client, product):
+    url = f"/api/products/{product['id']}"
+    [first_id] = _run_ids(client)
+    first = client.get(f"/api/history/{first_id}").json()
+    assert [r["id"] for r in first["reviews"]] == ["A1", "A2", "A3", "A4", "A5", "A6"]
+
+    client.delete(f"{url}/reviews/A2")
+    client.post(f"{url}/reviews", json={"reviews": [{"text": "Brilliant, love it.", "id": "N1"}]})
+
+    again = client.get(f"/api/history/{first_id}").json()
+    assert again["reviews"] == first["reviews"]  # unchanged, including the deleted review A2
+    assert again["stats"] == first["stats"]
+    latest = client.get(f"{url}/analysis").json()
+    assert "A2" not in [r["id"] for r in latest["reviews"]] and "N1" in [r["id"] for r in latest["reviews"]]
+
+
+def test_every_run_is_internally_consistent(client, product):
+    url = f"/api/products/{product['id']}"
+    client.delete(f"{url}/reviews/A1")
+    client.post(f"{url}/reviews", json={"reviews": [{"text": "The camera is terrible.", "id": "N1"}]})
+    for run_id in _run_ids(client):
+        run = client.get(f"/api/history/{run_id}").json()
+        ids = {r["id"] for r in run["reviews"]}
+        assert run["stats"]["totalReviews"] == len(run["reviews"]) == run["totalReviews"]
+        assert sum(run["stats"]["sentimentCounts"].values()) == len(ids)
+        assert set(run["stats"]["ratingSentimentMismatches"]) <= ids
+        for aspect in run["aspects"]:  # example quotes always point at a review in the same run
+            for example in (aspect["examplePositive"], aspect["exampleNegative"]):
+                assert example is None or example["reviewId"] in ids
+
+
+def test_falling_back_to_an_older_run_shows_that_runs_reviews(client, product):
+    url = f"/api/products/{product['id']}"
+    client.delete(f"{url}/reviews/A2")
+    first_id, second_id = _run_ids(client)
+    client.delete(f"/api/history/{second_id}")
+    analysis = client.get(f"{url}/analysis").json()
+    assert analysis["analysisId"] == first_id
+    assert analysis["stats"]["totalReviews"] == len(analysis["reviews"]) == 6
+    assert "A2" in [r["id"] for r in analysis["reviews"]]
+    assert client.get("/api/products").json()[0]["totalReviews"] == 6  # the list agrees with the page

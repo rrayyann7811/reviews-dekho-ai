@@ -1,6 +1,7 @@
 // Websites the URL analyser recognises. "supported" means reviews can be
 // retrieved through a permitted source; "unavailable" means we recognise the
 // link but the site offers no permitted way to collect its reviews.
+// Mirrors backend/app/collectors (GET /api/sites); a backend test keeps them in sync.
 export const SITES = [
   {
     id: 'demo',
@@ -11,9 +12,17 @@ export const SITES = [
     example: 'https://demo.reviewsdekho.test/product/kestrel-orbit-5g',
   },
   {
+    id: 'apple_app_store',
+    name: 'Apple App Store',
+    hosts: ['apps.apple.com', 'itunes.apple.com'],
+    status: 'supported',
+    note: 'Apps on the App Store. Up to the 500 most recent written reviews from the country store in the link, through Apple’s public review feed.',
+    example: 'https://apps.apple.com/in/app/whatsapp-messenger/id310633997',
+  },
+  {
     id: 'amazon',
     name: 'Amazon',
-    hosts: ['amazon.in', 'amazon.com', 'amzn.in', 'amzn.to'],
+    hosts: ['amazon.in', 'amazon.com', 'amazon.co.uk', 'amzn.in', 'amzn.to', 'amzn.eu'],
     status: 'unavailable',
     note: 'Link recognised. Amazon does not provide public access to reviews, so they cannot be collected automatically.',
   },

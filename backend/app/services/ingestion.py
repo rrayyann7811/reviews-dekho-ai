@@ -196,29 +196,26 @@ def parse_date(value):
     return None if pd.isna(parsed) else parsed.date()
 
 
-def clean_reviews(df: pd.DataFrame, columns: dict) -> tuple[list[dict], dict]:
-    """Apply the column mapping and return (reviews, report).
+FIELDS = ("id", "text", "rating", "date", "title", "reviewer")
 
-    Rows are skipped when the review text is empty or a duplicate (same review
-    ID, or the same text when there is no ID column). Invalid ratings and
-    dates are kept as "not given" and counted in the report.
+
+def clean_records(records: list[dict]) -> tuple[list[dict], dict]:
+    """Validate and clean raw review records; return (reviews, report).
+
+    Used for uploaded files AND reviews collected from websites, so both get
+    exactly the same treatment. Each record may have: id, text, rating, date,
+    title, reviewer (any type; missing keys are fine).
+
+    Records are skipped when the text is empty or a duplicate (same review ID,
+    or the same text when there is no ID). Invalid ratings and dates are kept
+    as "not given" and counted in the report. An empty result is NOT an error
+    here; callers decide what that means.
     """
-    missing = [name for name in columns.values() if name and name not in df.columns]
-    if missing:
-        raise AppError(f"These columns aren’t in the file: {', '.join(missing)}.", 422)
-    text_col = columns.get("text")
-    if not text_col:
-        raise AppError("Choose the column that contains the review text.", 422)
-
-    def cell(row, role):
-        col = columns.get(role)
-        return normalize_text(row[col]) if col else ""
-
     reviews, seen = [], set()
-    report = {"rowsInFile": len(df), "emptyRemoved": 0, "duplicatesRemoved": 0,
+    report = {"rowsInFile": len(records), "emptyRemoved": 0, "duplicatesRemoved": 0,
               "invalidRatings": 0, "invalidDates": 0, "truncated": 0}
-    for number, row in enumerate(df.to_dict("records"), start=1):
-        text = cell(row, "text")
+    for number, record in enumerate(records, start=1):
+        text = normalize_text(record.get("text"))
         if not text:
             report["emptyRemoved"] += 1
             continue
@@ -226,14 +223,14 @@ def clean_reviews(df: pd.DataFrame, columns: dict) -> tuple[list[dict], dict]:
             text = text[: config.MAX_REVIEW_CHARS]
             report["truncated"] += 1
 
-        review_id = cell(row, "id")[:100]
+        review_id = normalize_text(record.get("id"))[:100]
         key = ("id", review_id) if review_id else ("text", dedupe_key(text))
         if key in seen:
             report["duplicatesRemoved"] += 1
             continue
         seen.add(key)
 
-        raw_rating, raw_date = cell(row, "rating"), cell(row, "date")
+        raw_rating, raw_date = normalize_text(record.get("rating")), normalize_text(record.get("date"))
         rating, date = parse_rating(raw_rating), parse_date(raw_date)
         report["invalidRatings"] += bool(raw_rating and rating is None)
         report["invalidDates"] += bool(raw_date and date is None)
@@ -244,11 +241,11 @@ def clean_reviews(df: pd.DataFrame, columns: dict) -> tuple[list[dict], dict]:
             "text": text,
             "rating": rating,
             "date": date,
-            "title": cell(row, "title")[:300] or None,
-            "reviewer": cell(row, "reviewer")[:120] or None,
+            "title": normalize_text(record.get("title"))[:300] or None,
+            "reviewer": normalize_text(record.get("reviewer"))[:120] or None,
         })
 
-    # Reviews without an ID get "R-<row number>", skipping any ID already used in the file.
+    # Reviews without an ID get "R-<row number>", skipping any ID already used.
     taken = {r["id"] for r in reviews if r["id"]}
     for review in reviews:
         row = review.pop("row")
@@ -260,8 +257,22 @@ def clean_reviews(df: pd.DataFrame, columns: dict) -> tuple[list[dict], dict]:
             review["id"] = new_id
             taken.add(new_id)
 
+    report["imported"] = len(reviews)
+    return reviews, report
+
+
+def clean_reviews(df: pd.DataFrame, columns: dict) -> tuple[list[dict], dict]:
+    """Apply the user's column mapping to an uploaded table, then clean it with clean_records()."""
+    missing = [name for name in columns.values() if name and name not in df.columns]
+    if missing:
+        raise AppError(f"These columns aren’t in the file: {', '.join(missing)}.", 422)
+    if not columns.get("text"):
+        raise AppError("Choose the column that contains the review text.", 422)
+
+    records = [{field: row[columns[field]] for field in FIELDS if columns.get(field)}
+               for row in df.to_dict("records")]
+    reviews, report = clean_records(records)
     if not reviews:
         raise AppError("No usable reviews were found: every row had empty review text. "
                        "Check that the right column is selected.", 422)
-    report["imported"] = len(reviews)
     return reviews, report

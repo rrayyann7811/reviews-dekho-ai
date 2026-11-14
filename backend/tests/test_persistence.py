@@ -16,9 +16,10 @@ def test_imported_data_is_written_to_the_database(client, product):
         stored = db.get(Product, product["id"])
         assert stored.name == "Test Phone" and stored.source == "upload"
         assert db.scalar(select(func.count()).select_from(Review)) == 6
-        assert all(r.sentiment in ("positive", "neutral", "negative") for r in stored.reviews)
         [analysis] = db.scalars(select(AnalysisResult)).all()
         assert analysis.total_reviews == 6 and analysis.stats["totalReviews"] == 6
+        assert [r["id"] for r in analysis.review_results] == [r.external_id for r in stored.reviews]
+        assert all(r["sentiment"] in ("positive", "neutral", "negative") for r in analysis.review_results)
         assert stored.reviews[0].review_date.isoformat() == "2026-10-01"
     engine.dispose()
 

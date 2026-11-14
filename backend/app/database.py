@@ -21,9 +21,17 @@ def make_engine(url: str) -> Engine:
 
     if url.startswith("sqlite"):
         @event.listens_for(engine, "connect")
-        def _enable_foreign_keys(dbapi_connection, _record):
+        def _on_connect(dbapi_connection, _record):
             # SQLite ignores foreign keys (and ON DELETE CASCADE) unless this is switched on.
             dbapi_connection.execute("PRAGMA foreign_keys=ON")
+            # Let SQLAlchemy control transactions (see "begin" below) instead of the sqlite3 module.
+            dbapi_connection.isolation_level = None
+
+        @event.listens_for(engine, "begin")
+        def _on_begin(connection):
+            # Python's sqlite3 module does not put ALTER/CREATE inside a transaction by itself. Starting
+            # every transaction explicitly makes schema migrations all-or-nothing too.
+            connection.exec_driver_sql("BEGIN")
 
     return engine
 
@@ -32,10 +40,11 @@ engine = make_engine(config.DATABASE_URL)
 SessionLocal = sessionmaker(bind=engine, autoflush=False, expire_on_commit=False)
 
 
-def init_db(bind: Engine = engine) -> None:
-    from . import models  # noqa: F401  (registers the tables on Base.metadata)
+def init_db(bind: Engine | None = None) -> None:
+    """Create the tables, or upgrade an existing database without losing data."""
+    from . import migrations, models  # noqa: F401  (models registers the tables on Base.metadata)
 
-    Base.metadata.create_all(bind)
+    migrations.upgrade(bind or engine)
 
 
 def get_db() -> Iterator[Session]:

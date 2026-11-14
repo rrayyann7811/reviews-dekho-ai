@@ -1,10 +1,8 @@
 from fastapi import APIRouter, Depends, Query, Response, status
-from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from ..database import get_db
 from ..errors import NotFound
-from ..models import Review
 from ..schemas import ErrorResponse, ProductSummary, ReviewPage, ReviewsCreate
 from ..services import analysis as analysis_service
 from ..services import products as product_service
@@ -23,16 +21,14 @@ def list_reviews(
     limit: int = Query(50, ge=1, le=500),
     db: Session = Depends(get_db),
 ):
-    product_service.get_product(db, product_id)
-    query = select(Review).where(Review.product_id == product_id)
-    if sentiment:
-        query = query.where(Review.sentiment == sentiment)
-    if rating:
-        query = query.where(Review.rating == rating)
-    if search:
-        query = query.where(Review.text.icontains(search.strip(), autoescape=True))
-    rows = list(db.scalars(query.order_by(Review.id)))
-    return {"total": len(rows), "items": [analysis_service.review_out(r) for r in rows[offset:offset + limit]]}
+    """Results come from the latest analysis run, so they match the product page exactly."""
+    rows = analysis_service.current_reviews(product_service.get_product(db, product_id))
+    needle = (search or "").strip().casefold()
+    rows = [r for r in rows
+            if (not sentiment or r["sentiment"] == sentiment)
+            and (not rating or r["rating"] == rating)
+            and (not needle or needle in r["text"].casefold())]
+    return {"total": len(rows), "items": rows[offset:offset + limit]}
 
 
 @router.post("", response_model=ProductSummary, status_code=status.HTTP_201_CREATED,

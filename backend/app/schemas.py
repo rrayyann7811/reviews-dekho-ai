@@ -2,7 +2,7 @@
 import datetime as dt
 from typing import Literal
 
-from pydantic import BaseModel, ConfigDict, Field, HttpUrl, field_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 from pydantic.alias_generators import to_camel
 
 
@@ -36,14 +36,22 @@ class ProductUpdate(ApiModel):
     _clean = field_validator("name", "brand", "category", mode="before")(_strip_or_none)
 
 
-class ProductSummary(ApiModel):
+class SourceDetails(ApiModel):
+    """Where the reviews came from. Link fields are only set for products collected from a link."""
+    source_url: str | None = None
+    source_site: str | None = Field(default=None, examples=["apple_app_store"])
+    source_site_name: str | None = Field(default=None, examples=["Apple App Store"])
+    source_region: str | None = Field(default=None, examples=["in"])
+    collected_at: dt.datetime | None = None
+
+
+class ProductSummary(SourceDetails):
     """One row in the product list / history table."""
     id: int
     name: str
     brand: str | None
     category: str | None
-    source: str
-    source_url: str | None = None
+    source: str = Field(description="upload | url | manual")
     file_name: str | None = None
     created_at: dt.datetime
     total_reviews: int
@@ -53,7 +61,17 @@ class ProductSummary(ApiModel):
 
 
 class UrlRequest(ApiModel):
-    url: HttpUrl
+    url: str = Field(min_length=1, max_length=2000,
+                     examples=["https://apps.apple.com/in/app/whatsapp-messenger/id310633997"])
+
+
+class SupportedSite(ApiModel):
+    id: str
+    name: str
+    status: Literal["supported", "unavailable"]
+    hosts: list[str]
+    note: str
+    example: str | None
 
 
 # ---------- Reviews ----------
@@ -100,7 +118,7 @@ class ReviewPage(ApiModel):
 
 # ---------- Analysis ----------
 
-class AnalysisProduct(ApiModel):
+class AnalysisProduct(SourceDetails):
     id: int
     name: str
     brand: str | None
@@ -139,6 +157,8 @@ class HistoryDetail(HistoryEntry):
     keywords: list[dict]
     summary: dict
     ingestion: dict | None
+    reviews: list[ReviewOut] | None = Field(
+        description="Every review exactly as analysed in this run. Null for runs made before Phase 3.")
 
 
 # ---------- Uploads ----------

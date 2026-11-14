@@ -88,7 +88,7 @@ reviews-dekho-ai/
 | 0 | Inspection & plan | This document is approved |
 | 1 | Design system + frontend shell, all pages, demo mode | Every route renders, layout tested at 375/768/1440 px |
 | 2 | FastAPI, models, schemas, CRUD, Swagger, **CSV/XLSX ingestion with column detection and preview** (moved up from Phase 3), history, frontend wired to the API | ✅ Done 2026-11-14 |
-| 3 | URL adapters (permitted sources only), richer demo dataset | Upload → preview → import already works; adapters remain |
+| 3 | URL review collection through permitted sources (adapters), history integrity, schema migrations | ✅ Done 2026-11-14 |
 | 4 | NLP engine | Unit tests on positive/negative/neutral/mixed cases pass |
 | 5 | Analytics dashboard wired to the API | All charts/filters use backend data |
 | 6 | Grounded summaries (+ optional Ollama) | Summaries cite counts and real quotes |
@@ -168,8 +168,7 @@ history, CSV export and Swagger all checked.
 - PDF report (Phase 6/8), side-by-side comparison (Phase 7), URL adapters for permitted sources (Phase 3).
 - The UI has no buttons yet for deleting/renaming products or adding single reviews; the API supports them.
 - Re-analysis is synchronous; fine for the 20,000-row limit, a background job would be needed beyond that.
-- No Alembic migrations: tables are created on startup. Schema changes during development mean deleting
-  `backend/storage/reviews_dekho.db`.
+- ~~No migrations~~ → solved in Phase 3 (`app/migrations.py`).
 
 *Run it*
 ```
@@ -177,3 +176,128 @@ cd backend && .venv/bin/uvicorn app.main:app --reload     # API on :8000, docs a
 cd frontend && npm run dev                                   # UI on :5173
 cd backend && .venv/bin/python -m pytest                     # backend tests
 ```
+
+**2026-11-14 — Phase 3 complete (product link review collection)**
+
+Phase 2 was committed locally first (`feat: add FastAPI backend with SQLite and review analysis`). Nothing has been pushed.
+
+### Review sources investigated
+
+| Source | Official / permitted access to review text? | Outcome |
+|---|---|---|
+| **Apple App Store** | Yes. Apple publishes a public customer-reviews feed (`itunes.apple.com/<cc>/rss/customerreviews/…/json`) and the iTunes Lookup API. No account, key or payment. | ✅ **Implemented and verified live** (WhatsApp, Swiggy, Zomato, Facebook). |
+| Amazon | No. The Product Advertising API and Selling Partner API don't return review text (SP-API's Customer Feedback API gives aggregated insights only to sellers). Terms prohibit scraping. | Recognised, explained, not collected. |
+| Flipkart | No. The Affiliate API covers products, offers and reports; there is no reviews endpoint. Terms prohibit scraping. | Recognised, explained, not collected. |
+| Best Buy developer API | Reportedly removed its reviews endpoint, and new keys need a company email address. | Not implemented: couldn't be verified. |
+| Steam store reviews endpoint | Documented by Valve, but from this machine it redirected to an HTML page instead of JSON. | Not implemented: couldn't be verified. |
+| Amazon Reviews 2023 research dataset (Hugging Face) | Public research dataset, but Hugging Face's query service doesn't support it; lookup by product ID would mean downloading multi-GB files. | Not feasible for a link feature. |
+| Third-party scraping APIs (Apify, SerpApi, …) | Paid, and they scrape sites whose terms prohibit it. | Rejected. |
+
+**Honest scope:** the App Store reviews are of **apps**, not physical products. For phones, appliances and other
+Amazon/Flipkart products, the CSV/Excel upload is still the way in.
+
+### What works, by website
+
+| Link | Result |
+|---|---|
+| `apps.apple.com/<cc>/app/<name>/id<digits>` (also `itunes.apple.com`, and links without a country → US store) | Collects up to the 500 most recent written reviews from that country's store, plus app name, developer, category and the store's overall rating. Stored, analysed and listed in history. |
+| Same App Store link again, or **Collect latest reviews** on the product page | Adds only new reviews (deduplicated by Apple's review ID), runs a new analysis, keeps one product. |
+| Demo store link | Opens the built-in demo product (offline, unchanged). |
+| Amazon (`amazon.in/.com/.co.uk`, `amzn.*`) | 422 with the product's ASIN and the reason; points to CSV/Excel upload. No network request is made. |
+| Flipkart | 422 with the item ID and the reason; points to upload. No network request is made. |
+| Any other website | 422 "isn't a supported website" listing what is supported. |
+
+### Architecture
+```
+backend/app/collectors/
+├── base.py             SourceAdapter interface, ProductRef/CollectedProduct, error classes (404/422/502/503/504)
+├── http.py             httpx client: 15 s timeout, generic User-Agent, friendly network errors
+├── apple_app_store.py  Lookup API + review feed; up to 10 pages; retries an empty page once
+├── restricted.py       Amazon, Flipkart (explain why not), Demo store
+└── registry.py         URL validation, adapter list, site names
+backend/app/services/collection.py   link → adapter → download → clean → store → analyse
+```
+* The user's URL is only **parsed**, never downloaded. Requests go only to fixed Apple API addresses, so a link can't
+  make the server fetch internal addresses (SSRF).
+* Collected and uploaded reviews share one cleaning function (`ingestion.clean_records`): empty text, duplicates,
+  unparseable ratings and dates, and over-long text are handled the same way and counted in the report.
+* Downloading happens before any database write, so a network failure saves nothing. If a later page fails, the
+  reviews already collected are kept and the page says "Collection stopped early: <reason>".
+* Verified quirk: Apple sometimes returns an empty page between full ones (WhatsApp India, page 2). The adapter
+  retries once and only stops after two empty pages in a row or HTTP 400 (past the last page).
+* New endpoints: `POST /api/products/{id}/refresh` and `GET /api/sites`. `POST /api/products/from-url` now
+  collects (201 new, 200 refreshed). Products carry `sourceSite`, `sourceSiteName`, `sourceRegion` and `collectedAt`.
+
+**Frontend (no redesign):** App Store added to the supported-sites list. The URL form shows a "can take up to
+30 seconds" note and specific messages for not found, no reviews, network/timeout and server offline. Collected
+products show an info note: source and store, number of real reviews and collection date, the 500-review limit,
+the store's overall rating for comparison, a link to the App Store page, and **Collect latest reviews**. Uploaded
+files keep the "Uploaded file" badge and the demo keeps its synthetic-data warning, so the three sources stay distinct.
+
+### Check A — historical analysis integrity (bug found and fixed)
+Problem in Phase 2: per-review results were stored on the `reviews` rows and overwritten by each run. After
+reviews were added or deleted, an old run reported stats for one set of reviews while showing another, and its
+aspect examples could point to deleted reviews. Deleting the newest run made the product page mix old stats with
+new reviews.
+
+Fix: each `analysis_results` row now stores `review_results`, a complete snapshot of every review as analysed in
+that run. The product page, review list, CSV export and `GET /api/history/{id}` all read from one run's snapshot.
+Tests check that an old run is byte-for-byte unchanged after edits, and that every run's counts, mismatches and
+example quotes refer only to its own reviews.
+
+### Check B — schema evolution without data loss
+`app/migrations.py` (no new dependency):
+* The schema version is stored in the database file (`PRAGMA user_version`).
+* New database → tables from models, version = latest. Existing database → pending migrations run in order,
+  one transaction each (SQLite DDL is made transactional explicitly), after copying the file to
+  `backend/storage/backups/<name>-v<old>-<timestamp>.db`.
+* A database from a newer app version is refused with a clear message instead of being guessed at.
+* Migration 2 moves per-review results into run snapshots (the latest run is back-filled; older Phase 2 runs keep
+  their stats but show "re-run to see review details"). Migration 3 adds collected-product source columns and a
+  unique index.
+* **Rule for future changes:** edit `models.py`, append a migration (never edit a shipped one), and add a test.
+  `test_upgraded_schema_equals_a_new_database` fails if they drift apart. Move to Alembic if the project moves to
+  PostgreSQL.
+* Verified on a copy of the real `storage/reviews_dekho.db`: upgraded v1 → v3 with a backup.
+
+### Verification
+Backend `pytest` **161 passed** (was 81) · frontend `vitest` **53 passed** (was 43) · `oxlint` clean · `vite build`
+OK. Live run with uvicorn + `vite preview`: CORS preflight from the frontend origin OK; real collections of Swiggy
+(500 reviews), WhatsApp (450), Zomato (500) and Facebook US (500); refresh added 0 duplicates; Amazon, Flipkart,
+Myntra, non-app Apple page and missing app gave the documented messages; history and CSV export OK; no server errors.
+
+### Not done / known limitations
+* Amazon, Flipkart and other shopping sites: **no permitted source exists**, so no reviews are collected (by design).
+* App Store: at most the 500 most recent reviews per country store; star ratings and text only, no "helpful" votes.
+  Collection takes about 4–9 s because of a polite 0.3 s pause between pages.
+* The feature list (battery, camera, delivery, …) was written for physical products. App reviews get few useful
+  features, and words like "battery" or "camera" in app reviews are matched literally. Phase 4 (NLP) should add an
+  app-specific feature list (login, updates, ads, crashes, UI, notifications…).
+* Collection runs inside the request (no background job queue); fine for ~11 requests per collection.
+* No UI yet for deleting/renaming products (API supports it); PDF reports and comparison are still pending.
+* Verified through the API and component tests; no manual click-through in a real browser in this phase.
+
+### Pre-commit review (read-only pass over migrations, snapshots and App Store collection)
+Five problems found, fixed and covered by regression tests (16 new tests):
+1. **Database lock during collection (regression from this phase).** Making SQLite transactions explicit meant
+   the read before a collection held a lock while waiting 4–9 s for Apple, so any other write (an upload, another
+   collection) failed with "database is locked". The read transaction is now closed before any network call. The
+   test was confirmed to fail without the fix.
+2. **Migration back-fill could attach wrong snapshots.** Phase 2 could leave the review rows out of step with the
+   latest run (deleting the last reviews, or deleting the newest run). The back-fill now only accepts rows whose
+   count and sentiment counts match that run; otherwise the run keeps its stats with no snapshot.
+3. **New database creation wasn't atomic.** Table creation and version recording are now one transaction, so a
+   crash can't leave a new database that the next start mistakes for Phase 2.
+4. **Malformed App Store responses caused 500s.** Unexpected shapes (non-object feed, non-list results, odd entry
+   fields) now give clear 404/502 messages, or are skipped/treated as missing.
+5. **Unchecked source link.** The "View on App Store" link is stored only if it is an `https://apps.apple.com/` or
+   `https://itunes.apple.com/` address; otherwise the canonical link built from the app ID is used.
+
+Checked and fine: SQL built only from constants or bound parameters; country/app ID limited by regex before
+use in Apple URLs; user links never fetched (no SSRF); review text rendered as text by React (no HTML injection);
+no personal data in the User-Agent; snapshots are never modified after creation.
+
+Remaining known limitations (not bugs): a Phase 2 run without a snapshot shows "run the analysis again", but the UI
+has no re-run button yet (`POST /api/products/{id}/analyze` works, and no existing data is affected because the
+local database is empty). Each run stores a full snapshot, so storage grows with every refresh. A slow-but-responding
+Apple server could make one collection take several minutes (15 s timeout per request, not per collection).

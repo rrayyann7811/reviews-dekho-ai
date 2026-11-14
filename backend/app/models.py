@@ -1,21 +1,23 @@
 """Database tables.
 
-    Product 1 ──< Review           the reviews belonging to a product
+    Product 1 ──< Review           the reviews belonging to a product (input data)
     Product 1 ──< AnalysisResult   one row per analysis run (the history)
 
-Per-review results (sentiment, score, aspects) are stored on the Review row
-and reflect the latest analysis. Product-level results (stats, aspects,
-keywords, summary) are stored on each AnalysisResult, so earlier runs remain
-viewable in the history.
+Each AnalysisResult is a complete, unchanging snapshot of one run: the
+product-level results (stats, aspects, keywords, summary) AND the per-review
+results (`review_results`: every review as it was analysed). Adding or
+deleting reviews later never changes an earlier run.
+
+Changing these tables? Add a migration in app/migrations.py as well.
 """
 from datetime import datetime, timezone
 
-from sqlalchemy import JSON, Boolean, Date, DateTime, Float, ForeignKey, Integer, String, Text, UniqueConstraint
+from sqlalchemy import JSON, Date, DateTime, Float, ForeignKey, Index, Integer, String, Text, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from .database import Base
 
-SOURCES = ("upload", "url", "manual")
+SOURCES = ("upload", "url", "manual")  # url = collected from a product link
 
 
 def utcnow() -> datetime:
@@ -24,6 +26,9 @@ def utcnow() -> datetime:
 
 class Product(Base):
     __tablename__ = "products"
+    # A collected product (e.g. one App Store app in one country) is stored once and refreshed, not duplicated.
+    __table_args__ = (Index("uq_collected_product", "source_site", "external_product_id", "source_region",
+                            unique=True),)
 
     id: Mapped[int] = mapped_column(primary_key=True)
     name: Mapped[str] = mapped_column(String(200))
@@ -32,6 +37,11 @@ class Product(Base):
     source: Mapped[str] = mapped_column(String(20), default="manual")  # one of SOURCES
     source_url: Mapped[str | None] = mapped_column(String(2000))
     file_name: Mapped[str | None] = mapped_column(String(255))
+    # Only for products collected from a link (source == "url"):
+    source_site: Mapped[str | None] = mapped_column(String(40))           # adapter id, e.g. "apple_app_store"
+    external_product_id: Mapped[str | None] = mapped_column(String(100))  # the site's own product ID
+    source_region: Mapped[str | None] = mapped_column(String(10))         # storefront / country code
+    collected_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
 
     reviews: Mapped[list["Review"]] = relationship(
@@ -59,12 +69,6 @@ class Review(Base):
     title: Mapped[str | None] = mapped_column(String(300))
     reviewer: Mapped[str | None] = mapped_column(String(120))
 
-    # Filled in by the analysis (None until the product has been analysed).
-    sentiment: Mapped[str | None] = mapped_column(String(10))
-    score: Mapped[float | None] = mapped_column(Float)
-    mixed: Mapped[bool] = mapped_column(Boolean, default=False)
-    aspects: Mapped[list] = mapped_column(JSON, default=list)
-
     product: Mapped[Product] = relationship(back_populates="reviews")
 
 
@@ -85,6 +89,9 @@ class AnalysisResult(Base):
     aspects: Mapped[list] = mapped_column(JSON)
     keywords: Mapped[list] = mapped_column(JSON)
     summary: Mapped[dict] = mapped_column(JSON)
-    ingestion: Mapped[dict | None] = mapped_column(JSON)  # cleaning report from the upload, if any
+    ingestion: Mapped[dict | None] = mapped_column(JSON)  # cleaning / collection report, if any
+    # Every review as analysed in this run: id, text, rating, date, title, reviewer, sentiment, score, mixed,
+    # aspects. None only for runs made before this was stored (databases upgraded from Phase 2).
+    review_results: Mapped[list | None] = mapped_column(JSON)
 
     product: Mapped[Product] = relationship(back_populates="analyses")

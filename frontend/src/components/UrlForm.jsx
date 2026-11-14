@@ -34,6 +34,22 @@ function Outcome({ outcome }) {
       </Alert>
     )
   }
+  if (outcome.kind === 'offline') {
+    return (
+      <Alert variant="warning" title="The analysis server isn’t running">
+        Collecting reviews from {outcome.site.name} needs the backend. Start it, then try again.
+      </Alert>
+    )
+  }
+  if (outcome.kind === 'not-collected') {
+    // The backend explained why (product not found, no reviews, not an app page…).
+    return (
+      <Alert variant="warning" title={outcome.status === 404 ? 'Product not found' : 'Couldn’t collect reviews from this link'}
+        action={alternatives}>
+        {outcome.message}
+      </Alert>
+    )
+  }
   if (outcome.kind === 'demo-not-found') {
     return (
       <Alert variant="warning" title="No demo product at this address">
@@ -41,7 +57,12 @@ function Outcome({ outcome }) {
       </Alert>
     )
   }
-  return <Alert variant="error" title="Couldn’t analyse this link">{outcome.message}</Alert>
+  // Network problems on the website's side: trying again later may work.
+  return (
+    <Alert variant="error" title={outcome.site ? `Couldn’t get reviews from ${outcome.site.name}` : 'Couldn’t analyse this link'}>
+      {outcome.message}
+    </Alert>
+  )
 }
 
 export default function UrlForm({ compact = false }) {
@@ -66,15 +87,19 @@ export default function UrlForm({ compact = false }) {
         : setOutcome({ kind: 'demo-not-found' })
     }
     if (site?.status === 'unavailable') return setOutcome({ kind: 'unavailable', site })
-    if (status !== 'online') return setOutcome({ kind: 'unsupported', host: url.hostname.replace(/^www\./, '') })
+    if (status !== 'online') {
+      return setOutcome(site ? { kind: 'offline', site } : { kind: 'unsupported', host: url.hostname.replace(/^www\./, '') })
+    }
 
-    // Unknown website: the backend's adapter list is the final authority.
+    // Supported or unknown website: the backend's adapter list is the final authority.
     setLoading(true)
     try {
       const product = await api.analyzeUrl(url.href)
       navigate(`/products/${product.id}`)
     } catch (err) {
-      setOutcome(err.status === 422 ? { kind: 'unsupported', host: url.hostname } : { kind: 'error', message: err.message })
+      if (err.status === 422 && !site) setOutcome({ kind: 'unsupported', host: url.hostname.replace(/^www\./, '') })
+      else if (err.status === 404 || err.status === 422) setOutcome({ kind: 'not-collected', status: err.status, message: err.message })
+      else setOutcome({ kind: 'error', site, message: err.message })
     } finally {
       setLoading(false)
     }
@@ -102,6 +127,11 @@ export default function UrlForm({ compact = false }) {
           {loading ? 'Analysing…' : 'Analyze'}
         </Button>
       </form>
+      {loading && (
+        <p className="text-[13px] text-ink-3" role="status">
+          Collecting reviews and analysing them. This can take up to 30 seconds.
+        </p>
+      )}
       {outcome && <Outcome outcome={outcome} />}
       <p className="text-[13px] text-ink-3">
         No link handy?{' '}

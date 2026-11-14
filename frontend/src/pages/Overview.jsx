@@ -51,7 +51,7 @@ export default function Overview() {
       {!settings.introDismissed && <GettingStarted onDismiss={() => update({ introDismissed: true })} />}
 
       <div className="mb-6 grid gap-6 lg:grid-cols-5">
-        <Panel title="Analyze a product link" description="Supported: Demo store. Amazon and Flipkart links are recognised but can’t be collected." className="lg:col-span-3">
+        <Panel title="Analyze a product link" description="Supported: Apple App Store apps and the demo store. Amazon and Flipkart links are recognised but can’t be collected." className="lg:col-span-3">
           <UrlForm compact />
         </Panel>
         <Panel title="Upload a review file" description="Works with reviews from any website." className="lg:col-span-2">

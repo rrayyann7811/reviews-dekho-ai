@@ -67,3 +67,27 @@ def test_error_bodies_are_strings_the_frontend_can_show(client):
     for response in (client.get("/api/products/999/analysis"), client.get("/api/products/abc"),
                      client.post("/api/uploads/preview", files={"file": ("a.txt", b"x", "text/plain")})):
         assert isinstance(response.json()["detail"], str)
+
+
+def test_frontend_site_list_matches_the_backend(client):
+    """frontend/src/lib/sites.js gives instant feedback offline; it must agree with the backend adapters."""
+    import re
+
+    source = (FRONTEND_API.parent / "sites.js").read_text()
+    frontend = {}
+    for block in re.findall(r"\{\s*id: '([^']+)',(.*?)\n  \}", source, flags=re.S):
+        site_id, body = block
+        frontend[site_id] = {
+            "hosts": re.findall(r"'([^']+)'", re.search(r"hosts: \[(.*?)\]", body).group(1)),
+            "status": re.search(r"status: '(\w+)'", body).group(1),
+        }
+    backend = {s["id"]: {"hosts": s["hosts"], "status": s["status"]} for s in client.get("/api/sites").json()}
+    assert frontend == backend
+
+
+def test_collected_product_fields_the_analysis_page_uses(client):
+    from app.schemas import AnalysisProduct, ProductSummary
+
+    for model in (AnalysisProduct, ProductSummary):
+        aliases = {f.alias for f in model.model_fields.values()}
+        assert {"sourceUrl", "sourceSiteName", "sourceRegion", "collectedAt"} <= aliases

@@ -11,17 +11,21 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from . import config
-from .api import health, history, products, reviews, uploads
+from .api import health, history, products, reviews, sites, uploads
 from .database import init_db
 from .errors import register_error_handlers
 
 logging.basicConfig(level=logging.INFO)
 
 DESCRIPTION = """
-Analyse customer reviews from uploaded CSV / Excel files.
+Analyse customer reviews from uploaded CSV / Excel files, or collected from
+product links on supported websites (currently the Apple App Store).
 
-**Typical flow:** `POST /api/uploads/preview` → check the detected columns →
+**Upload flow:** `POST /api/uploads/preview` → check the detected columns →
 `POST /api/uploads/import` → `GET /api/products/{id}/analysis`.
+
+**Link flow:** `POST /api/products/from-url` → `GET /api/products/{id}/analysis`.
+`GET /api/sites` lists which websites are recognised and which can be collected.
 
 Sentiment is rule-based (VADER), features come from a keyword list, and
 summaries are built from the computed numbers — nothing is invented.
@@ -36,7 +40,7 @@ async def lifespan(_: FastAPI):
 
 
 def create_app() -> FastAPI:
-    app = FastAPI(title="Reviews Dekho AI API", version="0.2.0", description=DESCRIPTION, lifespan=lifespan)
+    app = FastAPI(title="Reviews Dekho AI API", version="0.3.0", description=DESCRIPTION, lifespan=lifespan)
     app.add_middleware(
         CORSMiddleware,
         allow_origins=config.CORS_ORIGINS,
@@ -45,7 +49,7 @@ def create_app() -> FastAPI:
         expose_headers=["Content-Disposition"],
     )
     register_error_handlers(app)
-    for module in (health, products, reviews, uploads, history):
+    for module in (health, products, reviews, uploads, history, sites):
         app.include_router(module.router, prefix="/api")
     return app
 

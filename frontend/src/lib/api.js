@@ -36,6 +36,7 @@ export const api = {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ url }),
     }),
+  refreshProduct: (productId) => request(`/products/${encodeURIComponent(productId)}/refresh`, { method: 'POST' }),
   previewUpload: (file) => {
     const form = new FormData()
     form.append('file', file)

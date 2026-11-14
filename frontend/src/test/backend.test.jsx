@@ -180,3 +180,104 @@ describe('with the backend running', () => {
     expect(screen.getByText(/demo product is built into the app/)).toBeInTheDocument()
   })
 })
+
+describe('product links (Phase 3)', () => {
+  const APPLE_URL = 'https://apps.apple.com/in/app/sample-notes/id1234567890'
+  const COLLECTED = {
+    ...STORED, id: 9, name: 'Sample Notes', source: 'url', sourceUrl: APPLE_URL, sourceSite: 'apple_app_store',
+    sourceSiteName: 'Apple App Store', sourceRegion: 'in', collectedAt: '2026-11-14T10:00:00Z',
+  }
+  const COLLECTED_ANALYSIS = {
+    ...STORED_ANALYSIS,
+    product: { id: 9, name: 'Sample Notes', brand: 'Sample Labs', category: 'Productivity', source: 'url',
+      sourceUrl: APPLE_URL, sourceSite: 'apple_app_store', sourceSiteName: 'Apple App Store', sourceRegion: 'in',
+      collectedAt: '2026-11-14T10:00:00Z' },
+    ingestion: { source: 'Apple App Store', region: 'IN', received: 63, imported: 63, newReviews: 63,
+      duplicatesRemoved: 0, emptyRemoved: 0, storeRating: 4.6, storeRatingCount: 8319648, pagesRead: 2,
+      sourceLimit: 'Apple’s public feed lists at most the 500 most recent written reviews for each country store.' },
+  }
+
+  async function submitLink(link) {
+    renderAt('/analyze')
+    await vi.waitFor(() => expect(fetch).toHaveBeenCalledWith(`${api.baseUrl}/health`, {}))
+    await screen.findByText('Supported websites')
+    fireEvent.change(screen.getByLabelText('Product link'), { target: { value: link } })
+    fireEvent.click(screen.getByRole('button', { name: 'Analyze' }))
+  }
+
+  it('lists the App Store as supported', async () => {
+    mockBackend({ 'GET /health': { status: 'ok' } })
+    renderAt('/analyze')
+    expect(await screen.findByText('Apple App Store')).toBeInTheDocument()
+    expect(screen.getAllByText('Supported')).toHaveLength(2) // demo store + App Store
+  })
+
+  it('collects an App Store link and opens the analysis with its source details', async () => {
+    mockBackend({
+      'GET /health': { status: 'ok' },
+      'POST /products/from-url': COLLECTED,
+      'GET /products/9/analysis': COLLECTED_ANALYSIS,
+    })
+    await submitLink(APPLE_URL)
+    expect(await screen.findByRole('heading', { level: 1, name: 'Sample Notes' })).toBeInTheDocument()
+    expect(screen.getByText('Reviews collected from Apple App Store (IN store)')).toBeInTheDocument()
+    expect(screen.getByText(/63 real public reviews, last collected/)).toBeInTheDocument()
+    expect(screen.getByText(/500 most recent written reviews/)).toBeInTheDocument()
+    expect(screen.getByText(/overall rating is 4\.6 from 83,19,648 ratings/)).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: /View on Apple App Store/ })).toHaveAttribute('href', APPLE_URL)
+    expect(screen.queryByText('Demo data', { selector: 'p' })).not.toBeInTheDocument()
+  })
+
+  it('collect latest reviews refreshes and reloads the analysis', async () => {
+    let analysisCalls = 0
+    mockBackend({
+      'GET /health': { status: 'ok' },
+      'GET /products/9/analysis': () => { analysisCalls += 1; return json(COLLECTED_ANALYSIS) },
+      'POST /products/9/refresh': COLLECTED,
+    })
+    renderAt('/products/9')
+    fireEvent.click(await screen.findByRole('button', { name: 'Collect latest reviews' }))
+    await vi.waitFor(() => expect(analysisCalls).toBe(2))
+    expect(fetch.mock.calls.some(([url, init]) => url.endsWith('/products/9/refresh') && init.method === 'POST')).toBe(true)
+  })
+
+  it('shows the reason when refreshing fails', async () => {
+    mockBackend({
+      'GET /health': { status: 'ok' },
+      'GET /products/9/analysis': COLLECTED_ANALYSIS,
+      'POST /products/9/refresh': () => json({ detail: 'Apple App Store took too long to respond.' }, 504),
+    })
+    renderAt('/products/9')
+    fireEvent.click(await screen.findByRole('button', { name: 'Collect latest reviews' }))
+    expect(await screen.findByText('Apple App Store took too long to respond.')).toBeInTheDocument()
+  })
+
+  it.each([
+    [404, 'No app with ID 1234567890 was found in the App Store for country “IN”.', 'Product not found'],
+    [422, '“Sample Notes” has no written reviews in the IN App Store yet.', 'Couldn’t collect reviews from this link'],
+    [504, 'Apple App Store took too long to respond. Please try again in a minute.', 'Couldn’t get reviews from Apple App Store'],
+    [502, 'Couldn’t connect to Apple App Store.', 'Couldn’t get reviews from Apple App Store'],
+  ])('a %s from the backend shows its message', async (status, detail, title) => {
+    mockBackend({ 'GET /health': { status: 'ok' }, 'POST /products/from-url': () => json({ detail }, status) })
+    await submitLink(APPLE_URL)
+    expect(await screen.findByText(title)).toBeInTheDocument()
+    expect(screen.getByText(detail)).toBeInTheDocument()
+  })
+
+  it('explains that collecting needs the server when it is offline', async () => {
+    globalThis.fetch = vi.fn(() => Promise.reject(new TypeError('Failed to fetch')))
+    renderAt('/analyze')
+    await vi.waitFor(() => expect(fetch).toHaveBeenCalled())
+    await screen.findByText('Supported websites')
+    fireEvent.change(screen.getByLabelText('Product link'), { target: { value: APPLE_URL } })
+    fireEvent.click(screen.getByRole('button', { name: 'Analyze' }))
+    expect(await screen.findByText(/Collecting reviews from Apple App Store needs the backend/)).toBeInTheDocument()
+  })
+
+  it('Amazon links are explained without contacting the server', async () => {
+    mockBackend({ 'GET /health': { status: 'ok' } })
+    await submitLink('https://www.amazon.in/dp/B0ABCDEFGH')
+    expect(await screen.findByText('Amazon reviews can’t be collected automatically')).toBeInTheDocument()
+    expect(fetch.mock.calls.some(([url]) => url.endsWith('/products/from-url'))).toBe(false)
+  })
+})

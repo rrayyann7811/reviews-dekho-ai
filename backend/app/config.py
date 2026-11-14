@@ -26,3 +26,9 @@ MAX_UPLOAD_BYTES = 10 * 1024 * 1024
 MAX_ROWS = 20_000
 MAX_REVIEW_CHARS = 5_000
 PREVIEW_ROWS = 5
+
+# Collecting reviews from product links (see app/collectors/).
+COLLECT_TIMEOUT_SECONDS = float(os.getenv("COLLECT_TIMEOUT_SECONDS", "15"))
+APPLE_MAX_PAGES = 10              # Apple's feed serves at most 10 pages of 50 reviews
+APPLE_PAGE_DELAY_SECONDS = 0.3    # pause between pages, to be polite to Apple's servers
+APPLE_DEFAULT_COUNTRY = "us"      # used when a link has no country code (Apple shows the US store then)

@@ -1,4 +1,4 @@
-import { Columns2 } from 'lucide-react'
+import { Columns2, ExternalLink, RefreshCw } from 'lucide-react'
 import { useState } from 'react'
 import { useParams, useSearchParams } from 'react-router-dom'
 import AspectTable from '../components/analysis/AspectTable'
@@ -15,13 +15,50 @@ import EmptyState from '../components/ui/EmptyState'
 import Panel from '../components/ui/Panel'
 import Spinner from '../components/ui/Spinner'
 import Tabs from '../components/ui/Tabs'
-import { formatDate, plural } from '../lib/format'
+import { api } from '../lib/api'
+import { formatDate, formatRating, plural } from '../lib/format'
 import { DEFAULT_FILTERS } from '../lib/reviewFilters'
 import { useAnalysis } from '../lib/useData'
 
 const BACK = { to: '/history', label: 'Analysis history' }
 
-function DataSourceNote({ data }) {
+function CollectedNote({ product, stats, ingestion = {}, onRefresh, refreshing, refreshError }) {
+  const store = product.sourceRegion ? ` (${product.sourceRegion.toUpperCase()} store)` : ''
+  return (
+    <Alert
+      title={`Reviews collected from ${product.sourceSiteName ?? 'a website'}${store}`}
+      className="mb-6"
+      action={
+        <div className="flex flex-wrap items-center gap-2">
+          <Button variant="secondary" size="sm" onClick={onRefresh} disabled={refreshing}>
+            <RefreshCw aria-hidden className={`size-3.5 ${refreshing ? 'animate-spin' : ''}`} />
+            {refreshing ? 'Collecting…' : 'Collect latest reviews'}
+          </Button>
+          {product.sourceUrl && (
+            <a href={product.sourceUrl} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 text-[13px] font-medium text-brand-600 hover:underline">
+              View on {product.sourceSiteName ?? 'the website'} <ExternalLink aria-hidden className="size-3.5" />
+            </a>
+          )}
+        </div>
+      }
+    >
+      <p>
+        {plural(stats.totalReviews, 'real public review')}, last collected {formatDate(product.collectedAt)}.
+        {ingestion.sourceLimit && ` ${ingestion.sourceLimit} This is a recent sample, not every review ever written.`}
+        {ingestion.storeRating != null && ingestion.storeRatingCount != null &&
+          ` For comparison, the store’s overall rating is ${formatRating(ingestion.storeRating)} from ${ingestion.storeRatingCount.toLocaleString('en-IN')} ratings.`}
+      </p>
+      {ingestion.stoppedEarly && <p className="mt-1">Collection stopped early: {ingestion.stoppedEarly}</p>}
+      {refreshError && <p className="mt-1 text-neg">{refreshError}</p>}
+    </Alert>
+  )
+}
+
+function DataSourceNote({ data, onRefresh, refreshing, refreshError }) {
+  if (data.product.source === 'url') {
+    return <CollectedNote product={data.product} stats={data.stats} ingestion={data.ingestion ?? undefined}
+      onRefresh={onRefresh} refreshing={refreshing} refreshError={refreshError} />
+  }
   if (data.product.source === 'demo') {
     return (
       <Alert variant="warning" title="Demo data" className="mb-6">
@@ -67,7 +104,8 @@ function AspectsTab({ data, onOpenReview }) {
 
 export default function ProductAnalysis() {
   const { productId } = useParams()
-  const { data, loading, error } = useAnalysis(productId)
+  const { data, loading, error, reload } = useAnalysis(productId)
+  const [refresh, setRefresh] = useState({ busy: false, error: '' })
   const [params, setParams] = useSearchParams()
   const [filters, setFilters] = useState(DEFAULT_FILTERS)
   const [focus, setFocus] = useState(null)
@@ -79,6 +117,17 @@ export default function ProductAnalysis() {
     setFilters(DEFAULT_FILTERS)
     setFocus({ id, seq: Date.now() })
     setTab('reviews')
+  }
+
+  async function collectLatest() {
+    setRefresh({ busy: true, error: '' })
+    try {
+      await api.refreshProduct(productId)
+      reload()
+      setRefresh({ busy: false, error: '' })
+    } catch (err) {
+      setRefresh({ busy: false, error: err.message })
+    }
   }
 
   function showMismatches() {
@@ -115,7 +164,7 @@ export default function ProductAnalysis() {
         }
         actions={<Button to="/compare" variant="secondary"><Columns2 aria-hidden className="size-4" /> Compare</Button>}
       />
-      <DataSourceNote data={data} />
+      <DataSourceNote data={data} onRefresh={collectLatest} refreshing={refresh.busy} refreshError={refresh.error} />
 
       <Tabs
         label="Analysis sections"
