@@ -89,11 +89,11 @@ reviews-dekho-ai/
 | 1 | Design system + frontend shell, all pages, demo mode | Every route renders, layout tested at 375/768/1440 px |
 | 2 | FastAPI, models, schemas, CRUD, Swagger, **CSV/XLSX ingestion with column detection and preview** (moved up from Phase 3), history, frontend wired to the API | ✅ Done 2026-11-14 |
 | 3 | URL review collection through permitted sources (adapters), history integrity, schema migrations | ✅ Done 2026-11-14 |
-| 4 | NLP engine: pretrained model + VADER fallback, app features, language check, evaluation | ✅ Done 2026-11-14, committed `101920f` |
-| 5 | Analytics dashboard wired to stored results: server-side review paging, re-analyse, edge states | ✅ Done 2026-11-14, committed `a26188b` |
-| 6 | Evidence-backed summaries, PDF reports (6a); optional local AI overview (6b) | ✅ Done 2026-11-14, including live `llama3.2:3b` evaluation; committed `5ef55a5` |
-| 7 | Comparison: two stored runs side by side (two products or two runs of one), intervals, caveats | ✅ Done 2026-11-14, committed `5961617` |
-| 8 | Portfolio readiness: correctness, reproducible demo and AI evaluation, accessibility, privacy, README, CI | ✅ Done 2026-11-14, committed `b5db84d` |
+| 4 | NLP engine: pretrained model + VADER fallback, app features, language check, evaluation | ✅ Done 2026-11-14, committed `a25ea1c` |
+| 5 | Analytics dashboard wired to stored results: server-side review paging, re-analyse, edge states | ✅ Done 2026-11-14, committed `0d1a8bc` |
+| 6 | Evidence-backed summaries, PDF reports (6a); optional local AI overview (6b) | ✅ Done 2026-11-14, including live `llama3.2:3b` evaluation; committed `0a11521` |
+| 7 | Comparison: two stored runs side by side (two products or two runs of one), intervals, caveats | ✅ Done 2026-11-14, committed `83f41b4` |
+| 8 | Portfolio readiness: correctness, reproducible demo and AI evaluation, accessibility, privacy, README, CI | ✅ Done 2026-11-14, committed `2e6b121` |
 
 ## 7. Progress log
 
@@ -405,7 +405,7 @@ reproduced the frontend demo snapshot exactly.
 
 **2026-11-14 — Phase 5 implemented (analytics dashboard on stored results)** — not committed yet
 
-Phase 4 was committed first (`101920f`, "feat: add pretrained sentiment model, app features, language check and
+Phase 4 was committed first (`a25ea1c`, "feat: add pretrained sentiment model, app features, language check and
 evaluation") after the requested pre-commit audit: repository root confirmed; no env files, databases, model weights or
 evaluation data staged; EVALUATION.md gained a Methodology section (label mapping, averaging, why E1 macro F1 > accuracy,
 full development/evaluation overlap) and the untouched SentiMix **test** split; README added with model install,
@@ -462,7 +462,7 @@ stored products.
 
 **2026-11-14 — Phase 6 (evidence-backed summaries, PDF reports, optional local AI overview)** — not committed yet
 
-Phase 5 was committed first (`a26188b`).
+Phase 5 was committed first (`0d1a8bc`).
 
 ### 6a — Evidence-backed summary (summary version 2)
 `app/nlp/summary.py` was extended, not replaced. Each claim (strength, complaint, mixed) now stores:
@@ -618,7 +618,7 @@ Final run, after the live evaluation finished and Ollama was idle:
 
 **2026-11-14 — Phase 7 (side-by-side comparison)** — not committed yet
 
-Phase 6 was committed first (`5ef55a5`). Approved decisions: two products **or** two runs of one product; thresholds of
+Phase 6 was committed first (`0a11521`). Approved decisions: two products **or** two runs of one product; thresholds of
 30 analysed reviews per side for "clear separation", a warning at a 5× size gap and when more than 10% of a side wasn't
 analysed; no comparison PDF/CSV; no database change; no AI text and no overall winner.
 
@@ -703,7 +703,7 @@ no shared features.
 
 **2026-11-14 — Phase 8 (portfolio readiness, reproducibility, accessibility, final QA)** — not committed yet
 
-Phase 7 was committed first (`5961617`). Approved decisions: MIT for original code (third-party licences kept); synthetic
+Phase 7 was committed first (`83f41b4`). Approved decisions: MIT for original code (third-party licences kept); synthetic
 data only in public screenshots and examples; prepare (not deploy) a static demo-only frontend; add CI without pushing;
 verify Python 3.12 if available; the backend stays local-only.
 
@@ -823,15 +823,20 @@ verify Python 3.12 if available; the backend stays local-only.
   | 1 | `e2587f8` | `18d94b6` |
   | 2 | `1b9df42` | `d671346` |
   | 3 | `044a8e4` | `a13e807` |
-  | 4 | `14c33f3` | `101920f` |
-  | 5 | `d5c3f67` | `a26188b` |
-  | 6 | `5950d89` | `5ef55a5` |
-  | 7 | `b370e62` | `5961617` |
-  | 8 | `febfccd` | `b5db84d` |
+  | 4 | `14c33f3` | `a25ea1c` |
+  | 5 | `d5c3f67` | `0d1a8bc` |
+  | 6 | `5950d89` | `0a11521` |
+  | 7 | `b370e62` | `83f41b4` |
+  | 8 | `febfccd` | `2e6b121` |
 
-  The old history is kept only in the local reference `refs/backup/pre-email-rewrite` (not a branch or tag, so a push of
-  `main` never sends it); it can be deleted with `git update-ref -d refs/backup/pre-email-rewrite` once publication is
-  done.
+  A second rewrite, before publication, replaced four short English-detection test strings in
+  `backend/tests/test_nlp.py` (added in Phase 4 and marked "seen live", so possibly verbatim App Store review text)
+  with synthetic phrases that test the same thing (short "title. text" English that must not be flagged); only those
+  lines changed, in the six commits from Phase 4 on. The hashes above are the final ones, to be published.
+
+  The old history is kept only in the local references `refs/backup/pre-email-rewrite` and
+  `refs/backup/pre-test-text-rewrite` (neither is a branch or tag, so a push of
+  `main` never sends them); they can be deleted with `git update-ref -d <ref>` once publication is done.
 * **GitHub Pages workflow** (`.github/workflows/pages.yml`): manual trigger only; Node 24, `npm ci`, the frontend tests,
   `npm run build:demo`, a check that the output is the demo-only build (relative paths, no source maps, no third-party
   font URLs), then GitHub's official `configure-pages`, `upload-pages-artifact` (only `frontend/dist-demo`) and
