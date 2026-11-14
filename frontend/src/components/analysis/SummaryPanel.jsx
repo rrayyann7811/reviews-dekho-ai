@@ -1,5 +1,25 @@
 import Panel from '../ui/Panel'
 
+/** Up to three exact excerpts that support a claim (summary version 2), or the single example (version 1). */
+function Evidence({ item, onOpenReview }) {
+  const excerpts = item.evidence ?? (item.example ? [item.example] : [])
+  if (!excerpts.length) return null
+  return (
+    <ul className="mt-1.5 space-y-1.5">
+      {excerpts.map((e) => (
+        <li key={e.reviewId}>
+          <blockquote className="border-l-2 border-line-strong pl-2.5 text-[13px] text-ink-2">
+            “{e.text}”{' '}
+            <button type="button" onClick={() => onOpenReview(e.reviewId)} className="text-xs whitespace-nowrap text-brand-600 hover:underline">
+              Read review
+            </button>
+          </blockquote>
+        </li>
+      ))}
+    </ul>
+  )
+}
+
 function AspectList({ title, items, tone, emptyText, onOpenReview }) {
   return (
     <div className="px-5 py-4">
@@ -15,14 +35,7 @@ function AspectList({ title, items, tone, emptyText, onOpenReview }) {
             <li key={item.aspect}>
               <p className="text-sm font-medium text-ink">{item.aspect}</p>
               <p className="text-xs text-ink-3 tabular-nums">{item.detail}</p>
-              {item.example && (
-                <blockquote className="mt-1.5 border-l-2 border-line-strong pl-2.5 text-[13px] text-ink-2">
-                  “{item.example.text}”{' '}
-                  <button type="button" onClick={() => onOpenReview(item.example.reviewId)} className="text-xs whitespace-nowrap text-brand-600 hover:underline">
-                    Read review
-                  </button>
-                </blockquote>
-              )}
+              <Evidence item={item} onOpenReview={onOpenReview} />
             </li>
           ))}
         </ul>
@@ -32,12 +45,13 @@ function AspectList({ title, items, tone, emptyText, onOpenReview }) {
 }
 
 export default function SummaryPanel({ summary, onOpenReview }) {
-  const strengths = summary.strengths.map((s) => ({ ...s, detail: `${s.count} of ${s.mentions} mentions positive (${s.percent}%)` }))
-  const complaints = summary.complaints.map((s) => ({ ...s, detail: `${s.count} of ${s.mentions} mentions negative (${s.percent}%)` }))
-  const mixed = summary.mixed.map((s) => ({ ...s, detail: `${s.positive} positive, ${s.neutral} neutral, ${s.negative} negative` }))
+  // Version 2 summaries count analysed reviews that mention a feature; version 1 used the same numbers.
+  const strengths = summary.strengths.map((s) => ({ ...s, detail: `${s.count} of ${s.mentions} reviews that mention it are positive (${s.percent}%)` }))
+  const complaints = summary.complaints.map((s) => ({ ...s, detail: `${s.count} of ${s.mentions} reviews that mention it are negative (${s.percent}%)` }))
+  const mixed = summary.mixed.map((s) => ({ ...s, detail: `Of ${s.mentions} reviews that mention it: ${s.positive} positive, ${s.neutral} neutral, ${s.negative} negative` }))
 
   return (
-    <Panel title="Summary" description="Written from the analysis results and quotes from the reviews. No AI model is used." bodyClassName="">
+    <Panel title="Summary" description="Written from the stored analysis results, with exact excerpts from the reviews. No AI model is used." bodyClassName="">
       {summary.overview ? (
         <p className="border-b border-line px-5 py-4 text-sm leading-relaxed text-ink">{summary.overview}</p>
       ) : null}

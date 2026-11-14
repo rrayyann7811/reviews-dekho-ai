@@ -142,7 +142,7 @@ def analyze_reviews(reviews: list[dict], *, domain: str = "product", category: s
         "stats": stats,
         "aspects": aspects,
         "keywords": keywords,
-        "summary": build_summary(stats, aspects),
+        "summary": build_summary(stats, aspects, scored),
         "reviews": analysed,
         "engine": engine.describe() | {"pipelineVersion": PIPELINE_VERSION, "fallbackReason": fallback_reason,
                                        "domain": "app" if domain == "app" else "product",

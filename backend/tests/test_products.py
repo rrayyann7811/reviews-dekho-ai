@@ -103,9 +103,12 @@ def test_csv_report(client, product):
     assert response.headers["content-type"].startswith("text/csv")
     assert "attachment" in response.headers["content-disposition"]
     lines = response.content.decode("utf-8-sig").strip().splitlines()
-    assert lines[0].startswith("review_id,rating,date")
+    assert lines[0].startswith("review_id,rating,date,title,text,analysis_status,sentiment")
     assert len(lines) == 7
-    assert lines[1].startswith("A1,5,2026-10-01,Asha,Love it,")
+    assert lines[1].startswith("A1,5,2026-10-01,Love it,")
+    assert "Asha" not in response.text  # reviewer names are left out by default
+    with_names = client.get(f"/api/products/{product['id']}/report.csv", params={"include_reviewer": "true"})
+    assert with_names.content.decode("utf-8-sig").splitlines()[1].startswith("A1,5,2026-10-01,Asha,Love it,")
 
 
 def test_csv_report_neutralises_spreadsheet_formulas(client):
@@ -114,9 +117,3 @@ def test_csv_report_neutralises_spreadsheet_formulas(client):
                           data={"product_name": "P", "columns": '{"text": "review_text"}'}).json()
     body = client.get(f"/api/products/{created['id']}/report.csv").content.decode("utf-8-sig")
     assert "'=HYPERLINK" in body
-
-
-def test_pdf_report_is_not_available_yet(client, product):
-    response = client.get(f"/api/products/{product['id']}/report.pdf")
-    assert response.status_code == 501
-    assert "CSV" in response.json()["detail"]

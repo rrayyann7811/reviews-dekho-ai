@@ -45,3 +45,10 @@ MODEL_DIR = Path(os.getenv("MODEL_DIR", str(BACKEND_DIR / "models" / "twitter-ro
 # A full-precision model could use larger batches safely.
 MODEL_BATCH_SIZE = 1
 MODEL_MAX_TOKENS = 256
+
+# Optional AI-written overview (app/services/ai_summary.py). OFF unless AI_SUMMARIES=on.
+# Runs only through a local Ollama server; no cloud or paid API is ever called.
+AI_SUMMARIES_ENABLED = os.getenv("AI_SUMMARIES", "off").strip().lower() in ("on", "1", "true", "yes")
+OLLAMA_URL = os.getenv("OLLAMA_URL", "http://127.0.0.1:11434").rstrip("/")
+OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", "llama3.2:3b")
+OLLAMA_TIMEOUT_SECONDS = float(os.getenv("OLLAMA_TIMEOUT_SECONDS", "120"))

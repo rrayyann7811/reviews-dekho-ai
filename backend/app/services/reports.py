@@ -1,12 +1,11 @@
-"""Downloadable exports of an analysis."""
+"""CSV export of one stored analysis run."""
 import csv
 import io
 
-from ..models import Product
-from .analysis import current_reviews
+from ..models import AnalysisResult
 
-CSV_COLUMNS = ["review_id", "rating", "date", "reviewer", "title", "text",
-               "sentiment", "sentiment_score", "mixed_opinion", "features"]
+BASE_COLUMNS = ["review_id", "rating", "date", "title", "text", "analysis_status", "sentiment", "sentiment_score",
+                "mixed_opinion", "features"]
 
 
 def _safe(value) -> str:
@@ -15,14 +14,19 @@ def _safe(value) -> str:
     return "'" + text if text[:1] in ("=", "+", "-", "@", "\t", "\r") else text
 
 
-def reviews_csv(product: Product) -> str:
+def reviews_csv(run: AnalysisResult, include_reviewer: bool = False) -> str:
+    """Every review of the run with its results. Reviewer names are left out unless asked for."""
+    columns = BASE_COLUMNS[:3] + (["reviewer"] if include_reviewer else []) + BASE_COLUMNS[3:]
     buffer = io.StringIO()
     writer = csv.writer(buffer)
-    writer.writerow(CSV_COLUMNS)
-    for r in current_reviews(product):
-        features = "; ".join(f"{a['aspect']} ({a['sentiment']})" for a in (r["aspects"] or []))
-        writer.writerow([
-            _safe(r["id"]), r["rating"] or "", r["date"] or "", _safe(r["reviewer"]), _safe(r["title"]),
-            _safe(r["text"]), r["sentiment"] or "", "" if r["score"] is None else f"{r['score']:.3f}",
-            "yes" if r["mixed"] else "no", _safe(features)])
-    return "﻿" + buffer.getvalue()  # BOM so Excel opens it as UTF-8
+    writer.writerow(columns)
+    for r in run.review_results:
+        features = "; ".join(f"{a['aspect']} ({a['sentiment']})" for a in (r.get("aspects") or []))
+        row = [_safe(r["id"]), r.get("rating") or "", r.get("date") or ""]
+        if include_reviewer:
+            row.append(_safe(r.get("reviewer")))
+        row += [_safe(r.get("title")), _safe(r.get("text")), r.get("status", "analysed"), r.get("sentiment") or "",
+                "" if r.get("score") is None else f"{r['score']:.3f}", "yes" if r.get("mixed") else "no",
+                _safe(features)]
+        writer.writerow(row)
+    return "\ufeff" + buffer.getvalue()  # BOM so Excel opens it as UTF-8

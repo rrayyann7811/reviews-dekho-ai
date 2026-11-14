@@ -180,17 +180,13 @@ describe('with the backend running', () => {
     expect(JSON.parse(call[1].body)).toEqual({ url: 'https://shop.example.com/p/1' })
   })
 
-  it('reports: CSV for stored products, honest messages for PDF and the demo product', async () => {
-    mockBackend({ 'GET /health': { status: 'ok' }, 'GET /products': [STORED] })
+  it('reports: both downloads offered for stored products, an honest message for the demo product', async () => {
+    mockBackend({ 'GET /health': { status: 'ok' }, 'GET /products': [STORED], 'GET /history': [] })
     renderAt('/reports')
     await screen.findByRole('option', { name: 'Uploaded Blender' })
-    fireEvent.change(screen.getByLabelText('Product'), { target: { value: '7' } })
-    expect(screen.getByRole('link', { name: 'Download CSV' })).toHaveAttribute('href', `${api.baseUrl}/products/7/report.csv`)
-    expect(screen.queryByRole('link', { name: 'Download PDF' })).not.toBeInTheDocument()
-    expect(screen.getByText(/Not available yet/)).toBeInTheDocument()
     fireEvent.change(screen.getByLabelText('Product'), { target: { value: 'demo' } })
-    expect(screen.queryByRole('link', { name: 'Download CSV' })).not.toBeInTheDocument()
-    expect(screen.getByText(/demo product is built into the app/)).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: /Download/ })).not.toBeInTheDocument()
+    expect(screen.getAllByText(/demo product is built into the app/)).toHaveLength(2)
   })
 })
 

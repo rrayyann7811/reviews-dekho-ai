@@ -20,8 +20,11 @@ RATING_FILTERS = ("all", "1", "2", "3", "4", "5", "none")
 SORTS = ("newest", "oldest", "positive", "negative")
 
 
-def pick_run(product: Product, analysis_id: int | None) -> AnalysisResult:
-    """The latest run, or a specific one (so paging stays consistent if a new run is added meanwhile)."""
+def pick_run(product: Product, analysis_id: int | None, require_reviews: bool = True) -> AnalysisResult:
+    """The latest run, or a specific one (so paging stays consistent if a new run is added meanwhile).
+
+    require_reviews=False also accepts runs stored without per-review results (made before Phase 3).
+    """
     if analysis_id is None:
         run = product.latest_analysis
         if run is None:
@@ -30,7 +33,7 @@ def pick_run(product: Product, analysis_id: int | None) -> AnalysisResult:
         run = next((a for a in product.analyses if a.id == analysis_id), None)
         if run is None:
             raise NotFound(f"Analysis {analysis_id} doesn’t belong to this product.")
-    if run.review_results is None:
+    if require_reviews and run.review_results is None:
         raise AppError("This analysis was made by an older version of the app that didn’t keep per-review "
                        "results. Run the analysis again to see them.", 409)
     return run

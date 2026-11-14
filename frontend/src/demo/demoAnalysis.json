@@ -253,131 +253,448 @@
   }
  ],
  "summary": {
-  "overview": "Across 63 reviews, 60.3% read as positive, 28.6% as negative and 11.1% as neutral, so the overall tone is mostly positive. The average star rating is 3.6 out of 5 from 62 rated reviews.",
+  "version": 2,
+  "overview": "In this sample of 63 analysed reviews, 60.3% read as positive, 28.6% as negative and 11.1% as neutral, so the overall tone is mostly positive. The average star rating is 3.6 out of 5 from 62 rated reviews.",
+  "overviewClaim": {
+   "statement": "In this sample of 63 analysed reviews, 60.3% read as positive, 28.6% as negative and 11.1% as neutral, so the overall tone is mostly positive. The average star rating is 3.6 out of 5 from 62 rated reviews.",
+   "analysedReviews": 63,
+   "totalReviews": 63,
+   "sentimentCounts": {
+    "positive": 38,
+    "neutral": 7,
+    "negative": 18
+   },
+   "sentimentPercent": {
+    "positive": 60.3,
+    "neutral": 11.1,
+    "negative": 28.6
+   },
+   "averageRating": 3.61,
+   "ratedReviews": 62
+  },
   "strengths": [
    {
     "aspect": "Battery",
+    "kind": "strength",
+    "statement": "Battery is mostly praised: 22 of the 31 analysed reviews that mention it read as positive (71%).",
     "mentions": 31,
     "count": 22,
     "percent": 71,
     "positive": 22,
     "neutral": 5,
     "negative": 4,
+    "analysedReviews": 63,
+    "evidence": [
+     {
+      "reviewId": "R-1004",
+      "text": "Smooth performance, amazing display and the battery charges very fast",
+      "field": "text",
+      "sentiment": "positive",
+      "rating": 5,
+      "date": "2026-10-24"
+     },
+     {
+      "reviewId": "R-1046",
+      "text": "Fantastic display and very good battery backup",
+      "field": "text",
+      "sentiment": "positive",
+      "rating": 5,
+      "date": "2026-08-20"
+     },
+     {
+      "reviewId": "R-1059",
+      "text": "The display, camera and battery are all very good",
+      "field": "text",
+      "sentiment": "positive",
+      "rating": 5,
+      "date": "2026-07-28"
+     }
+    ],
     "example": {
      "reviewId": "R-1004",
-     "text": "Smooth performance, amazing display and the battery charges very fast"
+     "text": "Smooth performance, amazing display and the battery charges very fast",
+     "field": "text",
+     "sentiment": "positive",
+     "rating": 5,
+     "date": "2026-10-24"
     }
    },
    {
     "aspect": "Display",
+    "kind": "strength",
+    "statement": "Display is mostly praised: 20 of the 23 analysed reviews that mention it read as positive (87%).",
     "mentions": 23,
     "count": 20,
     "percent": 87,
     "positive": 20,
     "neutral": 0,
     "negative": 3,
+    "analysedReviews": 63,
+    "evidence": [
+     {
+      "reviewId": "R-1001",
+      "text": "The display is bright and smooth, and the camera is great in daylight",
+      "field": "text",
+      "sentiment": "positive",
+      "rating": 5,
+      "date": "2026-10-28"
+     },
+     {
+      "reviewId": "R-1007",
+      "text": "The AMOLED display is stunning and very bright outdoors",
+      "field": "text",
+      "sentiment": "positive",
+      "rating": 5,
+      "date": "2026-10-20"
+     },
+     {
+      "reviewId": "R-1037",
+      "text": "Wonderful phone with great performance and a beautiful display",
+      "field": "text",
+      "sentiment": "positive",
+      "rating": 5,
+      "date": "2026-09-04"
+     }
+    ],
     "example": {
-     "reviewId": "R-1004",
-     "text": "Smooth performance, amazing display and the battery charges very fast"
+     "reviewId": "R-1001",
+     "text": "The display is bright and smooth, and the camera is great in daylight",
+     "field": "text",
+     "sentiment": "positive",
+     "rating": 5,
+     "date": "2026-10-28"
     }
    },
    {
     "aspect": "Performance",
+    "kind": "strength",
+    "statement": "Performance is mostly praised: 14 of the 21 analysed reviews that mention it read as positive (67%).",
     "mentions": 21,
     "count": 14,
     "percent": 67,
     "positive": 14,
     "neutral": 3,
     "negative": 4,
+    "analysedReviews": 63,
+    "evidence": [
+     {
+      "reviewId": "R-1048",
+      "text": "Performance is good and the display is vibrant",
+      "field": "text",
+      "sentiment": "positive",
+      "rating": 4,
+      "date": "2026-08-17"
+     },
+     {
+      "reviewId": "R-1018",
+      "text": "Display, battery and performance are all excellent",
+      "field": "text",
+      "sentiment": "positive",
+      "rating": 5,
+      "date": "2026-10-04"
+     },
+     {
+      "reviewId": "R-1013",
+      "text": "Very smooth performance, no lag even with many apps open",
+      "field": "text",
+      "sentiment": "positive",
+      "rating": 5,
+      "date": "2026-10-11"
+     }
+    ],
     "example": {
-     "reviewId": "R-1004",
-     "text": "Smooth performance, amazing display and the battery charges very fast"
+     "reviewId": "R-1048",
+     "text": "Performance is good and the display is vibrant",
+     "field": "text",
+     "sentiment": "positive",
+     "rating": 4,
+     "date": "2026-08-17"
     }
    }
   ],
   "complaints": [
    {
     "aspect": "Customer service",
+    "kind": "complaint",
+    "statement": "Customer service is a common complaint: 5 of the 5 analysed reviews that mention it read as negative (100%).",
     "mentions": 5,
     "count": 5,
     "percent": 100,
     "positive": 0,
     "neutral": 0,
     "negative": 5,
+    "analysedReviews": 63,
+    "evidence": [
+     {
+      "reviewId": "R-1044",
+      "text": "Worst customer service experience",
+      "field": "text",
+      "sentiment": "negative",
+      "rating": 1,
+      "date": "2026-08-23"
+     },
+     {
+      "reviewId": "R-1009",
+      "text": "I contacted customer service three times and they were not helpful at all",
+      "field": "text",
+      "sentiment": "negative",
+      "rating": 2,
+      "date": "2026-10-17"
+     },
+     {
+      "reviewId": "R-1027",
+      "text": "Return process was slow and customer support kept transferring my call",
+      "field": "text",
+      "sentiment": "negative",
+      "rating": 1,
+      "date": "2026-09-19"
+     }
+    ],
     "example": {
      "reviewId": "R-1044",
-     "text": "Worst customer service experience"
+     "text": "Worst customer service experience",
+     "field": "text",
+     "sentiment": "negative",
+     "rating": 1,
+     "date": "2026-08-23"
     }
    }
   ],
   "mixed": [
    {
     "aspect": "Camera",
+    "kind": "mixed",
+    "statement": "Opinions on Camera are divided: of the 22 analysed reviews that mention it, 12 read as positive, 3 as neutral and 7 as negative.",
     "mentions": 22,
     "count": 7,
     "percent": 32,
     "positive": 12,
     "neutral": 3,
     "negative": 7,
+    "analysedReviews": 63,
+    "evidence": [
+     {
+      "reviewId": "R-1034",
+      "text": "The phone is terrible at night photos and the battery drains fast",
+      "field": "text",
+      "sentiment": "negative",
+      "rating": 5,
+      "date": "2026-09-08"
+     },
+     {
+      "reviewId": "R-1029",
+      "text": "The portrait mode is amazing and colours look natural",
+      "field": "text",
+      "sentiment": "positive",
+      "rating": 5,
+      "date": "2026-09-16"
+     },
+     {
+      "reviewId": "R-1047",
+      "text": "The camera and performance are average and there is too much bloatware",
+      "field": "text",
+      "sentiment": "negative",
+      "rating": 2,
+      "date": "2026-08-18"
+     }
+    ],
     "example": {
      "reviewId": "R-1034",
-     "text": "The phone is terrible at night photos and the battery drains fast"
+     "text": "The phone is terrible at night photos and the battery drains fast",
+     "field": "text",
+     "sentiment": "negative",
+     "rating": 5,
+     "date": "2026-09-08"
     }
    },
    {
     "aspect": "Price",
+    "kind": "mixed",
+    "statement": "Opinions on Price are divided: of the 14 analysed reviews that mention it, 8 read as positive, 4 as neutral and 2 as negative.",
     "mentions": 14,
     "count": 2,
     "percent": 14,
     "positive": 8,
     "neutral": 4,
     "negative": 2,
+    "analysedReviews": 63,
+    "evidence": [
+     {
+      "reviewId": "R-1024",
+      "text": "No charger in the box, which I did not expect at this price",
+      "field": "text",
+      "sentiment": "negative",
+      "rating": 2,
+      "date": "2026-09-24"
+     },
+     {
+      "reviewId": "R-1032",
+      "text": "Slim design, good weight and the build quality is excellent for this price",
+      "field": "text",
+      "sentiment": "positive",
+      "rating": 5,
+      "date": "2026-09-12"
+     },
+     {
+      "reviewId": "R-1047",
+      "text": "Overpriced for what it offers",
+      "field": "text",
+      "sentiment": "negative",
+      "rating": 2,
+      "date": "2026-08-18"
+     }
+    ],
     "example": {
      "reviewId": "R-1024",
-     "text": "No charger in the box, which I did not expect at this price"
+     "text": "No charger in the box, which I did not expect at this price",
+     "field": "text",
+     "sentiment": "negative",
+     "rating": 2,
+     "date": "2026-09-24"
     }
    },
    {
     "aspect": "Build quality",
+    "kind": "mixed",
+    "statement": "Opinions on Build quality are divided: of the 10 analysed reviews that mention it, 5 read as positive, 4 as neutral and 1 as negative.",
     "mentions": 10,
     "count": 1,
     "percent": 10,
     "positive": 5,
     "neutral": 4,
     "negative": 1,
+    "analysedReviews": 63,
+    "evidence": [
+     {
+      "reviewId": "R-1020",
+      "text": "Very poor build quality",
+      "field": "text",
+      "sentiment": "negative",
+      "rating": 1,
+      "date": "2026-09-30"
+     },
+     {
+      "reviewId": "R-1057",
+      "text": "Performance is smooth and the phone feels well built",
+      "field": "text",
+      "sentiment": "positive",
+      "rating": 4,
+      "date": "2026-08-02"
+     },
+     {
+      "reviewId": "R-1030",
+      "text": "Battery easily lasts a full day of heavy use",
+      "field": "text",
+      "sentiment": "positive",
+      "rating": 4,
+      "date": "2026-09-15"
+     }
+    ],
     "example": {
      "reviewId": "R-1020",
-     "text": "Very poor build quality"
+     "text": "Very poor build quality",
+     "field": "text",
+     "sentiment": "negative",
+     "rating": 1,
+     "date": "2026-09-30"
     }
    },
    {
     "aspect": "Packaging",
+    "kind": "mixed",
+    "statement": "Opinions on Packaging are divided: of the 7 analysed reviews that mention it, 3 read as positive, 0 as neutral and 4 as negative.",
     "mentions": 7,
     "count": 4,
     "percent": 57,
     "positive": 3,
     "neutral": 0,
     "negative": 4,
+    "analysedReviews": 63,
+    "evidence": [
+     {
+      "reviewId": "R-1039",
+      "text": "The packaging was very poor, the box was crushed",
+      "field": "text",
+      "sentiment": "negative",
+      "rating": 2,
+      "date": "2026-08-31"
+     },
+     {
+      "reviewId": "R-1026",
+      "text": "Fast delivery and well packed",
+      "field": "text",
+      "sentiment": "positive",
+      "rating": 5,
+      "date": "2026-09-21"
+     },
+     {
+      "reviewId": "R-1005",
+      "text": "Delivery was late by four days and the packaging was torn",
+      "field": "text",
+      "sentiment": "negative",
+      "rating": 1,
+      "date": "2026-10-22"
+     }
+    ],
     "example": {
      "reviewId": "R-1039",
-     "text": "The packaging was very poor, the box was crushed"
+     "text": "The packaging was very poor, the box was crushed",
+     "field": "text",
+     "sentiment": "negative",
+     "rating": 2,
+     "date": "2026-08-31"
     }
    },
    {
     "aspect": "Delivery",
+    "kind": "mixed",
+    "statement": "Opinions on Delivery are divided: of the 6 analysed reviews that mention it, 3 read as positive, 1 as neutral and 2 as negative.",
     "mentions": 6,
     "count": 2,
     "percent": 33,
     "positive": 3,
     "neutral": 1,
     "negative": 2,
+    "analysedReviews": 63,
+    "evidence": [
+     {
+      "reviewId": "R-1014",
+      "text": "delivery took more than a week",
+      "field": "text",
+      "sentiment": "negative",
+      "rating": 3,
+      "date": "2026-10-10"
+     },
+     {
+      "reviewId": "R-1026",
+      "text": "Fast delivery and well packed",
+      "field": "text",
+      "sentiment": "positive",
+      "rating": 5,
+      "date": "2026-09-21"
+     },
+     {
+      "reviewId": "R-1005",
+      "text": "Delivery was late by four days and the packaging was torn",
+      "field": "text",
+      "sentiment": "negative",
+      "rating": 1,
+      "date": "2026-10-22"
+     }
+    ],
     "example": {
-     "reviewId": "R-1005",
-     "text": "Delivery was late by four days and the packaging was torn"
+     "reviewId": "R-1014",
+     "text": "delivery took more than a week",
+     "field": "text",
+     "sentiment": "negative",
+     "rating": 3,
+     "date": "2026-10-10"
     }
    }
   ],
   "notes": [
+   "These figures describe the 63 analysed reviews in this data, not every customer of the product.",
+   "A review can mention several features, so feature counts don’t add up to the number of reviews.",
    "1 review has a star rating that disagrees with the tone of the text. They are flagged in the review list."
   ]
  },
@@ -2297,5 +2614,5 @@
   "emptyRemoved": 1,
   "fileName": "demo_kestrel_orbit_5g.csv"
  },
- "analyzedAt": "2026-11-14T01:06:11+00:00"
+ "analyzedAt": "2026-11-14T06:14:21+00:00"
 }

@@ -1,6 +1,7 @@
 import { Columns2, ExternalLink, FileQuestion, RefreshCw, RotateCcw } from 'lucide-react'
 import { useState } from 'react'
 import { useParams, useSearchParams } from 'react-router-dom'
+import AiOverview from '../components/analysis/AiOverview'
 import AspectTable from '../components/analysis/AspectTable'
 import DistributionCharts from '../components/analysis/DistributionCharts'
 import ReviewExplorer from '../components/analysis/ReviewExplorer'
@@ -8,6 +9,7 @@ import StatStrip from '../components/analysis/StatStrip'
 import SummaryPanel from '../components/analysis/SummaryPanel'
 import HBarChart from '../components/charts/HBarChart'
 import PageHeader from '../components/layout/PageHeader'
+import ReportDownload from '../components/ReportDownload'
 import Alert from '../components/ui/Alert'
 import { SourceBadge } from '../components/ui/Badge'
 import Button from '../components/ui/Button'
@@ -88,6 +90,7 @@ function DataSourceNote({ data, onRefresh, refreshing, refreshError }) {
       <Alert variant="warning" title="Demo data" className="mb-6">
         These {data.stats.totalReviews} reviews are synthetic. They were written to demonstrate the app and are not real customer
         reviews, and the product is fictional. Everything below is calculated from them by the same analysis used for real data.
+        Reports can’t be downloaded for the demo product, because it only exists in the browser.
       </Alert>
     )
   }
@@ -259,6 +262,7 @@ export default function ProductAnalysis() {
                 <RotateCcw aria-hidden className="size-4" /> {rerun.state === 'running' ? 'Re-analysing…' : 'Re-analyse'}
               </Button>
             )}
+            {!isDemo && data.analysisId && <ReportDownload productId={productId} analysisId={data.analysisId} />}
             <Button to="/compare" variant="secondary"><Columns2 aria-hidden className="size-4" /> Compare</Button>
           </>
         }
@@ -284,6 +288,9 @@ export default function ProductAnalysis() {
             <DistributionCharts stats={stats} engine={data.engine} toneByRating={data.toneByRating}
               onShowMismatches={showMismatches} />
             <SummaryPanel summary={data.summary} onOpenReview={openReview} />
+            {!isDemo && data.analysisId && (
+              <AiOverview key={data.analysisId} productId={productId} analysisId={data.analysisId} onOpenReview={openReview} />
+            )}
             <EngineNote engine={data.engine} analyzedAt={data.analyzedAt} />
           </div>
         )}

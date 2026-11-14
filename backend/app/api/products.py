@@ -7,10 +7,12 @@ from ..models import Product
 from ..schemas import Analysis, ErrorResponse, ProductCreate, ProductSummary, ProductUpdate, UrlRequest
 from ..services import analysis as analysis_service
 from ..services import products as product_service
-from ..services import collection, reports
+from ..reports.pdf import build_report
+from ..services import collection, reports, review_query
 
 router = APIRouter(prefix="/products", tags=["Products"])
 NOT_FOUND = {404: {"model": ErrorResponse, "description": "Product not found"}}
+NOT_ANALYSED = {409: {"model": ErrorResponse, "description": "The product hasn’t been analysed yet"}}
 
 
 @router.get("", response_model=list[ProductSummary], summary="List all products, newest first")
@@ -99,19 +101,30 @@ def refresh_product(product_id: int, db: Session = Depends(get_db)):
     return product_service.summary_out(product)
 
 
-@router.get("/{product_id}/report.csv", responses=NOT_FOUND, response_class=Response,
-            summary="Download every review with its sentiment and features as CSV")
-def report_csv(product_id: int, db: Session = Depends(get_db)):
+def _download_name(product, run, extension: str) -> str:
+    # ASCII only: HTTP headers can't carry other characters (a Devanagari name crashed the download).
+    slug = "-".join("".join(c if c.isascii() and c.isalnum() else " " for c in product.name.lower()).split())
+    slug = slug[:40].strip("-")
+    slug = slug or "product"
+    return f"reviews-dekho-{slug}-run-{run.id}.{extension}"
+
+
+@router.get("/{product_id}/report.csv", responses=NOT_FOUND | NOT_ANALYSED, response_class=Response,
+            summary="Every review of an analysis run with its sentiment and features, as CSV")
+def report_csv(product_id: int, analysis_id: int | None = Query(None, description="Default: the latest run"),
+               include_reviewer: bool = Query(False, description="Add the reviewer-name column"),
+               db: Session = Depends(get_db)):
     product = product_service.get_product(db, product_id)
-    if product.latest_analysis is None:
-        raise AppError("This product hasn’t been analysed yet.", 409)
-    filename = f"reviews-dekho-product-{product.id}.csv"
-    return Response(reports.reviews_csv(product), media_type="text/csv; charset=utf-8",
-                    headers={"Content-Disposition": f'attachment; filename="{filename}"'})
+    run = review_query.pick_run(product, analysis_id)
+    return Response(reports.reviews_csv(run, include_reviewer), media_type="text/csv; charset=utf-8",
+                    headers={"Content-Disposition": f'attachment; filename="{_download_name(product, run, "csv")}"'})
 
 
-@router.get("/{product_id}/report.pdf", responses=NOT_FOUND | {501: {"model": ErrorResponse}},
-            summary="PDF report (not built yet)")
-def report_pdf(product_id: int, db: Session = Depends(get_db)):
-    product_service.get_product(db, product_id)
-    raise AppError("PDF reports aren’t available yet. Download the CSV export instead.", 501)
+@router.get("/{product_id}/report.pdf", responses=NOT_FOUND | NOT_ANALYSED, response_class=Response,
+            summary="PDF report of an analysis run: figures, charts, evidence-backed summary, method, limitations")
+def report_pdf(product_id: int, analysis_id: int | None = Query(None, description="Default: the latest run"),
+               db: Session = Depends(get_db)):
+    product = product_service.get_product(db, product_id)
+    run = review_query.pick_run(product, analysis_id, require_reviews=False)
+    return Response(build_report(product, run), media_type="application/pdf",
+                    headers={"Content-Disposition": f'attachment; filename="{_download_name(product, run, "pdf")}"'})

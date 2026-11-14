@@ -61,10 +61,12 @@ def test_every_path_in_the_frontend_client_exists(client):
         "'/products/from-url'": "/api/products/from-url",
         "'/uploads/preview'": "/api/uploads/preview",
         "'/uploads/import'": "/api/uploads/import",
-        "/report.${format}`": "/api/products/{product_id}/report.csv",
+        "/report.${format}${analysisId ?": "/api/products/{product_id}/report.csv",
+        "/history?product_id=": "/api/history",
     }.items():
         assert frontend_path in source, frontend_path
         assert api_path in spec_paths, api_path
+    assert "/api/products/{product_id}/report.pdf" in spec_paths
 
 
 def test_error_bodies_are_strings_the_frontend_can_show(client):

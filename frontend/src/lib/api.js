@@ -61,5 +61,33 @@ export const api = {
     form.append('domain', domain)
     return request('/uploads/import', { method: 'POST', body: form })
   },
-  reportUrl: (productId, format) => `${API_URL}/products/${encodeURIComponent(productId)}/report.${format}`,
+  reportUrl: (productId, format, analysisId) =>
+    `${API_URL}/products/${encodeURIComponent(productId)}/report.${format}${analysisId ? `?analysis_id=${analysisId}` : ''}`,
+  aiStatus: () => request('/ai/status'),
+  getAiSummary: (productId, analysisId) =>
+    request(`/products/${encodeURIComponent(productId)}/ai-summary?analysis_id=${analysisId}`),
+  createAiSummary: (productId, analysisId) =>
+    request(`/products/${encodeURIComponent(productId)}/ai-summary?analysis_id=${analysisId}`, { method: 'POST' }),
+  listHistory: (productId) => request(`/history?product_id=${encodeURIComponent(productId)}`),
+  /** Downloads a report file. Resolves to the file name; rejects with ApiError (e.g. the server's reason). */
+  downloadReport: async (productId, format, analysisId) => {
+    let response
+    try {
+      response = await fetch(api.reportUrl(productId, format, analysisId))
+    } catch {
+      throw new ApiError('Can’t reach the analysis server. Make sure the backend is running.', { offline: true })
+    }
+    if (!response.ok) {
+      const body = response.headers.get('content-type')?.includes('application/json') ? await response.json() : null
+      throw new ApiError(typeof body?.detail === 'string' ? body.detail : `Download failed (${response.status}).`, { status: response.status })
+    }
+    const name = /filename="([^"]+)"/.exec(response.headers.get('content-disposition') ?? '')?.[1] ?? `report.${format}`
+    const url = URL.createObjectURL(await response.blob())
+    const link = Object.assign(document.createElement('a'), { href: url, download: name })
+    document.body.append(link)
+    link.click()
+    link.remove()
+    setTimeout(() => URL.revokeObjectURL(url), 1000)
+    return name
+  },
 }

@@ -112,11 +112,23 @@ def _v4_engine_and_domain(conn: Connection) -> None:
     conn.exec_driver_sql("UPDATE analysis_results SET engine = ?", (json.dumps(VADER_BEFORE_PHASE_4),))
 
 
+def _v5_ai_summaries(conn: Connection) -> None:
+    """A separate table for optional AI-written overviews; existing tables are not changed."""
+    conn.exec_driver_sql(
+        "CREATE TABLE ai_summaries ("
+        "id INTEGER NOT NULL PRIMARY KEY, "
+        "analysis_id INTEGER NOT NULL REFERENCES analysis_results (id) ON DELETE CASCADE, "
+        "created_at DATETIME NOT NULL, model VARCHAR(100) NOT NULL, prompt_version INTEGER NOT NULL, "
+        "status VARCHAR(20) NOT NULL, attempts INTEGER NOT NULL, sentences JSON NOT NULL, problems JSON NOT NULL)")
+    conn.exec_driver_sql("CREATE INDEX ix_ai_summaries_analysis_id ON ai_summaries (analysis_id)")
+
+
 MIGRATIONS: list[tuple[str, Callable[[Connection], None]]] = [
     ("baseline (Phase 2 schema)", _v1_baseline),
     ("per-review results stored on each analysis run", _v2_review_snapshots),
     ("source details for products collected from links", _v3_collected_products),
     ("product domain and sentiment engine per analysis run", _v4_engine_and_domain),
+    ("table for optional AI-written overviews", _v5_ai_summaries),
 ]
 LATEST_VERSION = len(MIGRATIONS)
 

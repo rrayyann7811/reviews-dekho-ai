@@ -99,3 +99,26 @@ class AnalysisResult(Base):
     engine: Mapped[dict | None] = mapped_column(JSON)
 
     product: Mapped[Product] = relationship(back_populates="analyses")
+    ai_summaries: Mapped[list["AiSummary"]] = relationship(
+        back_populates="analysis", cascade="all, delete-orphan", passive_deletes=True, order_by="AiSummary.id.desc()")
+
+
+class AiSummary(Base):
+    """One attempt at an optional AI-written overview of an analysis run (see services/ai_summary.py).
+
+    Stored separately so the run and its evidence-backed summary are never changed. Every attempt is
+    kept, including rejected ones, together with the checker's findings.
+    """
+    __tablename__ = "ai_summaries"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    analysis_id: Mapped[int] = mapped_column(ForeignKey("analysis_results.id", ondelete="CASCADE"), index=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+    model: Mapped[str] = mapped_column(String(100))
+    prompt_version: Mapped[int] = mapped_column(Integer)
+    status: Mapped[str] = mapped_column(String(20))      # accepted | rejected
+    attempts: Mapped[int] = mapped_column(Integer)
+    sentences: Mapped[list] = mapped_column(JSON)        # [{text, claims, excerpts}] — accepted output, else []
+    problems: Mapped[list] = mapped_column(JSON)         # checker findings of the last attempt
+
+    analysis: Mapped[AnalysisResult] = relationship(back_populates="ai_summaries")

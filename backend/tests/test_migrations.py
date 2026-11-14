@@ -227,9 +227,9 @@ def test_phase3_database_gets_domain_and_engine(tmp_path, monkeypatch):
     con.close()
     monkeypatch.undo()
 
-    assert migrations.upgrade(engine) == 1
+    assert migrations.upgrade(engine) == migrations.LATEST_VERSION - 3  # everything after Phase 3
     con = sqlite3.connect(path)
-    assert con.execute("PRAGMA user_version").fetchone()[0] == 4
+    assert con.execute("PRAGMA user_version").fetchone()[0] == migrations.LATEST_VERSION
     assert dict(con.execute("SELECT id, domain FROM products").fetchall()) == {1: "product", 2: "app"}
     engines = [json.loads(e) for (e,) in con.execute("SELECT engine FROM analysis_results")]
     con.close()
@@ -248,3 +248,20 @@ def test_upgraded_runs_keep_their_snapshots_untouched(tmp_path):
     migrations.upgrade(make_engine(f"sqlite:///{path}"))
     snapshot = json.loads(_snapshot(path, 2))
     assert all("status" not in r for r in snapshot)  # not rewritten with fields the old run never had
+
+
+# ---------- Migration 5: optional AI overviews in their own table ----------
+
+def test_ai_summaries_table_is_added_without_touching_runs(tmp_path):
+    path = tmp_path / "db.db"
+    make_phase2_database(path)
+    con = sqlite3.connect(path)
+    before = con.execute("SELECT id, stats, summary FROM analysis_results ORDER BY id").fetchall()
+    con.close()
+    migrations.upgrade(make_engine(f"sqlite:///{path}"))
+    con = sqlite3.connect(path)
+    assert con.execute("SELECT id, stats, summary FROM analysis_results ORDER BY id").fetchall() == before
+    columns = [row[1] for row in con.execute("PRAGMA table_info(ai_summaries)")]
+    assert columns == ["id", "analysis_id", "created_at", "model", "prompt_version", "status", "attempts",
+                       "sentences", "problems"]
+    con.close()
