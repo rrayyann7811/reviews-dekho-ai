@@ -89,10 +89,10 @@ reviews-dekho-ai/
 | 1 | Design system + frontend shell, all pages, demo mode | Every route renders, layout tested at 375/768/1440 px |
 | 2 | FastAPI, models, schemas, CRUD, Swagger, **CSV/XLSX ingestion with column detection and preview** (moved up from Phase 3), history, frontend wired to the API | ✅ Done 2026-11-14 |
 | 3 | URL review collection through permitted sources (adapters), history integrity, schema migrations | ✅ Done 2026-11-14 |
-| 4 | NLP engine: pretrained model + VADER fallback, app features, language check, evaluation | ✅ Done 2026-11-14 (awaiting commit approval) |
-| 5 | Analytics dashboard wired to stored results: server-side review paging, re-analyse, edge states | ✅ Implemented and verified 2026-11-14 (awaiting review and commit approval) |
-| 6 | Evidence-backed summaries, PDF reports (6a); optional local AI overview (6b) | ✅ Implemented and verified 2026-11-14, including live `llama3.2:3b` evaluation (awaiting review and commit approval) |
-| 7 | Comparison | Side-by-side view with sample-size caveats |
+| 4 | NLP engine: pretrained model + VADER fallback, app features, language check, evaluation | ✅ Done 2026-11-14, committed `14c33f3` |
+| 5 | Analytics dashboard wired to stored results: server-side review paging, re-analyse, edge states | ✅ Done 2026-11-14, committed `d5c3f67` |
+| 6 | Evidence-backed summaries, PDF reports (6a); optional local AI overview (6b) | ✅ Done 2026-11-14, including live `llama3.2:3b` evaluation; committed `5950d89` |
+| 7 | Comparison: two stored runs side by side (two products or two runs of one), intervals, caveats | ✅ Implemented and verified 2026-11-14 (awaiting review and commit approval) |
 | 8 | QA, README, screenshots, GitHub | Tests green, push only after your confirmation |
 
 ## 7. Progress log
@@ -615,3 +615,88 @@ Final run, after the live evaluation finished and Ollama was idle:
 * DejaVu Sans can't draw Devanagari, Tamil, CJK or many emoji; they appear as □ in PDFs (with a footnote).
 * Reports for the offline demo product aren't available (it exists only in the browser).
 * No database migration was needed for 6a; 6b added migration 5.
+
+**2026-11-14 — Phase 7 (side-by-side comparison)** — not committed yet
+
+Phase 6 was committed first (`5950d89`). Approved decisions: two products **or** two runs of one product; thresholds of
+30 analysed reviews per side for "clear separation", a warning at a 5× size gap and when more than 10% of a side wasn't
+analysed; no comparison PDF/CSV; no database change; no AI text and no overall winner.
+
+### Backend
+`app/services/comparison.py` (pure function of two stored runs) and `GET /api/compare?product_a=&product_b=
+&analysis_a=&analysis_b=` (`app/api/compare.py`, response schema `Comparison` in `schemas.py`). Runs default to each
+product's latest; `pick_run` (the same function the reports use) rejects a run of another product with 404; an
+unanalysed product gives 409. Reads only `stats`, `aspects`, `engine`, `ingestion` and product metadata — the
+per-review results are not loaded or copied, nothing is written, and the same pair always gives the same response.
+**No migration and no comparison table:** the Phase 0 plan had a `Comparison` table, but a comparison of two immutable
+snapshots can always be recomputed, so storing it would only duplicate data that could go stale.
+* **Sides:** product (with source and App Store details), run (id, date, latest or not, latest run id), engine (runs
+  before Phase 4 have no engine record and are treated as VADER, pipeline 1), counts (total, analysed, not analysed with
+  reasons, rated), review period, sentiment, ratings (average, distribution as shares of rated reviews, and Apple's
+  store rating as context only). Older stats without `analysedReviews` use the total, as those pipelines analysed
+  everything.
+* **Shares:** `{count, n, percent, interval}` with a 95% **Wilson** interval (no new dependency). Separation: `clear`
+  only if both bases ≥ 30 and the intervals don't overlap (touching counts as overlapping); else `overlapping`,
+  `too-few` or `not-measurable` (base 0). Zero analysed reviews → sentiment `null`, never 0%.
+* **Features:** every feature mentioned on either side; per side `compared` (≥ 3 mentions, the dashboard's verdict
+  threshold), `few-mentions`, `not-mentioned` (in the run's stored feature list), `not-looked-for` (not in it — e.g. app
+  features for a phone, or category extras), `unknown` (runs before Phase 4 didn't store the list). Mention rate is a
+  share of analysed reviews and is `null` for not-looked-for / unknown — missing information is never a zero. Tone within
+  a feature (positive and negative share of its mentions) is compared only when both sides are `compared`, with the
+  mentions as the base (so 30 mentions are needed for "clear").
+* **Caveats** (`warning` / `info`): small sample, size gap (≥ 5×), not analysed (> 10%), nothing analysed, sentiment
+  counts not stored, different engines or pipeline versions, different domains, different feature lists, unknown
+  feature list, different sources, App Store's 500-review limit, review periods that don't overlap or are unknown, no
+  star ratings, same product, same run.
+* **Statements:** only for `clear` figures, worded "… A x% of n … vs B y% of n — clear separation in these samples.";
+  the average rating is stated for reference with "no separation test"; otherwise "No … figure shows clear separation"
+  or "at least one side has fewer than 30". Notes say the samples are self-selected, not random or representative, and
+  that "clear separation" isn't proof of a real difference.
+
+### Frontend
+`pages/Compare.jsx` replaces the Phase 1 placeholder (now lazy-loaded like the analysis page; main bundle unchanged at
+362 KB, Compare chunk 20 KB). Product A/B and a run per side (`components/RunSelect.jsx` + `lib/useRuns.js`, extracted
+from the Reports page, which now uses the same component); selection in the URL (`?a=&ra=&b=&rb=`, Back works, shared
+links open with their runs); the demo product is excluded and unanalysed products are disabled; the same product may be
+chosen on both sides. `components/compare/`: summary cards per side, caveat list (warnings first, "Warning:"/"Note:"
+for screen readers), the statements and notes, tone bars with the 95% interval drawn on the bar and printed as text,
+star-rating distributions, and the feature comparison as a table from 1024 px and cards below, with a one-line legend
+for each status present and the reason a row isn't compared. Letters A/B identify the sides (colour only helps);
+every figure is visible text; separation is a labelled badge with an icon. States: loading, error with "Try again",
+offline, no analysed products, only one product (suggests comparing two runs), same run, nothing analysed, no ratings,
+no shared features.
+
+### Verification (exact)
+* Backend `pytest`: **389 passed, 1 skipped** (the live Ollama test; Ollama not running). 28 new tests in
+  `tests/test_comparison.py` (Wilson values against textbook figures, the 29/30 boundary, touching intervals, equal and
+  unequal samples, the 5× boundary, the 10% boundary, zero analysed, missing ratings, every feature status including old
+  runs, different engines and pipeline versions, domains/sources/periods, wording, same-product runs and run integrity,
+  cross-product rejection, 404/409/422, OpenAPI) and 1 contract test (the frontend's comparison fixture keys exist in a
+  live response; the `/compare` path exists).
+* Mutation checks: removing the 30 threshold failed 3 tests; giving not-looked-for/unknown features a 0% rate failed 2;
+  making the size gap `>` instead of `≥` failed 1. All restored.
+* Frontend `vitest`: **122 passed** (14 new comparison tests, 1 new Reports run-picker test). `oxlint` clean; `vite
+  build` OK. The test fixture is a real API response from `backend/scripts/make_compare_fixture.py` (synthetic reviews).
+* Real data (copies of the stored verification databases; the real `storage/reviews_dekho.db` is empty and was not
+  used): WhatsApp vs Zomato, the Kestrel sample vs WhatsApp (product vs app), WhatsApp's version-1-summary run vs its
+  latest run, two Kestrel runs, a transformer vs a VADER run of the Kestrel sample (the VADER run was added to the scratch
+  copy only), the all-Hinglish product vs Kestrel, a Hinglish + English set vs a small English set, the same run twice,
+  and a cross-product run (404). An independent script recomputed every count, percentage, Wilson interval (different
+  formula form), rating distribution and feature status from the raw stored JSON: **289 checks, 0 differences**; the
+  database files were byte-identical before and after comparing.
+* Real browser (headless Chrome 157, DevTools protocol, production build against a live backend): 6 comparisons at 375,
+  768 and 1440 px — **no horizontal overflow and no element past the viewport** in any of the 16 views; all four
+  selectors reached with Tab; table at 1440 px, cards at 375 / 768 px. Screenshots inspected. Fixed after inspection:
+  the "not compared" reason said "needs at least 3 mentions" when the feature wasn't looked for on one side; the
+  not-looked-for explanation was repeated in every cell (now one legend line); the "no feature compared" notice gave the
+  wrong reason for an app vs a product; interval ranges wrapped in the middle on phones.
+
+### Remaining limitations
+* "Clear separation" is a descriptive rule on two self-selected samples, not a significance test; with many features
+  some separations will appear by chance. Average ratings are shown without any interval.
+* Same-product comparisons usually share most reviews (re-analysis or re-collection), so the two samples aren't
+  independent; the page says so but still applies the same rule.
+* Features are keyword-based, so the same name can cover slightly different things on two products (e.g. a Zomato
+  "Speed & performance" excerpt is about delivery speed, not the app).
+* Product vs app comparisons share no feature lists, so only tone and ratings are compared.
+* No comparison export, and the demo product can't be compared.

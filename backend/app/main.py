@@ -11,7 +11,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from . import config
-from .api import ai, health, history, products, reviews, sites, uploads
+from .api import ai, compare, health, history, products, reviews, sites, uploads
 from .database import init_db
 from .errors import register_error_handlers
 
@@ -49,7 +49,7 @@ def create_app() -> FastAPI:
         expose_headers=["Content-Disposition"],
     )
     register_error_handlers(app)
-    for module in (health, products, reviews, uploads, history, sites, ai):
+    for module in (health, products, reviews, uploads, history, sites, ai, compare):
         app.include_router(module.router, prefix="/api")
     return app
 

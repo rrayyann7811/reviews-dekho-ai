@@ -212,3 +212,39 @@ class Health(ApiModel):
 class ErrorResponse(BaseModel):
     detail: str
     errors: list[dict] | None = None
+
+
+# ---------- Comparison (Phase 7) ----------
+
+class ComparisonCaveat(ApiModel):
+    code: str = Field(examples=["small-sample"])
+    severity: Literal["warning", "info"]
+    message: str
+
+
+class ComparisonSide(ApiModel):
+    """One side of a comparison, read from its stored analysis run."""
+    product: dict
+    run: dict = Field(description="id, createdAt, isLatest, latestRunId, summaryVersion")
+    engine: dict = Field(description="Sentiment method of this run (runs before Phase 4: VADER, pipeline 1)")
+    counts: dict = Field(description="total, analysed, notAnalysed, notAnalysedReasons, rated")
+    date_range: dict | None
+    sentiment: dict | None = Field(description="Per tone {count, n, percent, interval}; null when not measurable "
+                                               "(nothing analysed, or an old run without counts) — never 0%")
+    ratings: dict = Field(description="rated, average, distribution, and the store's own rating for context")
+
+
+class Comparison(ApiModel):
+    """Two stored analysis runs side by side. Computed on request; nothing is stored or re-analysed."""
+    a: ComparisonSide
+    b: ComparisonSide
+    same_product: bool
+    same_run: bool
+    sentiment: dict | None = Field(description="Per tone: {a, b, difference (points), separation: clear | "
+                                               "overlapping | too-few | not-measurable}")
+    features: list[dict] = Field(description="Every feature mentioned on at least one side, with per-side status: "
+                                             "compared | few-mentions | not-mentioned | not-looked-for | unknown")
+    caveats: list[ComparisonCaveat]
+    statements: list[str] = Field(description="Deterministic sentences built only from the figures above")
+    notes: list[str]
+    thresholds: dict

@@ -5,7 +5,6 @@ import Spinner from './components/ui/Spinner'
 import { ServerStatusProvider } from './lib/serverStatus'
 import { SettingsProvider } from './lib/settings'
 import AnalyzeProduct from './pages/AnalyzeProduct'
-import Compare from './pages/Compare'
 import History from './pages/History'
 import NotFound from './pages/NotFound'
 import Overview from './pages/Overview'
@@ -13,8 +12,9 @@ import Reports from './pages/Reports'
 import Settings from './pages/Settings'
 import UploadReviews from './pages/UploadReviews'
 
-// The analysis page carries the charting library, so it loads on demand.
+// The analysis and comparison pages are the largest, so they load on demand.
 const ProductAnalysis = lazy(() => import('./pages/ProductAnalysis'))
+const Compare = lazy(() => import('./pages/Compare'))
 
 export function AppRoutes() {
   return (
@@ -25,7 +25,7 @@ export function AppRoutes() {
         <Route path="upload" element={<UploadReviews />} />
         <Route path="history" element={<History />} />
         <Route path="products/:productId" element={<Suspense fallback={<Spinner />}><ProductAnalysis /></Suspense>} />
-        <Route path="compare" element={<Compare />} />
+        <Route path="compare" element={<Suspense fallback={<Spinner />}><Compare /></Suspense>} />
         <Route path="reports" element={<Reports />} />
         <Route path="settings" element={<Settings />} />
         <Route path="*" element={<NotFound />} />

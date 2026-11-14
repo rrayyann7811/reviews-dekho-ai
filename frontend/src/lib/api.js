@@ -69,6 +69,13 @@ export const api = {
   createAiSummary: (productId, analysisId) =>
     request(`/products/${encodeURIComponent(productId)}/ai-summary?analysis_id=${analysisId}`, { method: 'POST' }),
   listHistory: (productId) => request(`/history?product_id=${encodeURIComponent(productId)}`),
+  /** Two stored runs side by side; a missing analysis ID means that product's latest run. */
+  compare: ({ productA, productB, analysisA, analysisB }) => {
+    const params = new URLSearchParams({ product_a: String(productA), product_b: String(productB) })
+    if (analysisA) params.set('analysis_a', String(analysisA))
+    if (analysisB) params.set('analysis_b', String(analysisB))
+    return request(`/compare?${params}`)
+  },
   /** Downloads a report file. Resolves to the file name; rejects with ApiError (e.g. the server's reason). */
   downloadReport: async (productId, format, analysisId) => {
     let response

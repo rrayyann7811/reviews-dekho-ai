@@ -85,6 +85,22 @@ describe('Reports page', () => {
     expect(clicked).toEqual([])
   })
 
+  it('the shared run picker resets to the latest run when another product is chosen', async () => {
+    const OTHER = { ...PRODUCT, id: 8, name: 'Other Phone' }
+    mockBackend({ 'GET /health': {}, 'GET /products': [PRODUCT, OTHER],
+      'GET /history': (_i, params) => json(params.get('product_id') === '7' ? RUNS
+        : [{ id: 12, productId: 8, productName: 'Other Phone', createdAt: '2026-11-13T10:00:00Z', totalReviews: 5 }]) })
+    renderAt('/reports')
+    await screen.findByRole('option', { name: 'Other Phone' })
+    fireEvent.change(screen.getByLabelText('Product'), { target: { value: '7' } })
+    fireEvent.change(await screen.findByLabelText('Analysis run'), { target: { value: '4' } })
+    expect(screen.getByLabelText('Analysis run')).toHaveValue('4')
+    fireEvent.change(screen.getByLabelText('Product'), { target: { value: '8' } })
+    const runSelect = await screen.findByRole('option', { name: 'Latest #12 · 13 Nov 2026 · 5 reviews' })
+    expect(runSelect.closest('select')).toHaveValue('')
+    expect(calls('/history').at(-1)).toBe(`${api.baseUrl}/history?product_id=8`)
+  })
+
   it('explains when a product has no analysis yet', async () => {
     mockBackend({ 'GET /health': {}, 'GET /products': [PRODUCT], 'GET /history': [] })
     renderAt('/reports')

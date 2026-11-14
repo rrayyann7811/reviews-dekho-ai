@@ -63,10 +63,24 @@ def test_every_path_in_the_frontend_client_exists(client):
         "'/uploads/import'": "/api/uploads/import",
         "/report.${format}${analysisId ?": "/api/products/{product_id}/report.csv",
         "/history?product_id=": "/api/history",
+        "/compare?${params}`": "/api/compare",
     }.items():
         assert frontend_path in source, frontend_path
         assert api_path in spec_paths, api_path
     assert "/api/products/{product_id}/report.pdf" in spec_paths
+
+
+def test_comparison_has_every_key_the_compare_page_uses(client):
+    """The Compare page's tests use a fixture made by scripts/make_compare_fixture.py; a live response must match it."""
+    fixture = json.loads((FRONTEND_DEMO_JSON.parents[1] / "test/fixtures/comparison.json").read_text())
+    def upload(name, text):
+        data = {"product_name": name, "columns": json.dumps({"text": "review", "rating": "stars", "id": "id"})}
+        return client.post("/api/uploads/import", files={"file": ("r.csv", text.encode(), "text/csv")}, data=data).json()
+    a = upload("A", "id,review,stars\n" + "".join(f"{i},The battery is excellent {i},5\n" for i in range(5)))
+    b = upload("B", "id,review,stars\n" + "".join(f"{i},The battery is terrible {i},1\n" for i in range(5))
+               + "h1,bakwas phone hai yaar battery kharab,1\n")  # one excluded review: notAnalysedReasons has a key
+    live = client.get("/api/compare", params={"product_a": a["id"], "product_b": b["id"]}).json()
+    assert _missing_keys(fixture, live) == []
 
 
 def test_error_bodies_are_strings_the_frontend_can_show(client):

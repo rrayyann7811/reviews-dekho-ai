@@ -18,7 +18,8 @@ Built with FastAPI, SQLite and SQLAlchemy (backend) and React, Vite and Tailwind
 Every analysis is stored as an unchanging snapshot in the history, together with the sentiment engine that produced it.
 Each run has an **evidence-backed summary**: every claim states its exact counts and quotes up to three exact excerpts
 from the reviews (by review ID), and a **PDF report** and CSV export can be downloaded for any run. An optional
-**AI-written overview** can be produced by a local model through Ollama (off by default; see below).
+**AI-written overview** can be produced by a local model through Ollama (off by default; see below). Any two stored
+runs can be **compared side by side** — two products, or two runs of the same product (see below).
 Details, design decisions and verification results are in [`docs/PLAN.md`](docs/PLAN.md).
 
 ## Running it locally
@@ -70,6 +71,34 @@ and limitations. It contains aggregates and a few excerpts, never the full revie
 CSV export (`GET /api/products/{id}/report.csv?analysis_id=…`, or **Download CSV**) lists every review of that run
 with its sentiment and features, and also leaves reviewer names out unless `include_reviewer=true` is added. Without
 `analysis_id`, both use the latest run.
+
+## Comparing two analysis runs
+
+**Compare products** (`/compare`) puts two saved analysis runs side by side: two different products, or the same product
+twice with different runs (for example before and after new reviews were collected). Pick a product and a run for each
+side; the selection is kept in the URL (`/compare?a=1&ra=5&b=2`), so a comparison can be bookmarked or shared. API:
+`GET /api/compare?product_a=&product_b=&analysis_a=&analysis_b=` (the runs are optional and default to each product's
+latest; a run of a different product is rejected with 404).
+
+The comparison is computed from the two stored snapshots each time — nothing is re-analysed or stored — and shows:
+* each side's product, run, source, sentiment method, analysed / not-analysed counts, star ratings and review period;
+* tone of the reviews as shares of **analysed** reviews, each with its count and a 95% Wilson interval;
+* star ratings as shares of rated reviews, with the store's own rating (App Store) shown only as context;
+* every feature mentioned on either side, as mention shares and positive / neutral / negative splits, with a status per
+  side: compared (3+ mentions), too few mentions, looked for but not mentioned, not looked for (different feature list,
+  e.g. an app vs a phone), or unknown (older runs). **Missing features are never treated as negative.**
+* caveats above the results: small samples (under 30 analysed reviews), a 5× size difference, more than 10% of reviews
+  not analysed (language), different sentiment methods, domains, sources or review periods, App Store limits, the
+  same product or the same run on both sides;
+* short statements built only from these figures. No AI is used and there is no overall winner.
+
+**How differences are described:** a difference is called **"clear separation in these samples"** only when both
+sides have at least 30 reviews (or mentions) in the base and the two 95% intervals don't overlap; otherwise it is
+"intervals overlap", "too few to compare" or "not measurable". This describes the two samples; it is **not** a
+significance test or proof of a real difference. Reviews are written by people who chose to write them, so neither side
+is a random or representative sample of all customers. A side with no analysed reviews is shown as "not measurable",
+never as 0%. Comparisons can't be exported yet (no comparison PDF/CSV), and the in-browser demo product can't be
+compared.
 
 ## Optional AI-written overview (local, off by default)
 
@@ -133,23 +162,23 @@ reviews were not obeyed. Details: [`docs/PLAN.md`](docs/PLAN.md) (Phase 6).
 ## Tests
 
 ```bash
-cd backend && .venv/bin/python -m pytest          # 361 tests; 10 need the sentiment model, 1 needs Ollama
-cd frontend && npm test && npm run lint && npm run build   # 107 tests
+cd backend && .venv/bin/python -m pytest          # 390 tests; 10 need the sentiment model, 1 needs Ollama
+cd frontend && npm test && npm run lint && npm run build   # 122 tests
 ```
 
-With the sentiment model installed and Ollama running `llama3.2:3b`: 361 passed. With Ollama not running: 360 passed,
-1 **skipped** (the live Ollama test). Without the sentiment model either: 350 passed, 11 skipped. Skipped tests are not
-run. Frontend: 107 passed, lint clean, build OK. Re-run the sentiment evaluation with
+With the sentiment model installed and Ollama not running: 389 passed, 1 **skipped** (the live Ollama test). Without
+the sentiment model either: 379 passed, 11 skipped. Skipped tests are not run. (With Ollama running `llama3.2:3b` the
+live test runs too.) Frontend: 122 passed, lint clean, build OK. Re-run the sentiment evaluation with
 `.venv/bin/python scripts/evaluate_sentiment.py --app-store`.
 
 ## Project layout
 
 ```
 backend/app/
-  api/          HTTP routes (thin)            services/    ingestion, analysis, collection, reports
+  api/          HTTP routes (thin)            services/    ingestion, analysis, collection, reports, comparison
   collectors/   one adapter per website       nlp/         engines, rules, language, aspects, keywords, summary
   models.py     database tables               migrations.py  versioned schema upgrades with backups
-backend/scripts/  model download, evaluation, word-list builder, demo snapshot
+backend/scripts/  model download, evaluation, word-list builder, demo snapshot, comparison test fixture
 frontend/src/     pages, components, lib (API client, formatting, filters)
 docs/             PLAN.md (design + progress), EVALUATION.md (generated), DESIGN_SYSTEM.md
 ```

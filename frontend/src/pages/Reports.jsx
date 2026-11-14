@@ -1,15 +1,15 @@
 import { FileText, Table2 } from 'lucide-react'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import PageHeader from '../components/layout/PageHeader'
 import ReportDownload from '../components/ReportDownload'
+import RunSelect from '../components/RunSelect'
 import ServerNotice from '../components/ServerNotice'
 import { Field, Select } from '../components/ui/Field'
 import Panel from '../components/ui/Panel'
 import { DEMO_ID } from '../demo/demo'
-import { api } from '../lib/api'
-import { formatDate } from '../lib/format'
 import { useServerStatus } from '../lib/serverStatus'
 import { useProducts } from '../lib/useData'
+import { useRuns } from '../lib/useRuns'
 
 const FORMATS = [
   { id: 'pdf', icon: FileText, title: 'PDF report',
@@ -25,21 +25,6 @@ function unavailableReason(status, productId, runs) {
   if (runs.error) return runs.error
   if (runs.loaded && runs.items.length === 0) return 'This product hasn’t been analysed yet.'
   return null
-}
-
-/** The analysis runs of a product (newest first), for choosing which one to report on. */
-function useRuns(productId, enabled) {
-  const [runs, setRuns] = useState({ for: null, items: [], error: '' })
-  useEffect(() => {
-    if (!enabled) return
-    let active = true
-    api.listHistory(productId)
-      .then((items) => active && setRuns({ for: productId, items, error: '' }))
-      .catch((err) => active && setRuns({ for: productId, items: [], error: err.message }))
-    return () => { active = false }
-  }, [productId, enabled])
-  const current = runs.for === productId
-  return { items: current ? runs.items : [], error: current ? runs.error : '', loaded: current }
 }
 
 export default function Reports() {
@@ -65,17 +50,8 @@ export default function Reports() {
             )}
           </Field>
           {runs.items.length > 0 && (
-            <Field label="Analysis run" hint="Each run is a saved snapshot; the report uses only that run.">
-              {(props) => (
-                <Select {...props} value={runId} onChange={(e) => setRunId(e.target.value)}>
-                  {runs.items.map((run, i) => (
-                    <option key={run.id} value={i === 0 ? '' : run.id}>
-                      {i === 0 ? 'Latest' : 'Run'} #{run.id} · {formatDate(run.createdAt)} · {run.totalReviews} reviews
-                    </option>
-                  ))}
-                </Select>
-              )}
-            </Field>
+            <RunSelect runs={runs.items} value={runId} onChange={setRunId}
+              hint="Each run is a saved snapshot; the report uses only that run." />
           )}
         </div>
         <div className="mt-5 grid gap-4 md:grid-cols-2">
