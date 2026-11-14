@@ -70,5 +70,15 @@ jobs:
       - run: npm test
       - run: npm run lint
       - run: npm run build
+      - name: Production build keeps its API address
+        run: npm run check:app-bundle
       - name: Static demo build (not deployed)
         run: npm run build:demo
+      - name: Static demo contains no backend address
+        run: npm run check:demo-bundle
+      - name: Static demo ignores a configured backend address
+        env:
+          VITE_API_URL: https://backend.example.invalid/api
+        run: |
+          npm run build:demo
+          npm run check:demo-bundle

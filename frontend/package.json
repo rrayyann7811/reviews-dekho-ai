@@ -10,7 +10,9 @@
     "preview": "vite preview",
     "test": "vitest run",
     "test:watch": "vitest",
-    "build:demo": "vite build --mode staticdemo --base ./ --outDir dist-demo"
+    "build:demo": "vite build --mode staticdemo --base ./ --outDir dist-demo",
+    "check:demo-bundle": "node scripts/check-bundle.mjs demo dist-demo",
+    "check:app-bundle": "node scripts/check-bundle.mjs app dist"
   },
   "dependencies": {
     "lucide-react": "^1.72.0",

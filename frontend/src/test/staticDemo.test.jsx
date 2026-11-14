@@ -4,6 +4,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 vi.mock('../lib/staticDemo', async () => ({ ...(await vi.importActual('../lib/staticDemo')), STATIC_DEMO: true }))
 const { default: App } = await import('../App')
+const { api } = await import('../lib/api')
 
 beforeEach(() => {
   localStorage.clear()
@@ -17,6 +18,15 @@ function openAt(hash) {
 }
 
 describe('static demo build', () => {
+  it('carries no API address and fails every API call before fetch', async () => {
+    expect(api.baseUrl).toBe('')
+    expect(api.reportUrl(7, 'pdf')).not.toMatch(/localhost|https?:/)
+    await expect(api.health()).rejects.toMatchObject({ offline: true, message: expect.stringMatching(/online demo/) })
+    await expect(api.listProducts()).rejects.toMatchObject({ offline: true })
+    await expect(api.downloadReport(7, 'pdf')).rejects.toMatchObject({ offline: true })
+    expect(fetch).not.toHaveBeenCalled()
+  })
+
   it('shows the demo product without contacting any server', async () => {
     openAt('#/products/demo')
     expect(await screen.findByRole('heading', { level: 1, name: /Kestrel Orbit 5G/ })).toBeInTheDocument()

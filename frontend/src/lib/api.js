@@ -1,7 +1,11 @@
 // Single place for talking to the FastAPI backend.
 import { STATIC_DEMO, STATIC_DEMO_MESSAGE } from './staticDemo'
 
-const API_URL = (import.meta.env.VITE_API_URL || 'http://localhost:8000/api').replace(/\/$/, '')
+// The static demo has no backend, so it carries no API address at all (not even the default one): STATIC_DEMO is a
+// build-time constant, and the bundler drops the other branch from the demo build.
+const API_URL = STATIC_DEMO
+  ? ''
+  : (import.meta.env.VITE_API_URL || 'http://localhost:8000/api').replace(/\/$/, '')
 
 export class ApiError extends Error {
   constructor(message, { status, offline = false } = {}) {
