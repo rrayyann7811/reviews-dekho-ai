@@ -79,6 +79,23 @@ class TokenVerifier:
                 raise jwt.InvalidTokenError("Invalid timestamp")
         if claims["exp"] <= claims["iat"] or len(claims["sub"]) > 256:
             raise jwt.InvalidTokenError("Invalid user token")
+        # This application's hosted data API supports password-authenticated sessions only.
+        # Supabase's signed AMR distinguishes password and recovery (role/aal do not).
+        # Missing evidence fails closed; metadata and browser recovery flags are never evidence.
+        amr = claims.get("amr")
+        if not isinstance(amr, list) or not 1 <= len(amr) <= 32:
+            raise jwt.InvalidTokenError("Password authentication evidence is required")
+        methods = set()
+        for entry in amr:
+            if (not isinstance(entry, dict) or not isinstance(entry.get("method"), str)
+                    or not 1 <= len(entry["method"]) <= 64
+                    or type(entry.get("timestamp")) not in (int, float)
+                    or not math.isfinite(entry["timestamp"])
+                    or not 0 <= entry["timestamp"] <= claims["iat"]):
+                raise jwt.InvalidTokenError("Invalid authentication evidence")
+            methods.add(entry["method"])
+        if "password" not in methods or methods.intersection({"recovery", "anonymous"}):
+            raise jwt.InvalidTokenError("A non-recovery password session is required")
         owner = hashlib.sha256((self.issuer + "\0" + claims["sub"]).encode()).hexdigest()
         return Principal(owner)
 

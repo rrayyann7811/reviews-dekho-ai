@@ -31,7 +31,8 @@ def identity(monkeypatch, tmp_path):
     def token(user='alice', *, claims=None, headers=None, signing_key=key, algorithm='EdDSA'):
         now = int(time.time())
         payload = {'iss': ISSUER, 'aud': AUDIENCE, 'sub': user, 'role': 'authenticated',
-                   'iat': now - 5, 'exp': now + 600, **(claims or {})}
+                   'iat': now - 5, 'exp': now + 600,
+                   'amr': [{'method': 'password', 'timestamp': now - 5}], **(claims or {})}
         payload = {k: v for k, v in payload.items() if v is not None}
         return jwt.encode(payload, signing_key, algorithm=algorithm, headers={'kid': 'test-key', **(headers or {})})
 
@@ -193,3 +194,49 @@ def test_verifier_rejects_private_key_material_and_duplicate_key_ids(identity, m
         path.write_text(json.dumps({'keys': keys}))
         with pytest.raises(ValueError):
             create_app()
+
+
+@pytest.mark.parametrize('amr', [
+    None, [], 'password', {'method': 'password'}, [None], ['password'],
+    [{'method': 'password'}], [{'method': 'password', 'timestamp': True}],
+    [{'method': 'password', 'timestamp': float('inf')}],
+    [{'method': 'password', 'timestamp': -1}],
+    [{'method': 'password', 'timestamp': 99999999999}],
+    [{'method': 'recovery', 'timestamp': 1}],
+    [{'method': 'token_refresh', 'timestamp': 1}],
+    [{'method': 'email/signup', 'timestamp': 1}],
+    [{'method': 'oauth', 'timestamp': 1}],
+    [{'method': 'password', 'timestamp': 1}, {'method': 'recovery', 'timestamp': 1}],
+    [{'method': 'password', 'timestamp': 1}, {'method': 'anonymous', 'timestamp': 1}],
+    [{'method': 'password', 'timestamp': 1}] * 33,
+])
+def test_private_api_requires_signed_non_recovery_password_evidence(identity, amr):
+    with TestClient(create_app()) as client:
+        r = client.get('/api/products', headers=auth_header(identity(claims={
+            'amr': amr, 'user_metadata': {'amr': [{'method': 'password', 'timestamp': 1}]},
+            'recoveryRequired': False, 'aal': 'aal2',
+        })))
+    assert r.status_code == 401
+    assert r.json() == {'detail': 'A valid user access token is required.'}
+
+
+def test_password_session_with_mfa_and_refresh_history_is_accepted(identity):
+    token = identity(claims={'amr': [{'method': name, 'timestamp': 1}
+                                  for name in ['password', 'totp', 'token_refresh']]})
+    assert TokenVerifier().verify(token) == TokenVerifier().verify(identity())
+
+
+def test_rs256_password_profile_and_algorithm_pin_are_preserved(identity, monkeypatch, tmp_path):
+    from cryptography.hazmat.primitives.asymmetric import rsa
+    key = rsa.generate_private_key(public_exponent=65537, key_size=2048)
+    public = json.loads(jwt.algorithms.RSAAlgorithm.to_jwk(key.public_key()))
+    public.update(kid='test-key', alg='RS256', use='sig')
+    path = tmp_path / 'rsa-public.json'
+    path.write_text(json.dumps({'keys': [public]}))
+    monkeypatch.setattr(config, 'AUTH_ALGORITHM', 'RS256')
+    monkeypatch.setattr(config, 'AUTH_JWKS_FILE', str(path))
+    assert TokenVerifier().verify(identity(signing_key=key, algorithm='RS256')).owner_id
+    public['use'] = 'enc'
+    path.write_text(json.dumps({'keys': [public]}))
+    with pytest.raises(jwt.InvalidTokenError):
+        TokenVerifier().verify(identity(signing_key=key, algorithm='RS256'))

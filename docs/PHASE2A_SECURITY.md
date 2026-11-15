@@ -34,6 +34,13 @@ HS256, unsigned tokens and token-selected algorithms are not accepted. Require `
 `authenticated`; anon/service-role and explicitly anonymous-user tokens are rejected. Ignore any user/owner
 ID supplied through headers, query strings, JSON, upload fields or identity metadata.
 
+Phase 2A.4 additionally restricts JWT-mode private data APIs to signed password authentication evidence:
+the top-level `amr` array must contain `password`, contain no `recovery` or `anonymous` method, and have valid
+numeric method timestamps no later than `iat`. Missing/malformed AMR fails closed. Confirmation, magic-link,
+OAuth-only and recovery-only sessions cannot access application data. Fresh password sign-in is required
+after confirmation or password recovery. See [the hardening review](AUTH_SECURITY_REVIEW.md) for the trusted
+provider assumptions, limitations and BFF alternative. Local loopback mode is unchanged.
+
 Public keys come from exactly one operator-configured JSON JWKS file or HTTPS JWKS URL. A file must contain
 public asymmetric keys with unique IDs, not private/shared secrets. A URL is never derived from token claims
 or headers. Reject embedded `jwk`, `jku`, `x5u` and unsupported critical headers. Remote JWKS uses the library's
@@ -117,12 +124,13 @@ Static-demo mode never invokes this hook or makes API/identity calls.
 The local frontend session checkpoint adds a provider-independent controller and minimal sign-in/sign-out UI.
 `VITE_AUTH_MODE=local` (default) preserves the existing local app. `VITE_AUTH_MODE=hosted` gates all dashboard
 views during restoration, while signed out and after expiry/refresh failure. Other non-local values also
-fail closed. No production provider is wired into the entrypoint: hosted builds display a disabled,
-explicitly unconfigured sign-in screen. The fake provider exists only in offline tests.
+fail closed. Without valid public provider configuration, hosted builds display a disabled,
+explicitly unconfigured sign-in screen. No live project is connected. Fake identities exist only in offline tests.
 
 See [Frontend sessions](FRONTEND_SESSIONS.md) for the adapter contract and account-switch protections.
-No identity SDK, refresh-token storage or live identity service is introduced. Persistent session restoration
-is delegated to the future managed-provider adapter, rather than implemented with custom password storage.
+The subsequent [Supabase adapter](SUPABASE_AUTH.md) adds an SDK with explicit PKCE and persistence settings.
+Persistent session storage belongs to that SDK, rather than custom password storage; the live service has not
+been connected or validated in this checkpoint.
 
 ## Deterministic offline testing
 
@@ -174,10 +182,10 @@ browser-to-database API. Do not connect with a broadly privileged service role a
 
 ## Remaining blockers and next checkpoint
 
-Next checkpoint: implement a managed-provider-specific session adapter against a mocked SDK, including
-configuration validation, canonical session events and refresh/sign-out failure behavior. Review persistent
-session storage, callback allowlists, email verification and recovery before connecting a live provider.
-Do not create a cloud project as part of that checkpoint without approval.
+The subsequent [Phase 2A.3 Supabase adapter](SUPABASE_AUTH.md) implements the managed-provider mapping
+locally against a mocked SDK, including public configuration validation, callbacks and recovery UI.
+No live identity project is connected. Review its persistence/revocation policy and remaining public-service
+controls before any approved real-provider integration; no cloud creation or deployment is authorized here.
 
 Other blockers remain: PostgreSQL compatibility/RLS, scheduled seven-day purge and backup retention, upload/body/
 ZIP limits, server-side rate limiting/abuse protection, processing isolation and quotas, Linux memory/cold-start

@@ -194,4 +194,13 @@ describe('managed-provider session adapter, offline', () => {
     c.stop()
     expect(vi.getTimerCount()).toBe(0)
   })
+  it('never hands out a recovery token returned by an expiry refresh', async () => {
+    const p = fakeProvider(fakeSession('alice', { expiresAt: Date.now() + 1 }))
+    p.refreshSession = async () => ({ ...fakeSession(), recoveryRequired: true })
+    const c = controller(p)
+    await c.start()
+    vi.setSystemTime(Date.now() + 2)
+    await expect(c.getAccessToken()).rejects.toMatchObject({ name: 'AbortError' })
+    expect(c.getSnapshot().status).toBe('recovery')
+  })
 })

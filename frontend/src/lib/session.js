@@ -11,7 +11,7 @@ function normalize(value) {
     || !Number.isFinite(value.expiresAt)) throw new Error('Invalid identity-provider session')
   return { issuer: value.issuer, user: { id: value.user.id,
     email: typeof value.user.email === 'string' ? value.user.email.slice(0, 254) : '' },
-  accessToken: value.accessToken, expiresAt: value.expiresAt }
+  accessToken: value.accessToken, expiresAt: value.expiresAt, recoveryRequired: value.recoveryRequired === true }
 }
 
 export function createSessionController(provider, { onBoundary = () => {}, now = Date.now, timeoutMs = 10000 } = {}) {
@@ -60,11 +60,11 @@ export function createSessionController(provider, { onBoundary = () => {}, now =
   }
   const apply = (session) => {
     revision++
-    const changed = identity(current) !== identity(session)
+    const changed = identity(current) !== identity(session) || Boolean(current?.recoveryRequired) !== Boolean(session?.recoveryRequired)
     if (changed) refreshFlight = null
     current = session
     if (changed) onBoundary()
-    publish({ status: session ? (valid() ? 'signedIn' : 'restoring') : 'signedOut', user: session?.user ?? null,
+    publish({ status: session ? (valid() ? (session.recoveryRequired ? 'recovery' : 'signedIn') : 'restoring') : 'signedOut', user: session?.user ?? null,
       epoch: snapshot.epoch + (changed ? 1 : 0), error: '' })
     scheduleExpiry()
   }
@@ -85,7 +85,7 @@ export function createSessionController(provider, { onBoundary = () => {}, now =
       const session = normalize(value)
       if (!session || session.expiresAt <= now()) throw new Error(EXPIRED)
       apply(session)
-      if (identity(session) !== owner) throw CHANGED()
+      if (identity(session) !== owner || session.recoveryRequired) throw CHANGED()
       return current.accessToken
     }).catch((err) => {
       if (active && ticket === revision) clear(EXPIRED, true)
@@ -169,7 +169,7 @@ export function createSessionController(provider, { onBoundary = () => {}, now =
       } finally { if (active && ticket === revision) publish({ status: 'signedOut' }) }
     },
     getAccessToken: async () => {
-      if (!active || !current) throw new Error('Sign in to access your review data.')
+      if (!active || !current || current.recoveryRequired) throw new Error('Sign in to access your review data.')
       if (!valid()) return refresh()
       return current.accessToken
     },

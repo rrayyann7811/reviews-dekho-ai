@@ -1,4 +1,9 @@
-# Frontend sessions: local preparation checkpoint
+# Frontend sessions: Phase 2A.2 local preparation checkpoint
+
+This document records the original provider-independent checkpoint. The subsequent local
+[Supabase adapter checkpoint](SUPABASE_AUTH.md) adds a configured SDK adapter and account actions;
+no live project has been connected. Its persistence and callback policies supersede the future-work
+notes below. The controller/API isolation architecture remains applicable.
 
 This checkpoint prepares authentication locally. It does not provide production accounts, connect Supabase,
 or make the application ready for an unprotected public deployment. Existing backend JWT verification and

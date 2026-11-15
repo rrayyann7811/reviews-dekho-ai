@@ -216,3 +216,21 @@ def test_expired_collection_can_be_created_again_without_claiming_other_owners(s
     with SessionLocal() as db:
         assert db.get(Product, first) is None
         assert db.get(Product, other) is not None
+
+
+def test_recovery_and_refreshed_recovery_jwts_cannot_access_any_private_operation(secure, identity):
+    pid, run = add(secure, identity)
+    password = auth_header(identity())
+    before = secure.get(f'/api/products/{pid}/analysis', headers=password).json()
+    operations = [(method, path.replace('{product_id}', str(pid)).replace('{analysis_id}', str(run))
+                   .replace('{review_id}', 'A1'))
+                  for path, methods in secure.get('/openapi.json').json()['paths'].items()
+                  for method in methods if method.upper() in {'GET', 'POST', 'PATCH', 'DELETE'}
+                  and not (method == 'get' and path in {'/api/health', '/api/sites'})]
+    assert len(operations) == 24
+    for methods in [['recovery'], ['recovery', 'token_refresh'], ['password', 'recovery']]:
+        headers = auth_header(identity(claims={'amr': [{'method': name, 'timestamp': 1} for name in methods]}))
+        for method, path in operations:
+            r = secure.request(method, path, headers={**headers, 'X-Recovery-Complete': 'true'})
+            assert r.status_code == 401, (method, path, r.text)
+    assert secure.get(f'/api/products/{pid}/analysis', headers=password).json() == before

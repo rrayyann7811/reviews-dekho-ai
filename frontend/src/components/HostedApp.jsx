@@ -10,8 +10,9 @@ import Button from './ui/Button'
 import { Field, Input } from './ui/Field'
 import Panel from './ui/Panel'
 import Spinner from './ui/Spinner'
+import AccountActions from './AccountActions'
 
-function SignIn({ state, controller, configured }) {
+function SignIn({ state, controller, configured, provider }) {
   const busy = state.status === 'signingIn' || state.status === 'signingOut'
   const disabled = busy || !configured
   function submit(event) {
@@ -41,6 +42,7 @@ function SignIn({ state, controller, configured }) {
           <Button type="submit" disabled={disabled}>{state.status === 'signingOut' ? 'Signing out…' : busy ? 'Signing in…' : 'Sign in'}</Button>
         </form>
       </Panel>
+      {!busy && configured && <AccountActions provider={provider} />}
     </main>
   )
 }
@@ -75,7 +77,11 @@ export default function HostedApp({ provider = null }) {
   if (state.status === 'restoring') return (
     <main className="mx-auto max-w-sm space-y-6 px-4 py-10"><Logo /><h1 className="text-2xl font-semibold">Checking your session</h1><Spinner label="Restoring or refreshing your session…" /></main>
   )
-  if (state.status !== 'signedIn') return <SignIn key={scope} state={state} controller={controller} configured={state.status !== 'unconfigured'} />
+  if (state.status === 'recovery') return <main className="mx-auto max-w-sm space-y-6 px-4 py-10">
+    <Logo /><h1 className="text-2xl font-semibold">Reset your password</h1>
+    <AccountActions key={scope} provider={provider} recovery onCancel={() => { void controller.signOut() }} />
+  </main>
+  if (state.status !== 'signedIn') return <SignIn key={scope} state={state} controller={controller} configured={state.status !== 'unconfigured'} provider={provider} />
   return (
     <SettingsProvider key={scope}>
       <ServerStatusProvider>
