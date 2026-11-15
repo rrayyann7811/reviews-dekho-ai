@@ -1,6 +1,7 @@
 """Single-process admission and bounded body buffering before multipart creates temp files."""
 from starlette.responses import JSONResponse
 from . import config
+from .rate_limits import operation_groups
 
 
 class ResourceLimitsMiddleware:
@@ -12,7 +13,8 @@ class ResourceLimitsMiddleware:
     async def __call__(self, scope, receive, send):
         if scope['type'] != 'http':
             return await self.app(scope, receive, send)
-        expensive = scope['method'] in {'POST', 'PUT', 'PATCH', 'DELETE'}
+        expensive = (scope['method'] in {'POST', 'PUT', 'PATCH', 'DELETE'}
+                     or bool(set(operation_groups(scope)) & {'export', 'ai'}))
         principal = scope.get('state', {}).get('principal')
         owner = principal.owner_id if principal is not None else None
         if expensive and (self.active >= config.MAX_EXPENSIVE_REQUESTS or owner in self.owners):

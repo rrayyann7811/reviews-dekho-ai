@@ -287,7 +287,7 @@ def test_concurrent_same_owner_uniqueness_and_separate_owner_operations(sqlite):
 
 def test_connection_failure_is_generic_503_and_does_not_leak_dsn(client):
     from app.database import get_db
-    from app.main import app
+    app = client.app
     def unavailable():
         raise OperationalError('SELECT secret_review', {}, Exception('TEST-password-never-return'))
     app.dependency_overrides[get_db] = unavailable

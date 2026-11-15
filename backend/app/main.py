@@ -17,6 +17,7 @@ from .database import init_db
 from .errors import register_error_handlers
 from .version import VERSION
 from .resource_limits import ResourceLimitsMiddleware
+from .rate_limits import RateLimitsMiddleware
 
 logging.basicConfig(level=logging.INFO)
 
@@ -61,13 +62,15 @@ def create_app() -> FastAPI:
     verifier = TokenVerifier() if config.AUTH_MODE == "jwt" else None
     app = FastAPI(title="Reviews Dekho AI API", version=VERSION, description=DESCRIPTION, lifespan=lifespan)
     app.add_middleware(ResourceLimitsMiddleware)
+    app.add_middleware(RateLimitsMiddleware, phase="owner")
     app.add_middleware(AuthMiddleware, mode=config.AUTH_MODE, verifier=verifier)
+    app.add_middleware(RateLimitsMiddleware, phase="peer")
     app.add_middleware(
         CORSMiddleware,
         allow_origins=config.CORS_ORIGINS,
         allow_methods=["GET", "POST", "PATCH", "DELETE"],
         allow_headers=["Content-Type", "Authorization"],
-        expose_headers=["Content-Disposition"],
+        expose_headers=["Content-Disposition", "Retry-After"],
     )
     register_error_handlers(app)
     for module in (health, products, reviews, uploads, history, sites, ai, compare):

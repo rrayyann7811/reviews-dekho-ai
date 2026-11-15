@@ -16,7 +16,7 @@ import pytest  # noqa: E402
 from fastapi.testclient import TestClient  # noqa: E402
 
 from app.database import Base, engine, init_db  # noqa: E402
-from app.main import app  # noqa: E402
+from app.main import create_app  # noqa: E402
 
 BACKEND = Path(__file__).resolve().parents[1]
 DEMO_CSV = BACKEND / "data/sample/demo_kestrel_orbit_5g.csv"
@@ -36,7 +36,8 @@ A6,Test Phone,5,2026-10-06,Superb,"Excellent performance, very fast and smooth. 
 def client():
     Base.metadata.drop_all(engine)
     init_db(engine)  # the same path the app uses at startup
-    with TestClient(app) as test_client:
+    # Admission and frequency state belong to one app lifetime, not the whole test session.
+    with TestClient(create_app()) as test_client:
         yield test_client
 
 

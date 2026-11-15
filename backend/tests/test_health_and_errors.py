@@ -2,7 +2,6 @@
 from fastapi import APIRouter
 from fastapi.testclient import TestClient
 
-from app.main import app
 from app.version import VERSION
 
 
@@ -45,6 +44,7 @@ def test_cors_rejects_other_origins(client):
 
 
 def test_unexpected_errors_return_500_without_internals(client):
+    app = client.app
     router = APIRouter()
 
     @router.get("/api/test-crash")

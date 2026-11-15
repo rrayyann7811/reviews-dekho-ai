@@ -53,6 +53,22 @@ MAX_COLLECTION_BYTES = _positive_limit("MAX_COLLECTION_BYTES", 2 * 1024 * 1024)
 MAX_ANALYSIS_RUNS = _positive_limit("MAX_ANALYSIS_RUNS", 20)
 PREVIEW_ROWS = 5
 
+# Single-process fixed-window request budgets. No background cleanup or shared service.
+_rate_enabled = os.getenv("RATE_LIMIT_ENABLED", "true").strip().lower()
+if _rate_enabled not in {"true", "false", "1", "0"}:
+    raise ValueError("RATE_LIMIT_ENABLED must be true/false or 1/0")
+RATE_LIMIT_ENABLED = _rate_enabled in {"true", "1"}
+RATE_LIMIT_WINDOW_SECONDS = _positive_limit("RATE_LIMIT_WINDOW_SECONDS", 60)
+RATE_LIMIT_MAX_IDENTITIES = _positive_limit("RATE_LIMIT_MAX_IDENTITIES", 4096)
+RATE_LIMIT_GLOBAL_REQUESTS = _positive_limit("RATE_LIMIT_GLOBAL_REQUESTS", 3000)
+RATE_LIMIT_PEER_REQUESTS = _positive_limit("RATE_LIMIT_PEER_REQUESTS", 600)
+RATE_LIMIT_GENERAL_REQUESTS = _positive_limit("RATE_LIMIT_GENERAL_REQUESTS", 120)
+RATE_LIMIT_INGESTION_REQUESTS = _positive_limit("RATE_LIMIT_INGESTION_REQUESTS", 10)
+RATE_LIMIT_ANALYSIS_REQUESTS = _positive_limit("RATE_LIMIT_ANALYSIS_REQUESTS", 10)
+RATE_LIMIT_COLLECTION_REQUESTS = _positive_limit("RATE_LIMIT_COLLECTION_REQUESTS", 5)
+RATE_LIMIT_EXPORT_REQUESTS = _positive_limit("RATE_LIMIT_EXPORT_REQUESTS", 10)
+RATE_LIMIT_AI_REQUESTS = _positive_limit("RATE_LIMIT_AI_REQUESTS", 5)
+
 # Collecting reviews from product links (see app/collectors/).
 COLLECT_TIMEOUT_SECONDS = float(os.getenv("COLLECT_TIMEOUT_SECONDS", "15"))
 APPLE_MAX_PAGES = 10              # Apple's feed serves at most 10 pages of 50 reviews
