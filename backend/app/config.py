@@ -10,6 +10,13 @@ BACKEND_DIR = Path(__file__).resolve().parents[1]
 STORAGE_DIR = BACKEND_DIR / "storage"  # git-ignored
 
 DATABASE_URL = os.getenv("DATABASE_URL", f"sqlite:///{STORAGE_DIR / 'reviews_dekho.db'}")
+DB_POOL_MODE = os.getenv("DB_POOL_MODE", "queue")  # queue for a direct/session connection; null for external pooling
+DB_POOL_SIZE = int(os.getenv("DB_POOL_SIZE", "2"))
+DB_MAX_OVERFLOW = int(os.getenv("DB_MAX_OVERFLOW", "0"))
+DB_POOL_TIMEOUT = int(os.getenv("DB_POOL_TIMEOUT", "5"))
+DB_CONNECT_TIMEOUT = int(os.getenv("DB_CONNECT_TIMEOUT", "5"))
+DB_STATEMENT_TIMEOUT_MS = int(os.getenv("DB_STATEMENT_TIMEOUT_MS", "30000"))
+DB_LOCK_TIMEOUT_MS = int(os.getenv("DB_LOCK_TIMEOUT_MS", "5000"))
 
 # Frontend origins allowed to call the API (comma-separated).
 CORS_ORIGINS = [

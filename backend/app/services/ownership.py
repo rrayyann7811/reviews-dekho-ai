@@ -2,8 +2,9 @@
 from datetime import datetime, timedelta, timezone
 
 from sqlalchemy import and_
+from sqlalchemy import select
 
-from ..models import Product
+from ..models import Product, ProcessingJob
 
 RETENTION_DAYS = 7
 
@@ -26,5 +27,18 @@ def product_scope(db):
 
 def new_product_identity(db):
     identity = principal(db)
-    return {"owner_id": identity.owner_id,
-            "expires_at": None if identity.local else datetime.now(timezone.utc) + timedelta(days=RETENTION_DAYS)}
+    created = datetime.now(timezone.utc)
+    return {"owner_id": identity.owner_id, "created_at": created,
+            "expires_at": None if identity.local else created + timedelta(days=RETENTION_DAYS)}
+
+
+def lock_owned_product(db, statement):
+    """Recheck owner/expiry and lock the root in the same PostgreSQL write transaction."""
+    if db.info.get("write_request") and db.get_bind().dialect.name == "postgresql":
+        return statement.with_for_update(of=Product)
+    return statement
+
+
+def job_query(db):
+    """Future job APIs/workers must use the same product ownership/expiry boundary."""
+    return lock_owned_product(db, select(ProcessingJob).join(Product).where(product_scope(db)))

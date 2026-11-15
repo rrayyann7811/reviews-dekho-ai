@@ -187,7 +187,7 @@ Set backend environment variables before startup. Set `VITE_API_URL` in the fron
 
 | Variable | Default / purpose |
 |---|---|
-| `DATABASE_URL` | SQLite file at `backend/storage/reviews_dekho.db`; existing schemas are upgraded with backups in `backend/storage/backups/` |
+| `DATABASE_URL` | SQLite file at `backend/storage/reviews_dekho.db` by default; existing schemas require an explicit upgrade with backups. See [database migration instructions](docs/POSTGRESQL_MIGRATION.md) for SQLite and the local PostgreSQL foundation. |
 | `SENTIMENT_ENGINE` | `auto`: use installed model, otherwise VADER. Set `vader` to force rule-based analysis. |
 | `MODEL_DIR` | `backend/models/twitter-roberta-sentiment` |
 | `CORS_ORIGINS` | Localhost/127.0.0.1 Vite dev and preview origins (ports 5173 and 4173), comma-separated |

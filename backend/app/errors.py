@@ -9,6 +9,7 @@ from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from starlette.exceptions import HTTPException as StarletteHTTPException
+from sqlalchemy.exc import OperationalError, IntegrityError
 
 log = logging.getLogger("reviews_dekho")
 
@@ -33,6 +34,15 @@ def _describe(error: dict) -> str:
 
 
 def register_error_handlers(app: FastAPI) -> None:
+    @app.exception_handler(OperationalError)
+    async def database_unavailable(_: Request, exc: OperationalError):
+        log.warning("Database operation unavailable")  # no DSN, SQL parameters or review text in logs
+        return JSONResponse({"detail": "The database is temporarily unavailable. Please try again."}, status_code=503)
+
+    @app.exception_handler(IntegrityError)
+    async def database_conflict(_: Request, exc: IntegrityError):
+        return JSONResponse({"detail": "The data changed in another request. Reload and try again."}, status_code=409)
+
     @app.exception_handler(AppError)
     async def app_error(_: Request, exc: AppError):
         return JSONResponse({"detail": exc.message}, status_code=exc.status_code)

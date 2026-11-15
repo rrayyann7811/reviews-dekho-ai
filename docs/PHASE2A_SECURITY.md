@@ -108,11 +108,12 @@ SQLite migration 6 adds owner and expiry columns/indexes and rebuilds collected-
 Use a new empty public database later rather than uploading local records. No real database was migrated
 while developing this checkpoint: tests use temporary databases.
 
-The new model fields use portable SQLAlchemy types, but the existing migration runner still uses SQLite
-PRAGMA and SQLite SQL. PostgreSQL/Supabase database support is **not implemented or validated**. A later
-checkpoint must add a PostgreSQL driver, Alembic/schema migrations, integration tests and suitable connection
-pooling. Do not change DATABASE_URL to PostgreSQL and assume compatibility. Supabase Auth can be adopted
-independently of the database, but neither has been provisioned here.
+The subsequent [Phase 2B.1 migration foundation](POSTGRESQL_MIGRATION.md) adds a PostgreSQL driver, explicit
+Alembic history, bounded pooling, UTC handling and job-retention relationships while preserving SQLite.
+Local PostgreSQL 17.12 integration has been verified; no managed provider has been provisioned or validated.
+Existing databases require explicit
+stopped-app migrations; never change DATABASE_URL to a live service and assume compatibility. Supabase Auth
+can be adopted independently of the database; both still require separately approved integration testing.
 
 ## Frontend boundary
 

@@ -23,17 +23,18 @@ Adding a schema change
 3. Add a test in tests/test_migrations.py. The test checks that an upgraded
    database ends up with exactly the same tables and columns as a new one.
 
-Why not Alembic? Alembic is the standard tool for larger projects and is the
-natural next step if the app moves to PostgreSQL. For one SQLite file and a
-handful of changes, this ~100-line runner is easier to read and has no extra
-dependency.
+This legacy history is retained for SQLite data preservation. Run upgrades explicitly using
+scripts/migrate_sqlite.py while the app is stopped. PostgreSQL uses a separate Alembic history;
+neither existing SQLite nor PostgreSQL schemas are upgraded automatically at startup.
 """
 import json
 import logging
-import shutil
+import sqlite3
 from collections.abc import Callable
+from contextlib import closing
 from datetime import datetime, timezone
 from pathlib import Path
+from urllib.parse import quote
 
 from sqlalchemy import inspect, text
 from sqlalchemy.engine import Connection, Engine
@@ -134,6 +135,13 @@ def _v6_product_ownership(conn: Connection) -> None:
                          "ON products (owner_id, source_site, external_product_id, source_region)")
 
 
+def _v7_product_jobs(conn: Connection) -> None:
+    conn.exec_driver_sql("CREATE TABLE processing_jobs (id INTEGER NOT NULL PRIMARY KEY, "
+                         "product_id INTEGER NOT NULL REFERENCES products(id) ON DELETE CASCADE, "
+                         "created_at DATETIME NOT NULL, status VARCHAR(20) NOT NULL, result JSON)")
+    conn.exec_driver_sql("CREATE INDEX ix_processing_jobs_product_id ON processing_jobs (product_id)")
+
+
 MIGRATIONS: list[tuple[str, Callable[[Connection], None]]] = [
     ("baseline (Phase 2 schema)", _v1_baseline),
     ("per-review results stored on each analysis run", _v2_review_snapshots),
@@ -141,6 +149,7 @@ MIGRATIONS: list[tuple[str, Callable[[Connection], None]]] = [
     ("product domain and sentiment engine per analysis run", _v4_engine_and_domain),
     ("table for optional AI-written overviews", _v5_ai_summaries),
     ("owner-scoped products and fixed account-data expiry", _v6_product_ownership),
+    ("product-linked jobs and stored results retention foundation", _v7_product_jobs),
 ]
 LATEST_VERSION = len(MIGRATIONS)
 
@@ -162,14 +171,21 @@ def _backup(engine: Engine, version: int) -> Path | None:
     source = Path(database)
     backup_dir = source.parent / "backups"
     backup_dir.mkdir(parents=True, exist_ok=True)
-    stamp = datetime.now(timezone.utc).strftime("%Y%m%d-%H%M%S")
+    stamp = datetime.now(timezone.utc).strftime("%Y%m%d-%H%M%S-%f")
     target = backup_dir / f"{source.stem}-v{version}-{stamp}{source.suffix}"
-    shutil.copy2(source, target)
+    # A file copy can omit committed WAL pages. SQLite's backup API takes a consistent snapshot.
+    with closing(sqlite3.connect(f"file:{quote(str(source.resolve()))}?mode=ro", uri=True)) as original:
+        with closing(sqlite3.connect(target)) as backup:
+            original.backup(backup)
+            backup.commit()
+    target.chmod(0o600)
     return target
 
 
 def upgrade(engine: Engine) -> int:
     """Bring the database to LATEST_VERSION. Returns the number of migrations applied."""
+    if engine.dialect.name != "sqlite":
+        raise RuntimeError("The legacy migration runner supports SQLite only; use Alembic for PostgreSQL")
     with engine.connect() as conn:
         version = get_version(conn)
         has_tables = bool(inspect(conn).get_table_names())

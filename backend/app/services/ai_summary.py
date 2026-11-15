@@ -21,10 +21,11 @@ Nothing here changes the analysis run; attempts are stored in ai_summaries.
 import json
 
 import httpx
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from .. import config
-from ..errors import AppError
+from ..errors import AppError, NotFound
 from ..models import AiSummary, AnalysisResult
 from ..nlp.summary import is_majority, overall_tone
 from .ai_check import MAX_SENTENCES, check_overview, strip_citations
@@ -174,6 +175,7 @@ def generate(db: Session, run: AnalysisResult, product_name: str, http: httpx.Cl
     if not config.AI_SUMMARIES_ENABLED:
         raise AppError("AI overviews are turned off. Start the backend with AI_SUMMARIES=on to use them.", 409)
     package = build_package(run, product_name)
+    product_id, run_id = run.product_id, run.id
     db.commit()  # don't hold a database lock while the model runs
     client = http or _client()
     with client:
@@ -191,6 +193,12 @@ def generate(db: Session, run: AnalysisResult, product_name: str, http: httpx.Cl
                          {"role": "user", "content": "Your answer broke these rules:\n- " + "\n- ".join(problems)
                                                      + "\nWrite the answer again, following every rule."}]
     accepted = not problems
+    from .products import get_product
+    db.expire_all()
+    get_product(db, product_id)  # the original product may have expired/deleted during model I/O
+    run = db.scalar(select(AnalysisResult).where(AnalysisResult.id == run_id, AnalysisResult.product_id == product_id))
+    if run is None:
+        raise NotFound("This analysis no longer exists.")
     attempt = AiSummary(analysis=run, model=config.OLLAMA_MODEL, prompt_version=PROMPT_VERSION,
                         status="accepted" if accepted else "rejected", attempts=attempts,
                         sentences=[s | {"text": strip_citations(s["text"])} for s in answer["sentences"]] if accepted else [],

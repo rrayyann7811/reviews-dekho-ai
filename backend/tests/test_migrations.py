@@ -141,6 +141,9 @@ def test_the_app_serves_an_upgraded_database(tmp_path, monkeypatch):
     engine = make_engine(f"sqlite:///{path}")
     monkeypatch.setattr(database, "engine", engine)
     monkeypatch.setattr(database, "SessionLocal", database.sessionmaker(bind=engine, expire_on_commit=False))
+    # Startup no longer performs potentially destructive legacy upgrades automatically.
+    # The stopped-app operator migration preserves the same historical data and snapshots.
+    migrations.upgrade(engine)
     with TestClient(create_app()) as client:
         analysis = client.get("/api/products/1/analysis").json()
         assert [r["id"] for r in analysis["reviews"]] == ["A1", "A2"]
@@ -279,7 +282,7 @@ def test_ownership_upgrade_preserves_local_records_and_scopes_collector_index(tm
         migrations.upgrade(engine)
     with engine.connect() as conn:
         snapshots = conn.exec_driver_sql('SELECT id, review_results FROM analysis_results').all()
-    assert migrations.upgrade(engine) == 1
+    assert migrations.upgrade(engine) == migrations.LATEST_VERSION - 5
     with engine.connect() as conn:
         assert conn.exec_driver_sql('SELECT id, owner_id, expires_at FROM products').all() == [(1, 'local', None)]
         assert conn.exec_driver_sql('SELECT id, review_results FROM analysis_results').all() == snapshots

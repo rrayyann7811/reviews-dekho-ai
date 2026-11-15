@@ -234,3 +234,18 @@ def test_recovery_and_refreshed_recovery_jwts_cannot_access_any_private_operatio
             r = secure.request(method, path, headers={**headers, 'X-Recovery-Complete': 'true'})
             assert r.status_code == 401, (method, path, r.text)
     assert secure.get(f'/api/products/{pid}/analysis', headers=password).json() == before
+
+
+def test_collection_rechecks_expiry_after_network_transaction_is_released(secure, identity, apple):
+    headers = auth_header(identity())
+    first = secure.post('/api/products/from-url', headers=headers, json={'url': APP_URL}).json()['id']
+    handler = apple.handler
+    def expires_during_download(request):
+        with SessionLocal.begin() as db:
+            db.get(Product, first).expires_at = datetime.now(timezone.utc) - timedelta(seconds=1)
+        return handler(request)
+    apple.handler = expires_during_download
+    response = secure.post(f'/api/products/{first}/refresh', headers=headers)
+    assert response.status_code == 404
+    with SessionLocal() as db:
+        assert db.scalar(select(func.count()).select_from(AnalysisResult).where(AnalysisResult.product_id == first)) == 1

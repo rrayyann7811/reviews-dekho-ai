@@ -8,14 +8,15 @@ product-level results (stats, aspects, keywords, summary) AND the per-review
 results (`review_results`: every review as it was analysed). Adding or
 deleting reviews later never changes an earlier run.
 
-Changing these tables? Add a migration in app/migrations.py as well.
+Changing these tables? Add append-only SQLite and PostgreSQL/Alembic migrations as well.
 """
 from datetime import datetime, timezone
 
-from sqlalchemy import JSON, Date, DateTime, Float, ForeignKey, Index, Integer, String, Text, UniqueConstraint
+from sqlalchemy import JSON, Date, Float, ForeignKey, Index, Integer, String, Text, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from .database import Base
+from .db_types import UTCDateTime
 
 SOURCES = ("upload", "url", "manual")  # url = collected from a product link
 
@@ -34,7 +35,7 @@ class Product(Base):
     # Derived exclusively from a verified (issuer, subject), or the reserved local workspace.
     owner_id: Mapped[str] = mapped_column(String(64), default="local", server_default="local", index=True)
     # Fixed product lifetime: refreshing/re-analysing never extends retention. Local data is not expired.
-    expires_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), index=True)
+    expires_at: Mapped[datetime | None] = mapped_column(UTCDateTime(), index=True)
     name: Mapped[str] = mapped_column(String(200))
     brand: Mapped[str | None] = mapped_column(String(120))
     category: Mapped[str | None] = mapped_column(String(120))
@@ -47,14 +48,15 @@ class Product(Base):
     source_site: Mapped[str | None] = mapped_column(String(40))           # adapter id, e.g. "apple_app_store"
     external_product_id: Mapped[str | None] = mapped_column(String(100))  # the site's own product ID
     source_region: Mapped[str | None] = mapped_column(String(10))         # storefront / country code
-    collected_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
-    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+    collected_at: Mapped[datetime | None] = mapped_column(UTCDateTime())
+    created_at: Mapped[datetime] = mapped_column(UTCDateTime(), default=utcnow)
 
     reviews: Mapped[list["Review"]] = relationship(
         back_populates="product", cascade="all, delete-orphan", passive_deletes=True, order_by="Review.id")
     analyses: Mapped[list["AnalysisResult"]] = relationship(
         back_populates="product", cascade="all, delete-orphan", passive_deletes=True,
         order_by="AnalysisResult.id.desc()")
+    jobs: Mapped[list["ProcessingJob"]] = relationship(cascade="all, delete-orphan", passive_deletes=True)
 
     @property
     def latest_analysis(self) -> "AnalysisResult | None":
@@ -83,7 +85,7 @@ class AnalysisResult(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True)
     product_id: Mapped[int] = mapped_column(ForeignKey("products.id", ondelete="CASCADE"), index=True)
-    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+    created_at: Mapped[datetime] = mapped_column(UTCDateTime(), default=utcnow)
 
     # Headline numbers as columns, so lists and history don't need to load the JSON.
     total_reviews: Mapped[int] = mapped_column(Integer)
@@ -117,7 +119,7 @@ class AiSummary(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True)
     analysis_id: Mapped[int] = mapped_column(ForeignKey("analysis_results.id", ondelete="CASCADE"), index=True)
-    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+    created_at: Mapped[datetime] = mapped_column(UTCDateTime(), default=utcnow)
     model: Mapped[str] = mapped_column(String(100))
     prompt_version: Mapped[int] = mapped_column(Integer)
     status: Mapped[str] = mapped_column(String(20))      # accepted | rejected
@@ -126,3 +128,13 @@ class AiSummary(Base):
     problems: Mapped[list] = mapped_column(JSON)         # checker findings of the last attempt
 
     analysis: Mapped[AnalysisResult] = relationship(back_populates="ai_summaries")
+
+
+class ProcessingJob(Base):
+    """Retention foundation only: no worker or public job API. Results stay under the product deadline."""
+    __tablename__ = "processing_jobs"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    product_id: Mapped[int] = mapped_column(ForeignKey("products.id", ondelete="CASCADE"), index=True)
+    created_at: Mapped[datetime] = mapped_column(UTCDateTime(), default=utcnow)
+    status: Mapped[str] = mapped_column(String(20), default="pending")
+    result: Mapped[dict | None] = mapped_column(JSON)

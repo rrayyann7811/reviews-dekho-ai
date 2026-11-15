@@ -18,7 +18,7 @@ from ..errors import AppError
 from ..models import Product
 from .analysis import run_analysis
 from .ingestion import clean_records
-from .products import add_reviews
+from .products import add_reviews, get_product
 from .ownership import new_product_identity, principal, product_scope
 from .retention import purge_expired_products
 
@@ -58,6 +58,7 @@ def _collect(db: Session, adapter: SourceAdapter, ref: ProductRef, product: Prod
     # 1. Download (no database changes yet, so a network failure leaves nothing half-saved).
     # End the read transaction first: SQLite keeps a lock for as long as a transaction is open, which would
     # block every other write (uploads, other collections) while we wait seconds for the website.
+    product_id = product.id if product is not None else None
     db.commit()
     if http is None:
         with make_client() as client:
@@ -72,6 +73,9 @@ def _collect(db: Session, adapter: SourceAdapter, ref: ProductRef, product: Prod
                              "but none had any written text to analyse.")
 
     # 3. Store.
+    if product_id is not None:
+        db.expire_all()
+        product = get_product(db, product_id)  # re-authorize/re-lock after network I/O released the transaction
     now = datetime.now(timezone.utc)
     if product is None:
         product = Product(**new_product_identity(db), name=collected.name[:200], brand=(collected.brand or "")[:120] or None,
