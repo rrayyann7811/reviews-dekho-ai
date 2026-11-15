@@ -142,6 +142,21 @@ def _v7_product_jobs(conn: Connection) -> None:
     conn.exec_driver_sql("CREATE INDEX ix_processing_jobs_product_id ON processing_jobs (product_id)")
 
 
+def _v8_durable_jobs(conn: Connection) -> None:
+    for definition in (
+        "result_analysis_id INTEGER REFERENCES analysis_results(id) ON DELETE SET NULL",
+        "kind VARCHAR(20) NOT NULL DEFAULT 'analysis'", "request_key VARCHAR(64)",
+        "attempts INTEGER NOT NULL DEFAULT 0", "max_attempts INTEGER NOT NULL DEFAULT 3",
+        "available_at DATETIME", "claimed_at DATETIME", "lease_until DATETIME",
+        "claim_token VARCHAR(64)", "finished_at DATETIME", "error VARCHAR(160)",
+    ):
+        conn.exec_driver_sql("ALTER TABLE processing_jobs ADD COLUMN " + definition)
+    conn.exec_driver_sql("UPDATE processing_jobs SET status='cancelled', error='Legacy job was not executable.' WHERE status IN ('pending','queued','running')")
+    conn.exec_driver_sql("CREATE UNIQUE INDEX uq_job_request ON processing_jobs(product_id, request_key)")
+    conn.exec_driver_sql("CREATE INDEX ix_job_queue ON processing_jobs(status, available_at, id)")
+    conn.exec_driver_sql("CREATE INDEX ix_job_lease ON processing_jobs(status, lease_until, id)")
+
+
 MIGRATIONS: list[tuple[str, Callable[[Connection], None]]] = [
     ("baseline (Phase 2 schema)", _v1_baseline),
     ("per-review results stored on each analysis run", _v2_review_snapshots),
@@ -150,6 +165,7 @@ MIGRATIONS: list[tuple[str, Callable[[Connection], None]]] = [
     ("table for optional AI-written overviews", _v5_ai_summaries),
     ("owner-scoped products and fixed account-data expiry", _v6_product_ownership),
     ("product-linked jobs and stored results retention foundation", _v7_product_jobs),
+    ("durable analysis job lifecycle and bounded claims", _v8_durable_jobs),
 ]
 LATEST_VERSION = len(MIGRATIONS)
 

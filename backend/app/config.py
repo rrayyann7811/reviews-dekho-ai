@@ -102,3 +102,17 @@ AUTH_AUDIENCE = os.getenv("AUTH_AUDIENCE", "")
 AUTH_ALGORITHM = os.getenv("AUTH_ALGORITHM", "ES256")
 AUTH_JWKS_URL = os.getenv("AUTH_JWKS_URL", "")
 AUTH_JWKS_FILE = os.getenv("AUTH_JWKS_FILE", "")  # public keys only; supports offline verification/testing
+
+# Explicit worker only: importing the app never starts polling or processing.
+JOB_CONCURRENCY = _positive_limit("JOB_CONCURRENCY", 1)
+if JOB_CONCURRENCY > 4:
+    raise ValueError("JOB_CONCURRENCY must be between 1 and 4")
+JOB_POLL_SECONDS = _positive_limit("JOB_POLL_SECONDS", 5)
+JOB_LEASE_SECONDS = _positive_limit("JOB_LEASE_SECONDS", 300)
+JOB_RETRY_SECONDS = _positive_limit("JOB_RETRY_SECONDS", 30)
+JOB_MAX_ATTEMPTS = _positive_limit("JOB_MAX_ATTEMPTS", 3)
+if JOB_MAX_ATTEMPTS > 5:
+    raise ValueError("JOB_MAX_ATTEMPTS must be between 1 and 5")
+JOB_MAX_STORED = _positive_limit("JOB_MAX_STORED", 500)
+JOB_MAX_PER_OWNER = _positive_limit("JOB_MAX_PER_OWNER", 50)
+JOB_MAX_PER_PRODUCT = _positive_limit("JOB_MAX_PER_PRODUCT", 20)

@@ -97,11 +97,11 @@ def test_all_api_data_routes_require_authentication_before_validation(secure):
                 continue
             if method == 'get' and path in {'/api/health', '/api/sites'}:
                 continue
-            url = path.replace('{product_id}', '1').replace('{review_id}', 'A1').replace('{analysis_id}', '1')
+            url = path.replace('{product_id}', '1').replace('{review_id}', 'A1').replace('{analysis_id}', '1').replace('{job_id}', '1')
             response = secure.request(method, url)
             assert response.status_code == 401, (method, url, response.text)
             seen += 1
-    assert seen == 24
+    assert seen == 28
 
 
 def test_client_supplied_owner_and_subject_fields_never_assign_ownership(secure, identity):
@@ -223,11 +223,11 @@ def test_recovery_and_refreshed_recovery_jwts_cannot_access_any_private_operatio
     password = auth_header(identity())
     before = secure.get(f'/api/products/{pid}/analysis', headers=password).json()
     operations = [(method, path.replace('{product_id}', str(pid)).replace('{analysis_id}', str(run))
-                   .replace('{review_id}', 'A1'))
+                   .replace('{review_id}', 'A1').replace('{job_id}', '1'))
                   for path, methods in secure.get('/openapi.json').json()['paths'].items()
                   for method in methods if method.upper() in {'GET', 'POST', 'PATCH', 'DELETE'}
                   and not (method == 'get' and path in {'/api/health', '/api/sites'})]
-    assert len(operations) == 24
+    assert len(operations) == 28
     for methods in [['recovery'], ['recovery', 'token_refresh'], ['password', 'recovery']]:
         headers = auth_header(identity(claims={'amr': [{'method': name, 'timestamp': 1} for name in methods]}))
         for method, path in operations:

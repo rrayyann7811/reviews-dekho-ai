@@ -131,10 +131,26 @@ class AiSummary(Base):
 
 
 class ProcessingJob(Base):
-    """Retention foundation only: no worker or public job API. Results stay under the product deadline."""
+    """Durable analysis work; ownership and expiry always come from the product root."""
     __tablename__ = "processing_jobs"
+    __table_args__ = (
+        Index("uq_job_request", "product_id", "request_key", unique=True),
+        Index("ix_job_queue", "status", "available_at", "id"),
+        Index("ix_job_lease", "status", "lease_until", "id"),
+    )
     id: Mapped[int] = mapped_column(primary_key=True)
     product_id: Mapped[int] = mapped_column(ForeignKey("products.id", ondelete="CASCADE"), index=True)
     created_at: Mapped[datetime] = mapped_column(UTCDateTime(), default=utcnow)
-    status: Mapped[str] = mapped_column(String(20), default="pending")
+    status: Mapped[str] = mapped_column(String(20), default="queued")
     result: Mapped[dict | None] = mapped_column(JSON)
+    result_analysis_id: Mapped[int | None] = mapped_column(ForeignKey("analysis_results.id", ondelete="SET NULL"))
+    kind: Mapped[str] = mapped_column(String(20), default="analysis", server_default="analysis")
+    request_key: Mapped[str | None] = mapped_column(String(64))
+    attempts: Mapped[int] = mapped_column(Integer, default=0, server_default="0")
+    max_attempts: Mapped[int] = mapped_column(Integer, default=3, server_default="3")
+    available_at: Mapped[datetime | None] = mapped_column(UTCDateTime())
+    claimed_at: Mapped[datetime | None] = mapped_column(UTCDateTime())
+    lease_until: Mapped[datetime | None] = mapped_column(UTCDateTime())
+    claim_token: Mapped[str | None] = mapped_column(String(64))
+    finished_at: Mapped[datetime | None] = mapped_column(UTCDateTime())
+    error: Mapped[str | None] = mapped_column(String(160))

@@ -131,12 +131,17 @@ def test_alembic_refuses_sqlite_and_destructive_baseline_downgrade(monkeypatch):
         baseline_revision().downgrade()
 
 
-def test_frozen_baseline_matches_orm_schema_on_sqlite_test_engine(tmp_path):
-    # Exercises the revision's operations on SQLite only; PostgreSQL execution is tested separately.
+def test_append_only_postgres_migration_chain_matches_orm_schema_on_sqlite_test_engine(tmp_path):
+    # Frozen baseline plus append-only revisions; this is offline portability, not a live PG claim.
     engine = make_engine(f'sqlite:///{tmp_path / "revision.db"}')
     with engine.begin() as conn:
         with Operations.context(MigrationContext.configure(conn)):
             baseline_revision().upgrade()
+            path = Path(__file__).resolve().parents[1] / 'alembic/versions/0002_durable_jobs.py'
+            spec = importlib.util.spec_from_file_location('test_pg_jobs_revision', path)
+            revision = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(revision)
+            revision.upgrade()
     actual = inspect(engine)
     assert set(actual.get_table_names()) == set(database.Base.metadata.tables)
     for name, table in database.Base.metadata.tables.items():

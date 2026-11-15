@@ -12,7 +12,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from . import config
 from .auth import AuthMiddleware, TokenVerifier
-from .api import ai, compare, health, history, products, reviews, sites, uploads
+from .api import ai, compare, health, history, jobs, products, reviews, sites, uploads
 from .database import init_db
 from .errors import register_error_handlers
 from .version import VERSION
@@ -73,7 +73,7 @@ def create_app() -> FastAPI:
         expose_headers=["Content-Disposition", "Retry-After"],
     )
     register_error_handlers(app)
-    for module in (health, products, reviews, uploads, history, sites, ai, compare):
+    for module in (health, products, reviews, uploads, history, sites, ai, compare, jobs):
         app.include_router(module.router, prefix="/api")
     return app
 

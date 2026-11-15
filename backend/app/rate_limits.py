@@ -28,7 +28,7 @@ def operation_groups(scope):
                               (product and len(parts) == 5 and parts[4] == "refresh")):
         groups.extend(("collection", "analysis"))
     if product:
-        if (method == "POST" and len(parts) == 5 and parts[4] in {"analyze", "reviews"}) or (
+        if (method == "POST" and len(parts) == 5 and parts[4] in {"analyze", "reviews", "jobs"}) or (
                 method == "DELETE" and len(parts) == 6 and parts[4] == "reviews"):
             groups.append("analysis")
         if method == "GET" and len(parts) == 5 and parts[4] in {"report.pdf", "report.csv"}:
