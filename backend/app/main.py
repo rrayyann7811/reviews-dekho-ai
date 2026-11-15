@@ -16,6 +16,7 @@ from .api import ai, compare, health, history, products, reviews, sites, uploads
 from .database import init_db
 from .errors import register_error_handlers
 from .version import VERSION
+from .resource_limits import ResourceLimitsMiddleware
 
 logging.basicConfig(level=logging.INFO)
 
@@ -59,6 +60,7 @@ def create_app() -> FastAPI:
         raise ValueError("AUTH_MODE must be local or jwt")
     verifier = TokenVerifier() if config.AUTH_MODE == "jwt" else None
     app = FastAPI(title="Reviews Dekho AI API", version=VERSION, description=DESCRIPTION, lifespan=lifespan)
+    app.add_middleware(ResourceLimitsMiddleware)
     app.add_middleware(AuthMiddleware, mode=config.AUTH_MODE, verifier=verifier)
     app.add_middleware(
         CORSMiddleware,

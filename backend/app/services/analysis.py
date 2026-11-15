@@ -6,6 +6,9 @@ the history always shows exactly what was analysed at the time.
 from datetime import timezone
 
 from sqlalchemy.orm import Session
+from sqlalchemy import select, func
+
+from .. import config
 
 from ..collectors.registry import site_name
 from ..errors import AppError
@@ -35,6 +38,13 @@ def review_input(review: Review) -> dict:
 
 def run_analysis(db: Session, product: Product, ingestion: dict | None = None) -> AnalysisResult:
     """Analyse every review of `product` and store a new AnalysisResult. The caller commits."""
+    count = db.scalar(select(func.count()).select_from(AnalysisResult).where(AnalysisResult.product_id == product.id)) or 0
+    if count >= config.MAX_ANALYSIS_RUNS:
+        raise AppError("This product has reached the analysis-history limit.", 413)
+    db.flush()  # include pending reviews in the bounded SQL count; the caller still owns rollback
+    review_count = db.scalar(select(func.count()).select_from(Review).where(Review.product_id == product.id)) or 0
+    if review_count > config.MAX_ROWS:
+        raise AppError("This product exceeds the review limit for analysis.", 413)
     reviews = list(product.reviews)
     if not reviews:
         raise AppError("This product has no reviews to analyse. Add or upload reviews first.", 422)

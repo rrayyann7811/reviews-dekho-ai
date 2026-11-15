@@ -268,9 +268,10 @@ def test_concurrent_same_owner_uniqueness_and_separate_owner_operations(sqlite):
         def create(owner):
             with Session(sqlite) as db:
                 db.info['principal'] = Principal(owner)
+                # Start requests together; SQLite quota checks now reserve the writer before reading.
+                barrier.wait(timeout=5)
                 p = Product(name='Synthetic race', source_site='test', external_product_id='1', source_region='IN',
                             **ownership.new_product_identity(db))
-                barrier.wait(timeout=5)
                 db.add(p)
                 try: db.commit(); return 'created'
                 except IntegrityError: db.rollback(); return 'conflict'

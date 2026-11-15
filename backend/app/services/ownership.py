@@ -2,7 +2,9 @@
 from datetime import datetime, timedelta, timezone
 
 from sqlalchemy import and_
-from sqlalchemy import select
+from sqlalchemy import select, func
+from .. import config
+from ..errors import AppError
 
 from ..models import Product, ProcessingJob
 
@@ -29,6 +31,11 @@ def product_scope(db):
 
 def new_product_identity(db):
     identity = principal(db)
+    if db.get_bind().dialect.name == "sqlite" and not db.in_transaction():
+        db.connection(execution_options={"sqlite_begin_mode": "IMMEDIATE"})
+    count = db.scalar(select(func.count()).select_from(Product).where(Product.owner_id == identity.owner_id)) or 0
+    if count >= config.MAX_PRODUCTS_PER_OWNER:
+        raise AppError("Your workspace has reached the product limit. Delete a product before importing more.", 413)
     created = datetime.now(timezone.utc)
     return {"owner_id": identity.owner_id, "created_at": created,
             "expires_at": None if identity.local else created + timedelta(days=RETENTION_DAYS)}

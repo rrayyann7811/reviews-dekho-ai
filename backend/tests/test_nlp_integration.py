@@ -33,8 +33,8 @@ def test_sentiment_reflects_the_uploaded_text(client):
 
 
 def test_different_files_give_different_results(client):
-    good = _analysis(client, "review\nGreat product, love it\nExcellent, works perfectly\n")
-    bad = _analysis(client, "review\nTerrible product, hate it\nAwful, broke immediately\n")
+    good = _analysis(client, "review\n\"Great product, love it\"\n\"Excellent, works perfectly\"\n")
+    bad = _analysis(client, "review\n\"Terrible product, hate it\"\n\"Awful, broke immediately\"\n")
     assert good["stats"]["sentimentPercent"]["positive"] == 100.0
     assert bad["stats"]["sentimentPercent"]["negative"] == 100.0
 

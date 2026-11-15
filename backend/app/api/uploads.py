@@ -3,9 +3,11 @@ from typing import Literal
 
 from fastapi import APIRouter, Depends, File, Form, UploadFile, status
 from pydantic import ValidationError
+from starlette.concurrency import run_in_threadpool
 from sqlalchemy.orm import Session
 
 from .. import config
+from ..upload_route import UploadRoute
 from ..database import get_db
 from ..errors import AppError
 from ..models import Product
@@ -15,7 +17,7 @@ from ..services import ingestion
 from ..services import products as product_service
 from ..services.ownership import new_product_identity
 
-router = APIRouter(prefix="/uploads", tags=["Uploads"])
+router = APIRouter(prefix="/uploads", tags=["Uploads"], route_class=UploadRoute)
 FILE_ERRORS = {
     400: {"model": ErrorResponse, "description": "The file couldn’t be read"},
     413: {"model": ErrorResponse, "description": "File too large or too many rows"},
@@ -24,22 +26,27 @@ FILE_ERRORS = {
 
 
 async def _read_upload(file: UploadFile) -> tuple[str, bytes]:
-    content = await file.read(config.MAX_UPLOAD_BYTES + 1)  # never read more than the limit + 1 byte
-    return ingestion.check_file(file.filename, content), content
+    try:
+        content = await file.read(config.MAX_UPLOAD_BYTES + 1)
+        return ingestion.check_file(file.filename, content), content
+    finally:
+        await file.close()
 
 
 @router.post("/preview", response_model=UploadPreview, responses=FILE_ERRORS,
              summary="Read a file and suggest which column holds each field (nothing is saved)")
-async def preview_upload(file: UploadFile = File(..., description="CSV or .xlsx, max 10 MB")):
+async def preview_upload(file: UploadFile = File(..., description="CSV or .xlsx; size limits are configured by the server")):
     name, content = await _read_upload(file)
-    return ingestion.build_preview(name, ingestion.read_table(name, content))
+    def preview():
+        return ingestion.build_preview(name, ingestion.read_table(name, content))
+    return await run_in_threadpool(preview)
 
 
 @router.post("/import", response_model=ProductSummary, status_code=status.HTTP_201_CREATED,
              responses=FILE_ERRORS | {422: {"model": ErrorResponse, "description": "Invalid columns or no usable reviews"}},
              summary="Import a file as a new product and analyse its reviews")
 async def import_upload(
-    file: UploadFile = File(..., description="CSV or .xlsx, max 10 MB"),
+    file: UploadFile = File(..., description="CSV or .xlsx; size limits are configured by the server"),
     product_name: str = Form(..., min_length=1, max_length=200),
     columns: str = Form(..., description='JSON, e.g. {"text": "Review", "rating": "Stars"}'),
     brand: str | None = Form(None, max_length=120),
@@ -55,6 +62,10 @@ async def import_upload(
         raise AppError("Enter a product name.", 422)
 
     name, content = await _read_upload(file)
+    return await run_in_threadpool(_import_table, db, name, content, column_map, product_name, brand, category, domain)
+
+
+def _import_table(db, name, content, column_map, product_name, brand, category, domain):
     df = ingestion.read_table(name, content)
     reviews, report = ingestion.clean_reviews(df, column_map.model_dump(by_alias=True))
 

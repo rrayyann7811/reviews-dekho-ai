@@ -29,9 +29,28 @@ CORS_ORIGINS = [
 ]
 
 # Upload limits. The frontend checks the same size limit before uploading.
-MAX_UPLOAD_BYTES = 10 * 1024 * 1024
-MAX_ROWS = 20_000
-MAX_REVIEW_CHARS = 5_000
+def _positive_limit(name, default):
+    value = int(os.getenv(name, str(default)))
+    if value < 1:
+        raise ValueError(f"{name} must be positive")
+    return value
+
+
+MAX_UPLOAD_BYTES = _positive_limit("MAX_UPLOAD_BYTES", 10 * 1024 * 1024)
+MAX_REQUEST_BYTES = _positive_limit("MAX_REQUEST_BYTES", 12 * 1024 * 1024)
+MAX_ROWS = _positive_limit("MAX_ROWS", 20_000)
+MAX_FORM_FIELD_BYTES = _positive_limit("MAX_FORM_FIELD_BYTES", 65536)
+MAX_COLUMNS = _positive_limit("MAX_COLUMNS", 64)
+MAX_REVIEW_CHARS = _positive_limit("MAX_REVIEW_CHARS", 5_000)
+MAX_CSV_FIELD_CHARS = _positive_limit("MAX_CSV_FIELD_CHARS", 20_000)
+MAX_XLSX_ENTRIES = _positive_limit("MAX_XLSX_ENTRIES", 256)
+MAX_XLSX_EXPANDED_BYTES = _positive_limit("MAX_XLSX_EXPANDED_BYTES", 40 * 1024 * 1024)
+MAX_XLSX_ENTRY_BYTES = _positive_limit("MAX_XLSX_ENTRY_BYTES", 20 * 1024 * 1024)
+MAX_XLSX_RATIO = _positive_limit("MAX_XLSX_RATIO", 1000)
+MAX_EXPENSIVE_REQUESTS = _positive_limit("MAX_EXPENSIVE_REQUESTS", 1)
+MAX_PRODUCTS_PER_OWNER = _positive_limit("MAX_PRODUCTS_PER_OWNER", 100)
+MAX_COLLECTION_BYTES = _positive_limit("MAX_COLLECTION_BYTES", 2 * 1024 * 1024)
+MAX_ANALYSIS_RUNS = _positive_limit("MAX_ANALYSIS_RUNS", 20)
 PREVIEW_ROWS = 5
 
 # Collecting reviews from product links (see app/collectors/).

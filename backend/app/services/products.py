@@ -2,6 +2,7 @@
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session, selectinload
 
+from .. import config
 from ..errors import AppError, NotFound
 from ..models import AnalysisResult, Product, Review
 from .analysis import as_utc, source_out
@@ -69,6 +70,10 @@ def add_reviews(db: Session, product: Product, reviews: list[dict], skip_existin
         if external_id in existing:
             duplicates.append(external_id)
             continue
+        if len(existing) >= config.MAX_ROWS:
+            raise AppError("This product has reached the review limit.", 413)
+        if len(item["text"]) > config.MAX_REVIEW_CHARS:
+            raise AppError("Review text exceeds the configured limit.", 413)
         existing.add(external_id)
         added += 1
         product.reviews.append(Review(

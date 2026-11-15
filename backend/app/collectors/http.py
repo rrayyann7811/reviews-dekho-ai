@@ -1,5 +1,6 @@
 """A small HTTP helper for adapters: timeouts, a clear User-Agent and friendly errors."""
 import httpx
+import json
 
 from .. import config
 from ..version import VERSION
@@ -21,7 +22,14 @@ def get_json(client: httpx.Client, url: str, site_name: str, params: dict | None
              not_found_ok: bool = False):
     """GET a JSON document. Returns None for 404 (or 400) when not_found_ok, else raises SourceUnavailable."""
     try:
-        response = client.get(url, params=params)
+        with client.stream("GET", url, params=params, headers={"Accept-Encoding": "identity"}) as response:
+            if response.headers.get("content-encoding", "identity").lower() != "identity":
+                raise SourceUnavailable("The review source returned unsupported compressed content.")
+            content = bytearray()
+            for chunk in response.iter_bytes(chunk_size=65536):
+                if len(content) + len(chunk) > config.MAX_COLLECTION_BYTES:
+                    raise SourceUnavailable("The review source response exceeds the configured size limit.")
+                content.extend(chunk)
     except httpx.TimeoutException as exc:
         raise SourceUnavailable(f"{site_name} took too long to respond. Please try again in a minute.", 504) from exc
     except httpx.HTTPError as exc:
@@ -37,7 +45,7 @@ def get_json(client: httpx.Client, url: str, site_name: str, params: dict | None
         raise SourceUnavailable(f"{site_name} returned an error (HTTP {response.status_code}). "
                                 "Please try again later.")
     try:
-        return response.json()
+        return json.loads(content)
     except ValueError as exc:
         raise SourceUnavailable(f"{site_name} sent a response that couldn’t be read. "
                                 "Please try again later.") from exc
