@@ -137,6 +137,8 @@ Unattached/pre-import jobs are not supported and need a separately reviewed owne
 `scripts/purge_expired_data.py` deletes products in a transaction, cascading to reviews, runs, AI attempts,
 jobs and their stored JSON results. It does not query/delete identity-provider users; this database has no
 account table. Expiring records never expires the user's account. No scheduler is introduced in Phase 2B.1.
+The later [Phase 2B.2 operations command](RETENTION_OPERATIONS.md) adds bounded batches, a creation-time cap,
+dry-run, JSON/exit codes and scheduling guidance. It requires an explicit DATABASE_URL and does not activate a timer.
 
 PDF/CSV exports are generated in memory; there are no persisted export files to delete. Upload request temp
 files are request-scoped, not durable job artifacts. Model files and synthetic fixtures are not user review

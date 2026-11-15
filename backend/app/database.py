@@ -63,7 +63,10 @@ def make_engine(url: str) -> Engine:
         def _on_begin(connection):
             # Python's sqlite3 module does not put ALTER/CREATE inside a transaction by itself. Starting
             # every transaction explicitly makes schema migrations all-or-nothing too.
-            connection.exec_driver_sql("BEGIN")
+            mode = connection.get_execution_options().get("sqlite_begin_mode", "DEFERRED")
+            if mode not in {"DEFERRED", "IMMEDIATE"}:
+                raise ValueError("Unsupported SQLite transaction mode")
+            connection.exec_driver_sql("BEGIN IMMEDIATE" if mode == "IMMEDIATE" else "BEGIN")
 
     return engine
 

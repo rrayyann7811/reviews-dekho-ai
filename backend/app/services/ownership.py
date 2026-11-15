@@ -21,7 +21,9 @@ def product_scope(db):
     scope = Product.owner_id == identity.owner_id
     if not identity.local:
         # Expired/null-expiry account data is invisible even if physical cleanup has not run.
-        scope = and_(scope, Product.expires_at > datetime.now(timezone.utc))
+        now = datetime.now(timezone.utc)
+        scope = and_(scope, Product.expires_at > now,
+                     Product.created_at > now - timedelta(days=RETENTION_DAYS))
     return scope
 
 

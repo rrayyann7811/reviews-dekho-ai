@@ -90,14 +90,15 @@ Access expiry is immediate on subsequent requests; physical deletion is separate
 from `backend/`, against the intended `DATABASE_URL`:
 
 ```bash
-.venv/bin/python scripts/purge_expired_data.py
+DATABASE_URL=sqlite:///./storage/reviews_dekho.db .venv/bin/python scripts/purge_expired_data.py --dry-run
 ```
 
-This deletes expired products and uses foreign-key cascades to remove original reviews, snapshots and
+The apply command (without `--dry-run`) deletes expired products and uses foreign-key cascades to remove original reviews, snapshots and
 optional AI records together. It does not delete identity-provider accounts or non-expiring local records.
 The collector also clears the current owner's expired products before a new collection, avoiding conflicts
-with the per-owner source index. A scheduler, operational monitoring and backup/log expiration are **not yet
-implemented**. Seven-day deletion compliance is therefore not complete and public deployment remains blocked.
+with the per-owner source index. [Phase 2B.2 retention operations](RETENTION_OPERATIONS.md) adds bounded cleanup,
+dry-run/JSON reporting and scheduler guidance. No timer is activated and operational monitoring/backup/log
+expiration remain deployment work. Seven-day deletion compliance is not complete and public deployment remains blocked.
 SQLite free pages, WAL files, migration backups and provider backups need an approved erasure/retention policy.
 
 ## Migration implications
