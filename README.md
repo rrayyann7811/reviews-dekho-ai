@@ -5,7 +5,7 @@ review excerpts. The full application runs locally, keeps analysis snapshots in 
 and PDF/CSV exports without a paid AI API.
 
 **[Open the live demo](https://rrayyann7811.github.io/reviews-dekho-ai/)** ·
-[Local setup](#local-setup) · [Architecture](#architecture) · [Evaluation](docs/EVALUATION.md)
+[Local setup](docs/LOCAL_GUIDE.md) · [Architecture](#architecture) · [Evaluation](docs/EVALUATION.md)
 
 ## Live demo and full application
 
@@ -79,7 +79,7 @@ figures, while their star ratings still count. Language detection is heuristic.
 | Layer | Implementation |
 |---|---|
 | Interface | React 19, React Router 7, Vite 8, Tailwind CSS 4, Recharts, Lucide; bundled IBM Plex Sans |
-| API and storage | Python, FastAPI, SQLAlchemy, SQLite; versioned migrations with automatic backups |
+| API and storage | Python, FastAPI, SQLAlchemy, SQLite; explicit upgrades with backups for existing schemas; optional PostgreSQL |
 | Ingestion and collection | pandas, openpyxl, httpx |
 | NLP | Cardiff NLP Twitter-RoBERTa sentiment model via Xenova's int8 ONNX conversion, ONNX Runtime, tokenizers; VADER with review rules; keyword feature lists and scikit-learn keyword extraction |
 | Reports / optional AI | ReportLab with DejaVu Sans / local Ollama (`llama3.2:3b` by default) |
@@ -109,49 +109,33 @@ If the sentiment model fails, the pipeline reruns with VADER so a run never mixe
 
 ## Local setup
 
-Prerequisites: **Python 3.12 or 3.14**, **Node.js 24** and npm (the versions covered by CI). Commands below use a
-macOS/Linux shell. Start each terminal from the repository root; no API keys or Ollama installation are required
-for the standard application.
+Follow the [beginner local guide](docs/LOCAL_GUIDE.md) for installation, a new isolated rehearsal database,
+loopback-only backend/frontend startup, shutdown, troubleshooting and the demonstration walkthrough.
+Use Python **3.12 or 3.14** and Node **24**. No cloud account, Docker, API key or background worker is needed.
 
-**Terminal 1 — backend**
+The usual commands are Uvicorn from `backend/` and `npm run dev` from `frontend/`. Explicitly set a **new**
+`DATABASE_URL` for rehearsal; do not overwrite, reset or migrate existing `storage/reviews_dekho.db` or
+`storage/demo.db`. Existing database schemas are never silently upgraded. Download the pinned ONNX model
+before claiming real transformer analysis; missing files use VADER. The backend [environment example](backend/.env.example)
+is reference only and is not loaded automatically. Frontend build-time values are in
+[frontend/.env.example](frontend/.env.example).
 
-```bash
-cd backend
-python3 -m venv .venv
-.venv/bin/python -m pip install -r requirements.txt
-.venv/bin/uvicorn app.main:app --reload
+### Optional: seed another synthetic workspace
+
+From `backend/`, choose another **new** rehearsal directory. This example deliberately uses VADER for fast seeding;
+import a file with the pinned model enabled to demonstrate real ONNX inference instead.
+
+```sh
+SYNTHETIC_DIR="$(mktemp -d "${TMPDIR:-/tmp}/reviews-dekho-seeded.XXXXXX")" || exit 1
+[ -n "$SYNTHETIC_DIR" ] && [ -d "$SYNTHETIC_DIR" ] || exit 1
+.venv/bin/python scripts/seed_demo.py --db "$SYNTHETIC_DIR/synthetic.db" --engine vader
+DATABASE_URL="sqlite:///$SYNTHETIC_DIR/synthetic.db" AUTH_MODE=local AI_SUMMARIES=off \
+  .venv/bin/uvicorn app.main:app --host 127.0.0.1 --port 8000 --no-proxy-headers
 ```
 
-API: <http://localhost:8000> · Interactive API docs: <http://localhost:8000/docs>.
-The database is created automatically at `backend/storage/reviews_dekho.db`.
-Without downloaded sentiment model files, analysis uses VADER.
-
-**Terminal 2 — frontend**
-
-```bash
-cd frontend
-npm ci
-npm run dev
-```
-
-Open <http://localhost:5173>. To try an upload, use the invented reviews in
-[`backend/data/sample/`](backend/data/sample/) or [`backend/data/demo/`](backend/data/demo/).
-
-### Optional: seed a separate synthetic demo database
-
-From the repository root, after installing backend dependencies, run:
-
-```bash
-cd backend
-.venv/bin/python scripts/seed_demo.py --engine vader
-DATABASE_URL=sqlite:///storage/demo.db .venv/bin/uvicorn app.main:app --reload
-```
-
-Stop any backend already using port 8000 before starting this one. The seed creates four fictional products:
-Kestrel Orbit 5G, Aurora X5, QuickCart (two saved runs) and Saffron Buds (mixed-language reviews).
-It uses `storage/demo.db`, protects the real database, and refuses an existing file unless `--reset` is supplied
-and the file carries the script's own demo marker. Use `--db storage/another-demo.db` for a new demo file.
-The printed content digest can be compared between runs using the same files and engine.
+Stop if `mktemp` fails or the directory is empty. Stop any backend you started on port 8000 before using this one.
+The seed creates fictional products in the new file; it does not replace either existing application database.
+Do not use reset flags for rehearsal. Keep the directory/path if you want to reopen the same synthetic workspace.
 
 ### Optional: sentiment model and Ollama
 
@@ -216,10 +200,10 @@ npm run build:demo
 npm run check:demo-bundle
 ```
 
-At the deployed application commit, frontend tests passed **144/144**. Backend tests passed **405 with 1 skipped**
-locally with the sentiment model installed; CI on Python 3.12 and 3.14 passed **395 with 11 skipped** each (10 model
-tests and the live Ollama test). See the [successful CI run](https://github.com/rrayyann7811/reviews-dekho-ai/actions/runs/43638988719).
-Skipped tests do not establish model or Ollama correctness.
+The Phase 2D base passed **673 backend tests (28 skipped)** and **242 frontend tests**; focused benchmark/NLP
+validation passed **114**. Those are recorded historical results, not the new local browser verification.
+See [local release verification](docs/LOCAL_RELEASE_VERIFICATION.md) for current actual results and remaining checks.
+Skipped tests do not establish model, PostgreSQL or Ollama correctness.
 
 [CI](.github/workflows/ci.yml) runs on main pushes and pull requests: backend tests, demo digest/file reproducibility,
 and frontend tests, lint, builds and bundle checks, including a demo build with a configured API address.
@@ -246,8 +230,9 @@ and uses synthetic cases, writing results under git-ignored `storage/ai_eval/` b
 - CSV cells are protected against spreadsheet formula injection and PDF text is escaped. Database files, model weights,
   downloaded evaluation data and `.env` files are git-ignored. No API keys are required.
 - Default local mode is restricted to loopback clients and has no account sign-in. An optional JWT/ownership
-  boundary is implemented for local testing; public hosting remains blocked by rate limiting, upload hardening and
-  other safeguards. CORS is not access control. See [Phase 2A security preparation](docs/PHASE2A_SECURITY.md).
+  boundary, rate limiting, upload hardening and durable jobs are implemented. Public hosting still requires
+  separately verified resource, provider, operational and security configuration. CORS is not access control.
+  See [Phase 2A security preparation](docs/PHASE2A_SECURITY.md).
 
 ## Static-demo build and deployment
 
@@ -266,13 +251,13 @@ uses application commit `53ae651bf123a75f91ae9e726d5ae96550029fc2`.
   but does not make a sentiment label or summary claim ground truth.
 - App Store feeds cover a recent, country-specific sample. Reviews are self-selected; comparisons are descriptive,
   and testing many features can produce apparent separations by chance.
-- Large imports run synchronously in one request; there is no background job queue or multi-user access control.
+- Large imports still run synchronously. Opt-in durable jobs support analysis of stored reviews; the dashboard
+  does not automatically run a worker. JWT owner isolation is implemented; default local mode remains one workspace.
 - Optional AI may pass validation and still mislead. PDF fonts do not cover Devanagari, CJK or many emoji; missing
   glyphs are replaced with a marker and a note.
 
-Potential future work, **not implemented**: background analysis jobs and progress reporting, independently reviewed
-app-domain evaluation, better multilingual support, screen-reader/user testing, and authentication/rate limiting
-before considering any public backend deployment.
+Potential future work, **not implemented**: dashboard job progress integration, independently reviewed app-domain
+evaluation, better multilingual support and screen-reader/user testing. Deployment is outside this local release.
 
 ## Technical reference
 
@@ -305,6 +290,7 @@ Interactive documentation is at `/docs` while the backend runs. Error responses 
 | Compare | `GET /api/compare?product_a=&product_b=&analysis_a=&analysis_b=` |
 | Reports | `GET /api/products/{id}/report.pdf` · `GET /api/products/{id}/report.csv` (`analysis_id`, `include_reviewer`) |
 | Optional AI | `GET /api/ai/status` · `GET/POST /api/products/{id}/ai-summary` |
+| Jobs | `POST /api/products/{id}/jobs` · `GET /api/products/{id}/jobs` · `GET /api/jobs/{id}` · `POST /api/jobs/{id}/cancel` |
 | Other | `GET /api/health` · `GET /api/sites` |
 
 </details>
