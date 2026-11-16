@@ -49,7 +49,7 @@ class TransformerEngine:
     MODEL = "cardiffnlp/twitter-roberta-base-sentiment-latest"
     LABELS = ("negative", "neutral", "positive")  # from the model's config.json
 
-    def __init__(self, model_dir=None):
+    def __init__(self, model_dir=None, *, session_options=None):
         import onnxruntime as ort  # imported here so the app still runs without it
         from tokenizers import Tokenizer
 
@@ -61,8 +61,11 @@ class TransformerEngine:
         self.pad_id = cfg.get("pad_token_id", 1)
         self.tokenizer = Tokenizer.from_file(str(model_dir / "tokenizer.json"))
         self.tokenizer.enable_truncation(max_length=config.MODEL_MAX_TOKENS)
-        options = ort.SessionOptions()
-        options.intra_op_num_threads = 4
+        # Optional injection supports isolated benchmarks; normal loading retains the exact defaults.
+        options = session_options
+        if options is None:
+            options = ort.SessionOptions()
+            options.intra_op_num_threads = 4
         self.session = ort.InferenceSession(str(model_dir / "model_quantized.onnx"), options,
                                             providers=["CPUExecutionProvider"])
         self.input_names = {i.name for i in self.session.get_inputs()}
