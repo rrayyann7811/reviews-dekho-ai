@@ -1,0 +1,32 @@
+name: Phase 3E public-demo workload envelope
+
+on:
+  push:
+    branches: [phase-3e/demo-envelope]
+    paths:
+      - .github/workflows/phase-3e-demo-envelope.yml
+      - backend/scripts/phase_3e_runner.sh
+      - backend/scripts/phase_3e_workload.py
+
+permissions:
+  contents: read
+
+concurrency:
+  group: phase-3e-demo-envelope
+  cancel-in-progress: false
+
+jobs:
+  verify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          fetch-depth: 2
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.14.10"
+          architecture: x64
+      - name: Package and test real ONNX under Docker cgroup limits
+        run: bash backend/scripts/phase_3e_runner.sh
