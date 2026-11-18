@@ -1,0 +1,195 @@
+name: Phase 3C native ONNX verification
+
+on:
+  push:
+    branches: [phase-3c/native-onnx]
+    paths: [.github/workflows/phase-3c-native-onnx.yml]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: phase-3c-native-onnx
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    env:
+      PYTHONDONTWRITEBYTECODE: "1"
+      PYTHONNOUSERSITE: "1"
+      PYTHONFAULTHANDLER: "1"
+      PIP_DISABLE_PIP_VERSION_CHECK: "1"
+      AUTH_MODE: local
+      SENTIMENT_ENGINE: transformer
+      AI_SUMMARIES: "off"
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: 809c0230490260f560c802cf8cecc5bd992dd284
+          persist-credentials: false
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.14.10"
+          architecture: x64
+
+      - name: Resolve binary dependencies and assemble the Function tree
+        shell: bash
+        run: |
+          test "$(uname -m)" = x86_64
+          test "$(git rev-parse HEAD)" = 809c0230490260f560c802cf8cecc5bd992dd284
+          python --version
+          getconf GNU_LIBC_VERSION
+
+          scratch="$(mktemp -d "$RUNNER_TEMP/phase-3c.XXXXXXXX")"
+          bundle="$scratch/function"
+          mkdir "$bundle"
+          cp -a backend/app backend/alembic backend/alembic.ini "$bundle/"
+          sed '/^pytest==/d; /^uvicorn\[standard\]==/d' \
+            backend/requirements.txt > "$bundle/requirements.txt"
+          printf '3.14\n' > "$bundle/.python-version"
+          printf '{"functions":{"app/main.py":{"maxDuration":45}}}\n' \
+            > "$bundle/vercel.json"
+
+          if ! python -m pip install --no-cache-dir --only-binary=:all: \
+            --no-compile --target "$bundle" -r "$bundle/requirements.txt"; then
+            echo "::error title=Dependency resolution::Binary dependency resolution or installation failed."
+            exit 1
+          fi
+          python -m pip list --path "$bundle" --format=freeze
+
+          printf '%s\n' "BUNDLE=$bundle" "PYTHONPATH=$bundle" \
+            "MODEL_DIR=$bundle/models/twitter-roberta-sentiment" \
+            "DATABASE_URL=sqlite:///$scratch/synthetic.sqlite3" >> "$GITHUB_ENV"
+
+      - name: Download and checksum the pinned model
+        shell: bash
+        run: |
+          if ! timeout --kill-after=5s 120s python -S backend/scripts/download_model.py; then
+            echo "::error title=Model download or integrity::Pinned asset download or downloader checksum failed."
+            exit 1
+          fi
+
+          python -S - <<'PY' | tee -a "$GITHUB_STEP_SUMMARY"
+          import hashlib
+          import os
+          import runpy
+          from pathlib import Path
+
+          pins = runpy.run_path("backend/scripts/download_model.py")
+          for name, expected in pins["FILES"].items():
+              path = Path(os.environ["MODEL_DIR"]) / Path(name).name
+              with path.open("rb") as stream:
+                  actual = hashlib.file_digest(stream, "sha256").hexdigest()
+              assert actual == expected, f"Model checksum mismatch: {path.name}"
+              print(f"{path.name}: sha256={actual}")
+
+          bundle = Path(os.environ["BUNDLE"])
+          size = sum(path.stat().st_size for path in bundle.rglob("*") if path.is_file())
+          print(f"Function-only tree: {size:,} bytes ({size / 1_000_000:.2f} MB)")
+          print(f"Standard 500 MB size check: {'FIT' if size <= 500_000_000 else 'OVER'}")
+          print(f"Beta 5 GB size check: {'FIT' if size <= 5_000_000_000 else 'OVER'}")
+          PY
+
+      - name: Verify native imports, FastAPI startup and CPU inference
+        shell: bash
+        run: |
+          cd "$BUNDLE"
+          timeout --kill-after=5s 60s python -S - <<'PY' | tee -a "$GITHUB_STEP_SUMMARY"
+          import importlib
+          import json
+          import os
+          import resource
+          import statistics
+          import time
+          from contextlib import contextmanager
+
+          @contextmanager
+          def check(stage):
+              print(f"BEGIN {stage}", flush=True)
+              try:
+                  yield
+              except Exception:
+                  print(f"::error title={stage}::{stage} failed. See traceback.", flush=True)
+                  raise
+              print(f"PASS {stage}", flush=True)
+
+          cpu = min(os.sched_getaffinity(0))
+          os.sched_setaffinity(0, {cpu})
+          started = time.perf_counter()
+          modules = (
+              "onnxruntime", "numpy", "scipy", "pandas", "sklearn", "tokenizers",
+              "psycopg", "psycopg_binary", "pydantic_core", "PIL._imaging",
+              "cryptography.hazmat.bindings._rust", "sqlalchemy", "reportlab",
+              "openpyxl", "fastapi",
+          )
+          with check("Native library imports"):
+              for name in modules:
+                  print(f"Importing {name}", flush=True)
+                  importlib.import_module(name)
+
+          with check("FastAPI application import and startup"):
+              from fastapi.testclient import TestClient
+              from app.main import app
+              from app.nlp.engines import get_engine
+              from app.nlp.pipeline import analyze_reviews
+
+              imports_done = time.perf_counter()
+              with TestClient(app) as client:
+                  health = client.get("/api/health")
+                  assert health.status_code == 200, health.text
+                  payload = health.json()
+                  assert payload["status"] == payload["database"] == "ok", payload
+                  assert isinstance(payload["version"], str) and payload["version"], payload
+                  ready = time.perf_counter()
+
+          model_started = time.perf_counter()
+          with check("ONNX model initialization"):
+              engine, reason = get_engine("transformer")
+              assert engine.id == "transformer" and reason is None, reason
+              assert engine.session.get_providers() == ["CPUExecutionProvider"]
+              loaded = time.perf_counter()
+
+          with check("Actual transformer prediction"):
+              texts = [
+                  "I love this app, it is perfect",
+                  "It arrived on Tuesday.",
+                  "Worst app ever, I hate it",
+              ]
+              first_started = time.perf_counter()
+              first = engine.predict(texts)
+              predicted = time.perf_counter()
+              assert [item["label"] for item in first] == [
+                  "positive", "neutral", "negative",
+              ], first
+
+              warm_ms = []
+              for _ in range(10):
+                  mark = time.perf_counter()
+                  result = engine.predict(texts)
+                  warm_ms.append((time.perf_counter() - mark) * 1000)
+                  assert result == first, result
+
+              analysis = analyze_reviews(
+                  [{"id": "1", "text": "Great battery, but the camera is terrible"}],
+                  engine_preference="transformer",
+              )
+              assert analysis["engine"]["id"] == "transformer", analysis["engine"]
+              assert analysis["engine"]["fallbackReason"] is None, analysis["engine"]
+              assert analysis["stats"]["analysedReviews"] == 1
+
+          print(json.dumps({
+              "imports_seconds": round(imports_done - started, 3),
+              "app_ready_including_imports_seconds": round(ready - started, 3),
+              "model_load_seconds": round(loaded - model_started, 3),
+              "first_three_predictions_ms": round((predicted - first_started) * 1000, 3),
+              "warm_three_predictions_median_ms": round(statistics.median(warm_ms), 3),
+              "warm_three_predictions_max_ms": round(max(warm_ms), 3),
+              "process_peak_rss_kib": resource.getrusage(resource.RUSAGE_SELF).ru_maxrss,
+              "providers": engine.session.get_providers(),
+              "predictions": first,
+              "pipeline_engine": analysis["engine"],
+          }, indent=2))
+          PY
