@@ -52,6 +52,7 @@ function submit(email = 'alice@example.invalid', password = 'offline-test-passwo
 beforeEach(() => {
   window.history.replaceState(null, '', '/')
   localStorage.clear()
+  sessionStorage.clear()
   URL.createObjectURL = vi.fn(() => 'blob:synthetic-report')
   URL.revokeObjectURL = vi.fn()
   vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(() => {})
@@ -115,6 +116,7 @@ describe('hosted session gate and minimal UI', () => {
     await act(async () => pending.resolve(fakeSession()))
     await screen.findByRole('link', { name: name('alice') })
     expect(provider.signIn).toHaveBeenCalledWith({ email: 'alice@example.invalid', password: 'offline-test-password' })
+    sessionStorage.setItem('reviews-dekho.pending-import', 'synthetic pending import')
     const out = screen.getByRole('button', { name: 'Sign out' })
     out.focus(); expect(document.activeElement).toBe(out)
     fireEvent.click(out)
@@ -122,6 +124,7 @@ describe('hosted session gate and minimal UI', () => {
     expect(screen.queryByText(name('alice'))).not.toBeInTheDocument()
     expect(JSON.stringify(localStorage)).not.toMatch(/offline-test-password|OFFLINE-TEST/)
     expect(JSON.stringify(sessionStorage)).not.toMatch(/offline-test-password|OFFLINE-TEST/)
+    expect(sessionStorage.getItem('reviews-dekho.pending-import')).toBeNull()
   })
 
   it('shows a safe credential error and allows another sign-in attempt', async () => {
@@ -295,5 +298,80 @@ describe('private UI state is scoped to the current account', () => {
     await screen.findByLabelText('Product A')
     expect(screen.getByLabelText('Product A')).toHaveValue('')
     expect(screen.getByLabelText('Product B')).toHaveValue('')
+  })
+})
+
+describe('hosted upload recovery', () => {
+  const limits = { maxRows: 10, maxReviewChars: 1000, maxUploadBytes: 1048576, maxRequestBytes: 1310720 }
+  const preview = { columns: ['review'], detected: { text: 'review' }, rowCount: 1,
+    sampleRows: [{ review: 'Great' }], warnings: [] }
+  const slot = 'reviews-dekho.pending-import'
+
+  async function openUpload() {
+    fireEvent.click(nav('/upload'))
+    await screen.findByText(/Up to 10 reviews.*1,000 characters/)
+  }
+
+  async function chooseFile() {
+    fireEvent.change(screen.getByLabelText('Review file'), {
+      target: { files: [new File(['review\nGreat'], 'sample.csv', { type: 'text/csv' })] },
+    })
+    return screen.findByRole('button', { name: /Import and analyse|Retry same import/ })
+  }
+
+  it('uses server limits and reconciles an uncertain import after reload without submitting again', async () => {
+    let key
+    const overrides = {
+      '/uploads/limits': () => json(limits),
+      '/uploads/preview': () => json(preview),
+      '/uploads/import': (_user, options) => {
+        key = options.headers['Idempotency-Key']
+        return json({ detail: 'Gateway timeout' }, 504)
+      },
+    }
+    const view = await signedIn(fakeProvider(fakeSession()), overrides)
+    await openUpload()
+    expect(screen.getByText(/CSV or Excel.*1.0 MB/)).toBeInTheDocument()
+    const button = await chooseFile()
+    fireEvent.submit(button.closest('form'))
+    fireEvent.submit(button.closest('form'))
+    await screen.findByText(/The import may have completed/)
+    expect(fetch.mock.calls.filter(([url]) => url.endsWith('/uploads/import'))).toHaveLength(1)
+    expect(JSON.parse(sessionStorage.getItem(slot)).key).toBe(key)
+    expect(sessionStorage.getItem(slot)).not.toContain('sample.csv')
+
+    view.unmount()
+    const lookup = vi.fn(() => json(product('alice')))
+    await signedIn(fakeProvider(fakeSession()), { ...overrides, [`/uploads/import-status/${key}`]: lookup })
+    await openUpload()
+    expect(screen.getByText(/select the original file/)).toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: 'Check import status' }))
+    await vi.waitFor(() => expect(window.location.pathname).toBe('/products/7'))
+    expect(lookup).toHaveBeenCalledTimes(1)
+    expect(fetch.mock.calls.some(([url]) => url.endsWith('/uploads/import'))).toBe(false)
+    expect(sessionStorage.getItem(slot)).toBeNull()
+  })
+
+  it('reuses the original key only on an explicit retry and clears the pending key on account change', async () => {
+    const keys = []
+    const provider = fakeProvider(fakeSession())
+    await signedIn(provider, {
+      '/uploads/limits': () => json(limits), '/uploads/preview': () => json(preview),
+      '/uploads/import': (_user, options) => {
+        keys.push(options.headers['Idempotency-Key'])
+        return json({ detail: 'Unavailable' }, 503)
+      },
+    })
+    await openUpload()
+    fireEvent.click(await chooseFile())
+    await screen.findByText(/The import may have completed/)
+    fireEvent.click(screen.getByRole('button', { name: 'Retry same import' }))
+    await screen.findByText(/The import may have completed/)
+    expect(keys).toEqual([keys[0], keys[0]])
+    await act(async () => provider.change(fakeSession('bob')))
+    await screen.findByRole('link', { name: name('bob') })
+    expect(sessionStorage.getItem(slot)).toBeNull()
+    await openUpload()
+    expect(screen.queryByRole('button', { name: 'Check import status' })).toBeNull()
   })
 })

@@ -3,7 +3,7 @@ import { useRef, useState } from 'react'
 import { MAX_FILE_BYTES, ACCEPTED_EXTENSIONS } from '../lib/files'
 import { formatFileSize } from '../lib/format'
 
-export default function FileDropzone({ file, onFile, onClear, error, disabled }) {
+export default function FileDropzone({ file, onFile, onClear, error, disabled, maxBytes = MAX_FILE_BYTES }) {
   const inputRef = useRef(null)
   const [dragging, setDragging] = useState(false)
 
@@ -48,7 +48,7 @@ export default function FileDropzone({ file, onFile, onClear, error, disabled })
             choose a file
           </button>
         </p>
-        <p className="mt-1 text-[13px] text-ink-3">CSV or Excel (.xlsx), up to {formatFileSize(MAX_FILE_BYTES)}</p>
+        <p className="mt-1 text-[13px] text-ink-3">CSV or Excel (.xlsx), up to {formatFileSize(maxBytes)}</p>
         <input ref={inputRef} type="file" accept={ACCEPTED_EXTENSIONS.join(',')} className="sr-only" tabIndex={-1} disabled={disabled}
           aria-label="Review file" onChange={(e) => { pick(e.target.files); e.target.value = '' }} />
       </div>

@@ -43,6 +43,8 @@ describe('static demo build', () => {
     await expect(api.health()).rejects.toMatchObject({ offline: true, message: expect.stringMatching(/online demo/) })
     await expect(api.listProducts()).rejects.toMatchObject({ offline: true })
     await expect(api.downloadReport(7, 'pdf')).rejects.toMatchObject({ offline: true })
+    await expect(api.uploadLimits()).rejects.toMatchObject({ offline: true })
+    await expect(api.importStatus('offline-import-key')).rejects.toMatchObject({ offline: true })
     expect(fetch).not.toHaveBeenCalled()
   })
 

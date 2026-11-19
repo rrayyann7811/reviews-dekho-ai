@@ -157,6 +157,18 @@ def _v8_durable_jobs(conn: Connection) -> None:
     conn.exec_driver_sql("CREATE INDEX ix_job_lease ON processing_jobs(status, lease_until, id)")
 
 
+def _v9_import_receipts(conn: Connection) -> None:
+    conn.exec_driver_sql(
+        "CREATE TABLE import_receipts (id INTEGER NOT NULL PRIMARY KEY, owner_id VARCHAR(64) NOT NULL, "
+        "request_key VARCHAR(64) NOT NULL, fingerprint VARCHAR(64) NOT NULL, "
+        "product_id INTEGER, result JSON, expires_at DATETIME NOT NULL,\n"
+        "CONSTRAINT fk_import_receipts_product FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE SET NULL,\n"
+        "CONSTRAINT uq_import_receipt_owner_key UNIQUE (owner_id, request_key)\n)"
+    )
+    conn.exec_driver_sql("CREATE INDEX ix_import_receipts_product_id ON import_receipts (product_id)")
+    conn.exec_driver_sql("CREATE INDEX ix_import_receipts_expires_at ON import_receipts (expires_at)")
+
+
 MIGRATIONS: list[tuple[str, Callable[[Connection], None]]] = [
     ("baseline (Phase 2 schema)", _v1_baseline),
     ("per-review results stored on each analysis run", _v2_review_snapshots),
@@ -166,6 +178,7 @@ MIGRATIONS: list[tuple[str, Callable[[Connection], None]]] = [
     ("owner-scoped products and fixed account-data expiry", _v6_product_ownership),
     ("product-linked jobs and stored results retention foundation", _v7_product_jobs),
     ("durable analysis job lifecycle and bounded claims", _v8_durable_jobs),
+    ("owner-scoped import receipts", _v9_import_receipts),
 ]
 LATEST_VERSION = len(MIGRATIONS)
 

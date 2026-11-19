@@ -101,7 +101,7 @@ def test_all_api_data_routes_require_authentication_before_validation(secure):
             response = secure.request(method, url)
             assert response.status_code == 401, (method, url, response.text)
             seen += 1
-    assert seen == 28
+    assert seen == 30
 
 
 def test_client_supplied_owner_and_subject_fields_never_assign_ownership(secure, identity):
@@ -227,7 +227,7 @@ def test_recovery_and_refreshed_recovery_jwts_cannot_access_any_private_operatio
                   for path, methods in secure.get('/openapi.json').json()['paths'].items()
                   for method in methods if method.upper() in {'GET', 'POST', 'PATCH', 'DELETE'}
                   and not (method == 'get' and path in {'/api/health', '/api/sites'})]
-    assert len(operations) == 28
+    assert len(operations) == 30
     for methods in [['recovery'], ['recovery', 'token_refresh'], ['password', 'recovery']]:
         headers = auth_header(identity(claims={'amr': [{'method': name, 'timestamp': 1} for name in methods]}))
         for method, path in operations:

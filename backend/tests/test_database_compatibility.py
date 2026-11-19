@@ -137,11 +137,12 @@ def test_append_only_postgres_migration_chain_matches_orm_schema_on_sqlite_test_
     with engine.begin() as conn:
         with Operations.context(MigrationContext.configure(conn)):
             baseline_revision().upgrade()
-            path = Path(__file__).resolve().parents[1] / 'alembic/versions/0002_durable_jobs.py'
-            spec = importlib.util.spec_from_file_location('test_pg_jobs_revision', path)
-            revision = importlib.util.module_from_spec(spec)
-            spec.loader.exec_module(revision)
-            revision.upgrade()
+            for filename in ('0002_durable_jobs.py', '0003_import_receipts.py'):
+                path = Path(__file__).resolve().parents[1] / 'alembic/versions' / filename
+                spec = importlib.util.spec_from_file_location(path.stem, path)
+                revision = importlib.util.module_from_spec(spec)
+                spec.loader.exec_module(revision)
+                revision.upgrade()
     actual = inspect(engine)
     assert set(actual.get_table_names()) == set(database.Base.metadata.tables)
     for name, table in database.Base.metadata.tables.items():
@@ -158,7 +159,7 @@ def test_job_migration_failure_rolls_back_version_and_keeps_existing_data(tmp_pa
         patch.setattr(migrations, 'MIGRATIONS', migrations.MIGRATIONS[:6])
         patch.setattr(migrations, 'LATEST_VERSION', 6)
         # Old metadata must not create the new table for this fixture.
-        database.Base.metadata.create_all(engine, tables=[t for n, t in database.Base.metadata.tables.items() if n != 'processing_jobs'])
+        database.Base.metadata.create_all(engine, tables=[t for n, t in database.Base.metadata.tables.items() if n not in {'processing_jobs', 'import_receipts'}])
         with engine.begin() as conn:
             conn.exec_driver_sql('PRAGMA user_version=6')
     with Session(engine) as db:

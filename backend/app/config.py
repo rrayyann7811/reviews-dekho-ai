@@ -5,6 +5,7 @@ Override any of these when starting the server, e.g.
 """
 import os
 from pathlib import Path
+from urllib.parse import urlsplit
 
 BACKEND_DIR = Path(__file__).resolve().parents[1]
 STORAGE_DIR = BACKEND_DIR / "storage"  # git-ignored
@@ -116,3 +117,33 @@ if JOB_MAX_ATTEMPTS > 5:
 JOB_MAX_STORED = _positive_limit("JOB_MAX_STORED", 500)
 JOB_MAX_PER_OWNER = _positive_limit("JOB_MAX_PER_OWNER", 50)
 JOB_MAX_PER_PRODUCT = _positive_limit("JOB_MAX_PER_PRODUCT", 20)
+
+
+def _boolean(name):
+    value = os.getenv(name, "false").strip().lower()
+    if value not in {"true", "false", "1", "0"}:
+        raise ValueError(f"{name} must be true/false or 1/0")
+    return value in {"true", "1"}
+
+
+PUBLIC_DEMO = _boolean("PUBLIC_DEMO")
+REQUIRE_TRANSFORMER = _boolean("REQUIRE_TRANSFORMER")
+if REQUIRE_TRANSFORMER and SENTIMENT_ENGINE not in {"auto", "transformer"}:
+    raise ValueError("REQUIRE_TRANSFORMER requires the ONNX sentiment engine")
+if PUBLIC_DEMO:
+    def _https_origin(value):
+        try:
+            url = urlsplit(value)
+            return (url.scheme == "https" and url.hostname and url.port != 0
+                    and not url.username and not url.password and not url.path
+                    and not url.query and not url.fragment
+                    and "*" not in value and not any(char.isspace() for char in value))
+        except ValueError:
+            return False
+
+    if (MAX_ROWS, MAX_REVIEW_CHARS, MAX_UPLOAD_BYTES, MAX_REQUEST_BYTES) != (10, 1000, 1048576, 1310720):
+        raise ValueError("PUBLIC_DEMO requires the verified upload limits")
+    if (AUTH_MODE != "jwt" or not REQUIRE_TRANSFORMER or AI_SUMMARIES_ENABLED or not RATE_LIMIT_ENABLED
+            or MAX_EXPENSIVE_REQUESTS != 1 or not DATABASE_URL.startswith(("postgresql://", "postgresql+psycopg://"))
+            or not CORS_ORIGINS or not all(map(_https_origin, CORS_ORIGINS))):
+        raise ValueError("PUBLIC_DEMO requires JWT, PostgreSQL, strict ONNX, exact HTTPS origins and resource protections")

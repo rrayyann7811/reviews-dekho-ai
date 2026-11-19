@@ -21,9 +21,13 @@ import time
 import numpy as np
 
 from .. import config
+from ..errors import AppError
+from ..model_assets import verify_model_files
 from .sentiment import score_text
 
 log = logging.getLogger("reviews_dekho.nlp")
+
+ONNX_UNAVAILABLE = "The ONNX analysis service is temporarily unavailable."
 
 PIPELINE_VERSION = 2  # 1 = Phases 1-3 (VADER only, one product feature list)
 
@@ -103,42 +107,56 @@ class TransformerEngine:
 _vader = VaderEngine()
 _transformer = None
 _transformer_error = None
+_verified_transformer = False
 _lock = threading.Lock()
 
 
 def _load_transformer():
     """Load the model once per process. Returns (engine, None) or (None, reason)."""
-    global _transformer, _transformer_error
+    global _transformer, _transformer_error, _verified_transformer
     with _lock:
+        if config.REQUIRE_TRANSFORMER and not _verified_transformer:
+            _transformer = _transformer_error = None
+            _verified_transformer = True
         if _transformer is None and _transformer_error is None:
             started = time.perf_counter()
             try:
                 if not (config.MODEL_DIR / "model_quantized.onnx").exists():
                     raise FileNotFoundError("model files are not installed (run scripts/download_model.py)")
-                _transformer = TransformerEngine()
+                if config.REQUIRE_TRANSFORMER:
+                    verify_model_files(config.MODEL_DIR)
+                engine = TransformerEngine()
+                if config.REQUIRE_TRANSFORMER and engine.session.get_providers() != ["CPUExecutionProvider"]:
+                    raise RuntimeError("Unexpected ONNX execution provider")
+                _transformer = engine
                 log.info("Loaded sentiment model in %.1fs", time.perf_counter() - started)
             except Exception as exc:  # missing files, missing package, damaged model…
                 # Stored with the run and shown in the UI, so don't include local folder paths.
                 _transformer_error = f"{type(exc).__name__}: {exc}".replace(str(config.BACKEND_DIR), "backend")
-                log.warning("Sentiment model unavailable, using VADER: %s", _transformer_error)
+                if config.REQUIRE_TRANSFORMER:
+                    log.warning("Required ONNX model unavailable (%s)", type(exc).__name__)
+                else:
+                    log.warning("Sentiment model unavailable, using VADER: %s", _transformer_error)
         return _transformer, _transformer_error
 
 
 def reset_engines() -> None:
     """Forget the loaded model (used by tests and after installing the model)."""
-    global _transformer, _transformer_error
+    global _transformer, _transformer_error, _verified_transformer
     with _lock:
-        _transformer, _transformer_error = None, None
+        _transformer, _transformer_error, _verified_transformer = None, None, False
 
 
 def get_engine(preference: str | None = None):
     """Return (engine, fallback_reason). fallback_reason is None when the preferred engine is used."""
     preference = (preference or config.SENTIMENT_ENGINE).lower()
-    if preference == "vader":
+    if preference == "vader" and not config.REQUIRE_TRANSFORMER:
         return _vader, None
     engine, error = _load_transformer()
     if engine is not None:
         return engine, None
+    if config.REQUIRE_TRANSFORMER:
+        raise AppError(ONNX_UNAVAILABLE, 503)
     return _vader, f"The sentiment model couldn’t be used, so VADER was used instead ({error})."
 
 

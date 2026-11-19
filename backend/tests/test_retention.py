@@ -13,14 +13,14 @@ from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timedelta, timezone
 
 import pytest
-from sqlalchemy import event, select, func
+from sqlalchemy import event, inspect, select, func
 from sqlalchemy.exc import OperationalError
 from sqlalchemy.orm import Session
 
-from app import database
+from app import database, migrations
 from app.auth import Principal
-from app.models import Product, Review, AnalysisResult, AiSummary, ProcessingJob
-from app.services import retention, ownership
+from app.models import Product, Review, AnalysisResult, AiSummary, ProcessingJob, ImportReceipt
+from app.services import import_receipts, retention, ownership
 
 NOW = datetime(2026, 11, 1, tzinfo=timezone.utc)
 CLI = Path(__file__).resolve().parents[1] / 'scripts/purge_expired_data.py'
@@ -59,6 +59,80 @@ def numbers(engine):
     with Session(engine) as db:
         return {name: db.scalar(select(func.count()).select_from(model)) for name, model in zip(
             retention.TABLES, [Product, Review, AnalysisResult, AiSummary, ProcessingJob])}
+
+
+@pytest.mark.parametrize("upgrade_from_v8", [True, False], ids=["upgraded-v8", "fresh-v9"])
+def test_receipt_foreign_key_and_retention_after_schema_setup(tmp_path, upgrade_from_v8):
+    engine = database.make_engine(f"sqlite:///{tmp_path / 'receipt-retention.db'}")
+    try:
+        if upgrade_from_v8:
+            with engine.begin() as conn:
+                v8_tables = [table for table in database.Base.metadata.sorted_tables
+                             if table is not ImportReceipt.__table__]
+                database.Base.metadata.create_all(conn, tables=v8_tables)
+                conn.exec_driver_sql("PRAGMA user_version=8")
+        else:
+            database.init_db(engine)
+
+        due = seed(engine, owner="alice")
+        other = seed(engine, owner="bob")
+        early_delete = seed(engine, owner="alice", created=NOW - timedelta(days=1))
+        assert migrations.upgrade(engine) == int(upgrade_from_v8)
+        assert migrations.upgrade(engine) == 0
+        with engine.connect() as conn:
+            assert migrations.get_version(conn) == 9
+            foreign_key, = conn.exec_driver_sql("PRAGMA foreign_key_list(import_receipts)").mappings().all()
+            assert (foreign_key["table"], foreign_key["from"], foreign_key["to"], foreign_key["on_delete"]) == (
+                "products", "product_id", "id", "SET NULL",
+            )
+            reflected, = inspect(conn).get_foreign_keys("import_receipts")
+            assert reflected["options"]["ondelete"] == "SET NULL"
+        retention.check_retention_schema(engine)
+
+        deadline = NOW + timedelta(days=6)
+        key = "retention-test-key"
+        with Session(engine) as db:
+            assert set(db.execute(select(Product.id, Product.owner_id, Product.name)).all()) == {
+                (due, "alice", PRIVATE), (other, "bob", PRIVATE), (early_delete, "alice", PRIVATE),
+            }
+            assert set(db.execute(select(Review.product_id, Review.text)).all()) == {
+                (due, PRIVATE), (other, PRIVATE), (early_delete, PRIVATE),
+            }
+            db.add_all([
+                ImportReceipt(owner_id="alice", request_key=key, fingerprint="a" * 64,
+                              product_id=early_delete, expires_at=deadline),
+                ImportReceipt(owner_id="bob", request_key=key, fingerprint="b" * 64,
+                              product_id=other, expires_at=NOW - timedelta(days=1)),
+            ])
+            db.flush()
+            db.delete(db.get(Product, early_delete))
+            db.commit()
+
+        dry = retention.run_cleanup(engine, owner_id="alice", now=NOW, dry_run=True)
+        assert dry["status"] == "complete"
+        assert dry["matched"]["products"] == dry["matched"]["reviews"] == 1
+        assert dry["deleted"] == dict.fromkeys(retention.TABLES, 0)
+        assert numbers(engine)["products"] == numbers(engine)["reviews"] == 2
+
+        removed = retention.run_cleanup(engine, owner_id="alice", now=NOW)
+        assert removed["deleted"]["products"] == removed["deleted"]["reviews"] == 1
+        assert removed["receipts"]["deleted"] == 0
+        with Session(engine) as db:
+            assert list(db.scalars(select(Product.id))) == [other]
+            assert list(db.scalars(select(Review.product_id))) == [other]
+            db.info["principal"] = Principal("alice")
+            tombstone = db.scalars(import_receipts.receipt_query(db, key)).one()
+            assert tombstone.product_id is None and tombstone.expires_at == deadline
+            db.info["principal"] = Principal("bob")
+            assert db.scalars(import_receipts.receipt_query(db, key)).one().product_id == other
+
+        assert retention.run_cleanup(engine, owner_id="alice", now=deadline - timedelta(microseconds=1))[
+            "receipts"]["deleted"] == 0
+        assert retention.run_cleanup(engine, owner_id="alice", now=deadline)["receipts"]["deleted"] == 1
+        with Session(engine) as db:
+            assert list(db.scalars(select(ImportReceipt.owner_id))) == ["bob"]
+    finally:
+        engine.dispose()
 
 
 def test_boundaries_creation_cap_and_local_preservation(store, monkeypatch):

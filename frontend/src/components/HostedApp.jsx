@@ -4,6 +4,7 @@ import { AppRoutes } from '../App'
 import { invalidateAuthenticatedRequests, setAccessTokenProvider } from '../lib/api'
 import { createSessionController } from '../lib/session'
 import { ServerStatusProvider } from '../lib/serverStatus'
+import { clearPendingImport, HostedUploadAccount, readPendingImport } from '../lib/pendingImport'
 import { SettingsProvider } from '../lib/settings'
 import Logo from './layout/Logo'
 import Button from './ui/Button'
@@ -62,12 +63,17 @@ function ScopedRoutes({ scope }) {
 
 // A future managed-provider adapter is passed here explicitly. There is no production/fake provider fallback.
 export default function HostedApp({ provider = null }) {
-  const controller = useMemo(() => createSessionController(provider, { onBoundary: () => {
+  const controller = useMemo(() => createSessionController(provider, { onBoundary: (previous, next, cleared) => {
     invalidateAuthenticatedRequests()
+    if (cleared || (previous && previous !== next)) clearPendingImport()
+    else if (next) readPendingImport(next)
     window.history.replaceState(null, '', '/')
   } }), [provider])
   const state = useSyncExternalStore(controller.subscribe, controller.getSnapshot)
   const scope = `${controller.id}:${state.epoch}`
+  useEffect(() => {
+    if (state.status === 'signedOut') clearPendingImport()
+  }, [state.status])
   useEffect(() => {
     setAccessTokenProvider(controller.getAccessToken, { onUnauthorized: controller.rejectAccessToken })
     void controller.start()
@@ -89,7 +95,9 @@ export default function HostedApp({ provider = null }) {
           <span>Signed in{state.user.email ? ` as ${state.user.email}` : ''}</span>
           <Button variant="secondary" size="sm" onClick={() => { void controller.signOut() }}>Sign out</Button>
         </section></div>
-        <BrowserRouter><ScopedRoutes scope={scope} /></BrowserRouter>
+        <HostedUploadAccount.Provider value={state.accountScope}>
+          <BrowserRouter><ScopedRoutes scope={scope} /></BrowserRouter>
+        </HostedUploadAccount.Provider>
       </ServerStatusProvider>
     </SettingsProvider>
   )

@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useContext, useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import FileDropzone from '../components/FileDropzone'
 import PageHeader from '../components/layout/PageHeader'
@@ -10,6 +10,7 @@ import Panel from '../components/ui/Panel'
 import Spinner from '../components/ui/Spinner'
 import { api } from '../lib/api'
 import { validateReviewFile } from '../lib/files'
+import { clearPendingImport, HostedUploadAccount, readPendingImport, savePendingImport } from '../lib/pendingImport'
 import { plural } from '../lib/format'
 import { estimatedMinutes, LARGE_ANALYSIS, largeAnalysisNotice } from '../lib/workload'
 import { STATIC_DEMO } from '../lib/staticDemo'
@@ -68,6 +69,56 @@ function PreviewTable({ preview }) {
 
 export default function UploadReviews() {
   const navigate = useNavigate()
+  const owner = useContext(HostedUploadAccount)
+  const [limits, setLimits] = useState(null)
+  const [limitsError, setLimitsError] = useState('')
+  const [pending, setPending] = useState(() => owner ? readPendingImport(owner) : null)
+  const [recovery, setRecovery] = useState('')
+  const inFlight = useRef(false)
+
+  useEffect(() => {
+    if (!owner || STATIC_DEMO) return
+    let active = true
+    api.uploadLimits().then((result) => {
+      if (![result?.maxRows, result?.maxReviewChars, result?.maxUploadBytes].every(
+        (value) => Number.isSafeInteger(value) && value > 0)) throw new Error('Invalid limits')
+      if (active) setLimits(result)
+    }).catch(() => {
+      if (active) setLimitsError('Couldn’t load the upload limits. Reload this page to try again.')
+    })
+    return () => { active = false }
+  }, [owner])
+
+  function clearPending() {
+    clearPendingImport()
+    setPending(null)
+    setRecovery('')
+  }
+
+  async function checkImport() {
+    if (!pending || inFlight.current) return
+    inFlight.current = true
+    setBusy('checking')
+    setRecovery('')
+    try {
+      const product = await api.importStatus(pending.key)
+      clearPending()
+      navigate(`/products/${product.id}`)
+    } catch (err) {
+      if (err.name === 'AbortError') return
+      if (err.status === 410) {
+        clearPending()
+        setRecovery('That import is no longer available. You can start a new import.')
+      } else {
+        setRecovery(err.status === 404
+          ? 'No completed import is recorded yet. Check again, or select the original file and use the same import options to retry safely.'
+          : 'Couldn’t check import status. Try checking again before starting another import.')
+      }
+    } finally {
+      inFlight.current = false
+      setBusy(null)
+    }
+  }
   const [file, setFile] = useState(null)
   const [fileError, setFileError] = useState('')
   const [preview, setPreview] = useState(null)
@@ -88,7 +139,7 @@ export default function UploadReviews() {
 
   async function handleFile(selected) {
     reset()
-    const problem = validateReviewFile(selected)
+    const problem = validateReviewFile(selected, limits?.maxUploadBytes)
     setFileError(problem ?? '')
     if (problem) return
     setFile(selected)
@@ -107,15 +158,34 @@ export default function UploadReviews() {
 
   async function handleImport(event) {
     event.preventDefault()
+    if (inFlight.current || (owner && !limits)) return
     if (!columns.text) return setError('Choose the column that contains the review text.')
     if (!productName.trim()) return setError('Enter a product name.')
     setError('')
+    setRecovery('')
+    inFlight.current = true
     setBusy('importing')
+    const attempt = owner ? pending ?? savePendingImport(owner) : null
+    if (attempt) setPending(attempt)
     try {
-      const product = await api.importUpload(file, { productName: productName.trim(), columns, domain })
+      const product = await api.importUpload(file, {
+        productName: productName.trim(), columns, domain, key: attempt?.key,
+      })
+      if (owner) clearPending()
       navigate(`/products/${product.id}`)
     } catch (err) {
-      setError(err.message)
+      if (err.name === 'AbortError') return
+      if (attempt && (err.status == null || err.status === 408 || err.status === 499 || err.status >= 500)) {
+        setRecovery('The import may have completed. Check import status before submitting again.')
+      } else if (attempt && err.status === 410) {
+        clearPending()
+        setError(err.message)
+      } else {
+        if (attempt && !pending && err.status !== 409) clearPending()
+        setError(err.message)
+      }
+    } finally {
+      inFlight.current = false
       setBusy(null)
     }
   }
@@ -128,7 +198,19 @@ export default function UploadReviews() {
       <div className="grid items-start gap-6 lg:grid-cols-3">
         <div className="space-y-6 lg:col-span-2">
           <Panel title="1. Choose a file">
-            <FileDropzone file={file} onFile={handleFile} onClear={() => { reset(); setFileError('') }} error={fileError} disabled={!!busy || STATIC_DEMO} />
+            {owner && limits && <p className="mb-3 text-sm text-ink-2">
+              Up to {limits.maxRows.toLocaleString()} reviews. The first {limits.maxReviewChars.toLocaleString()} characters of each review are analysed.
+            </p>}
+            {limitsError && <Alert variant="error">{limitsError}</Alert>}
+            {!STATIC_DEMO && pending && <Alert title="Check your previous import">
+              <p>{recovery || (file ? 'This import may already have been saved.' :
+                'Your previous import may have been saved. Check its status. To retry, select the original file and use the same import options.')}</p>
+              <Button variant="secondary" size="sm" className="mt-2" onClick={checkImport} disabled={!!busy}>
+                {busy === 'checking' ? 'Checking…' : 'Check import status'}
+              </Button>
+            </Alert>}
+            {!pending && recovery && <Alert>{recovery}</Alert>}
+            <FileDropzone file={file} onFile={handleFile} onClear={() => { reset(); setFileError('') }} error={fileError} maxBytes={limits?.maxUploadBytes} disabled={!!busy || STATIC_DEMO || Boolean(owner && !limits)} />
             {busy === 'reading' && <Spinner className="mt-4" label="Reading file…" />}
             {error && !preview && <Alert variant="error" title="Couldn’t read this file" className="mt-4">{error}</Alert>}
           </Panel>
@@ -177,11 +259,11 @@ export default function UploadReviews() {
                 {busy === 'importing' && (
                   <Spinner label={preview.rowCount > LARGE_ANALYSIS
                     ? `Importing and analysing ${plural(preview.rowCount, 'row')}… this can take about ${estimatedMinutes(preview.rowCount)} minutes. Keep this page open.`
-                    : 'Importing and analysing the reviews…'} />
+                    : owner ? 'Importing and analysing the reviews… Keep this page open.' : 'Importing and analysing the reviews…'} />
                 )}
                 <div className="flex justify-end gap-2 border-t border-line pt-4">
                   <Button variant="secondary" onClick={() => { reset(); setFileError('') }} disabled={!!busy}>Cancel</Button>
-                  <Button type="submit" disabled={!!busy}>{busy === 'importing' ? 'Analysing…' : 'Import and analyse'}</Button>
+                  <Button type="submit" disabled={!!busy}>{busy === 'importing' ? 'Analysing…' : pending ? 'Retry same import' : 'Import and analyse'}</Button>
                 </div>
               </form>
             </Panel>

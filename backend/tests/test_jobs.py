@@ -300,7 +300,7 @@ def test_invalid_job_requests_do_not_persist(client, body):
 
 def test_job_migration_preserves_legacy_results_and_disarms_pending(tmp_path, monkeypatch):
     engine = database.make_engine(f'sqlite:///{tmp_path / "v7.db"}')
-    # Build a true old table; Base.metadata now describes v8 and cannot create a v7 fixture.
+    # Build a true old table; Base.metadata describes the latest schema and cannot create a v7 fixture.
     with engine.begin() as conn:
         for ddl in ('CREATE TABLE products (id INTEGER PRIMARY KEY)',
                     'CREATE TABLE processing_jobs (id INTEGER PRIMARY KEY, product_id INTEGER NOT NULL REFERENCES products(id) ON DELETE CASCADE, created_at DATETIME NOT NULL, status VARCHAR(20) NOT NULL, result JSON)',
@@ -309,7 +309,7 @@ def test_job_migration_preserves_legacy_results_and_disarms_pending(tmp_path, mo
                     '''INSERT INTO processing_jobs VALUES(1,1,'2026-11-01','pending','{"synthetic":true}')''',
                     'PRAGMA user_version=7'):
             conn.exec_driver_sql(ddl)
-    assert migrations.upgrade(engine) == 1
+    assert migrations.upgrade(engine) == migrations.LATEST_VERSION - 7
     with engine.connect() as conn:
         row = conn.exec_driver_sql('SELECT status,result,request_key,attempts FROM processing_jobs').one()
         assert row == ('cancelled', '{"synthetic":true}', None, 0)

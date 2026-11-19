@@ -6,7 +6,7 @@ import traceback
 
 from sqlalchemy import delete, select, func, or_, inspect
 
-from ..models import Product, Review, AnalysisResult, AiSummary, ProcessingJob
+from ..models import Product, Review, AnalysisResult, AiSummary, ProcessingJob, ImportReceipt
 from ..auth import LOCAL_OWNER
 from .ownership import RETENTION_DAYS
 
@@ -86,6 +86,10 @@ def check_retention_schema(engine):
                        and (f.get("options", {}).get("ondelete") or "").upper() == "CASCADE"
                        for f in reflection.get_foreign_keys(child)):
                 raise RetentionSchemaError("Required deletion cascade is missing")
+        if not any(f["referred_table"] == "products" and f["constrained_columns"] == ["product_id"]
+                   and (f.get("options", {}).get("ondelete") or "").upper() == "SET NULL"
+                   for f in reflection.get_foreign_keys("import_receipts")):
+            raise RetentionSchemaError("Required import receipt tombstone constraint is missing")
 
 
 def _counts(connection, ids):
@@ -137,6 +141,35 @@ def cleanup_batch(engine, *, cutoff, batch_size, owner_id=None, dry_run=False, a
                 raw.invalidate()
 
 
+def cleanup_receipts(engine, *, cutoff, owner_id, batch_size, max_batches, dry_run, report):
+    predicate = ImportReceipt.expires_at <= cutoff
+    if owner_id is not None:
+        predicate &= ImportReceipt.owner_id == owner_id
+    query = select(ImportReceipt.id).where(predicate).order_by(ImportReceipt.id)
+    cursor = 0
+    for _ in range(max_batches):
+        with engine.connect() as raw, raw.execution_options(
+            sqlite_begin_mode="DEFERRED" if dry_run else "IMMEDIATE"
+        ).begin():
+            connection = raw
+            batch = query.where(ImportReceipt.id > cursor).limit(batch_size)
+            if not dry_run and engine.dialect.name == "postgresql":
+                batch = batch.with_for_update(skip_locked=True)
+            ids = list(connection.scalars(batch))
+            if not ids:
+                break
+            deleted = 0
+            if not dry_run:
+                with connection.execute(delete(ImportReceipt).where(ImportReceipt.id.in_(ids), predicate)) as result:
+                    deleted = result.rowcount
+        report["matched"] += len(ids)
+        report["deleted"] += deleted
+        if dry_run:
+            cursor = ids[-1]
+    with engine.connect() as connection:
+        return connection.scalar(query.where(ImportReceipt.id > cursor).limit(1)) is not None
+
+
 def run_cleanup(engine, *, batch_size=100, max_batches=10, dry_run=False, owner_id=None, now=None):
     if not 1 <= batch_size <= 1000 or not 1 <= max_batches <= 1000 or owner_id == LOCAL_OWNER:
         raise ValueError("Invalid retention limits/owner")
@@ -148,7 +181,7 @@ def run_cleanup(engine, *, batch_size=100, max_batches=10, dry_run=False, owner_
     report = {"run_id": str(uuid.uuid4()), "status": "running", "dry_run": dry_run,
         "cutoff": cutoff.isoformat(), "batches": 0, "committed_batches": 0,
         "matched": {key: 0 for key in TABLES}, "deleted": {key: 0 for key in TABLES},
-        "remaining": None, "error": None, "duration_ms": 0}
+        "receipts": {"matched": 0, "deleted": 0}, "remaining": None, "error": None, "duration_ms": 0}
     cursor = None
     try:
         check_retention_schema(engine)
@@ -170,6 +203,9 @@ def run_cleanup(engine, *, batch_size=100, max_batches=10, dry_run=False, owner_
                 query = query.where(Product.id > cursor)
             with connection.execute(query) as result:
                 report["remaining"] = result.scalar() is not None
+        receipts_remaining = cleanup_receipts(engine, cutoff=cutoff, owner_id=owner_id,
+            batch_size=batch_size, max_batches=max_batches, dry_run=dry_run, report=report["receipts"])
+        report["remaining"] |= receipts_remaining
         report["status"] = "partial" if report["remaining"] else "complete"
         return report
     except RetentionSchemaError as error:

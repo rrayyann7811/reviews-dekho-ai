@@ -14,8 +14,10 @@ Steps for each review:
 """
 from collections import Counter
 
+from .. import config
+from ..errors import AppError
 from .aspects import choose_vocabulary, find_mentions, verdict
-from .engines import PIPELINE_VERSION, get_engine, vader_engine
+from .engines import ONNX_UNAVAILABLE, PIPELINE_VERSION, get_engine, vader_engine
 from .keywords import extract_keywords, name_stopwords
 from .language import NOT_SUPPORTED, SUPPORTED, detect_language
 from .preprocess import normalize_text, tidy_for_analysis, word_count
@@ -44,6 +46,8 @@ def _predict(engine, texts: list[str]):
     try:
         return engine, engine.predict(texts), None
     except Exception as exc:  # e.g. a damaged model file
+        if config.REQUIRE_TRANSFORMER:
+            raise AppError(ONNX_UNAVAILABLE, 503) from None
         fallback = vader_engine()
         return fallback, fallback.predict(texts), f"The sentiment model failed during analysis ({exc}); VADER was used."
 

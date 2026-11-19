@@ -84,7 +84,9 @@ async function scopedRequest(url, options, consume) {
   let response
   try {
     try {
-      response = await fetch(url, controller ? { ...authenticated, signal: controller.signal } : authenticated)
+      const signal = controller && authenticated.signal
+        ? AbortSignal.any([controller.signal, authenticated.signal]) : controller?.signal ?? authenticated.signal
+      response = await fetch(url, signal ? { ...authenticated, signal } : authenticated)
     } catch (err) {
       check()
       if (err.name === 'AbortError') throw err
@@ -125,13 +127,18 @@ export const api = {
     form.append('file', file)
     return request('/uploads/preview', { method: 'POST', body: form })
   },
-  importUpload: (file, { productName, columns, domain = 'product' }) => {
+  uploadLimits: () => request('/uploads/limits'),
+  importStatus: (key) => request(`/uploads/import-status/${encodeURIComponent(key)}`, { cache: 'no-store' }),
+  importUpload: (file, { productName, columns, domain = 'product', key }) => {
     const form = new FormData()
     form.append('file', file)
     form.append('product_name', productName)
     form.append('columns', JSON.stringify(columns))
     form.append('domain', domain)
-    return request('/uploads/import', { method: 'POST', body: form })
+    return request('/uploads/import', {
+      method: 'POST', body: form,
+      ...(key ? { headers: { 'Idempotency-Key': key }, signal: AbortSignal.timeout(40000) } : {}),
+    })
   },
   reportUrl: (productId, format, analysisId) =>
     `${API_URL}/products/${encodeURIComponent(productId)}/report.${format}${analysisId ? `?analysis_id=${analysisId}` : ''}`,

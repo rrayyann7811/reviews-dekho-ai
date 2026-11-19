@@ -69,7 +69,7 @@ def create_app() -> FastAPI:
         CORSMiddleware,
         allow_origins=config.CORS_ORIGINS,
         allow_methods=["GET", "POST", "PATCH", "DELETE"],
-        allow_headers=["Content-Type", "Authorization"],
+        allow_headers=["Content-Type", "Authorization", "Idempotency-Key"],
         expose_headers=["Content-Disposition", "Retry-After"],
     )
     register_error_handlers(app)

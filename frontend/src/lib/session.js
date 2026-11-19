@@ -17,7 +17,7 @@ function normalize(value) {
 export function createSessionController(provider, { onBoundary = () => {}, now = Date.now, timeoutMs = 10000 } = {}) {
   const configured = ['getSession', 'signIn', 'signOut', 'refreshSession', 'onSessionChange']
     .every((name) => typeof provider?.[name] === 'function')
-  let snapshot = { status: configured ? 'restoring' : 'unconfigured', user: null, epoch: 0, error: '' }
+  let snapshot = { status: configured ? 'restoring' : 'unconfigured', user: null, accountScope: null, epoch: 0, error: '' }
   let current = null
   let revision = 0
   let active = false
@@ -42,11 +42,12 @@ export function createSessionController(provider, { onBoundary = () => {}, now =
   const clear = (error = '', blockEvents = false) => {
     revision++
     acceptEvents = !blockEvents
+    const previous = identity(current)
     current = null
     refreshFlight = null
     clearTimeout(expiryTimer)
-    onBoundary()
-    publish({ status: 'signedOut', user: null, epoch: snapshot.epoch + 1, error })
+    onBoundary(previous, null, true)
+    publish({ status: 'signedOut', user: null, accountScope: null, epoch: snapshot.epoch + 1, error })
   }
   const scheduleExpiry = () => {
     clearTimeout(expiryTimer)
@@ -60,11 +61,13 @@ export function createSessionController(provider, { onBoundary = () => {}, now =
   }
   const apply = (session) => {
     revision++
-    const changed = identity(current) !== identity(session) || Boolean(current?.recoveryRequired) !== Boolean(session?.recoveryRequired)
+    const previous = identity(current)
+    const next = identity(session)
+    const changed = previous !== next || Boolean(current?.recoveryRequired) !== Boolean(session?.recoveryRequired)
     if (changed) refreshFlight = null
     current = session
-    if (changed) onBoundary()
-    publish({ status: session ? (valid() ? (session.recoveryRequired ? 'recovery' : 'signedIn') : 'restoring') : 'signedOut', user: session?.user ?? null,
+    if (changed) onBoundary(previous, session?.recoveryRequired ? null : next)
+    publish({ status: session ? (valid() ? (session.recoveryRequired ? 'recovery' : 'signedIn') : 'restoring') : 'signedOut', user: session?.user ?? null, accountScope: next,
       epoch: snapshot.epoch + (changed ? 1 : 0), error: '' })
     scheduleExpiry()
   }
@@ -140,7 +143,7 @@ export function createSessionController(provider, { onBoundary = () => {}, now =
       unsubscribe?.()
       unsubscribe = null
       onBoundary()
-      publish({ status: configured ? 'restoring' : 'unconfigured', user: null, epoch: snapshot.epoch + 1 })
+      publish({ status: configured ? 'restoring' : 'unconfigured', user: null, accountScope: null, epoch: snapshot.epoch + 1 })
     },
     signIn: async (credentials) => {
       if (!configured || !active || snapshot.status === 'signingOut') return

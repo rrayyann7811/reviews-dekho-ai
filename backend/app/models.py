@@ -154,3 +154,18 @@ class ProcessingJob(Base):
     claim_token: Mapped[str | None] = mapped_column(String(64))
     finished_at: Mapped[datetime | None] = mapped_column(UTCDateTime())
     error: Mapped[str | None] = mapped_column(String(160))
+
+
+class ImportReceipt(Base):
+    """A committed import result or a tombstone until its original expiry."""
+
+    __tablename__ = "import_receipts"
+    __table_args__ = (UniqueConstraint("owner_id", "request_key", name="uq_import_receipt_owner_key"),)
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    owner_id: Mapped[str] = mapped_column(String(64))
+    request_key: Mapped[str] = mapped_column(String(64))
+    fingerprint: Mapped[str] = mapped_column(String(64))
+    product_id: Mapped[int | None] = mapped_column(ForeignKey("products.id", ondelete="SET NULL"), index=True)
+    result: Mapped[dict | None] = mapped_column(JSON)
+    expires_at: Mapped[datetime] = mapped_column(UTCDateTime(), index=True)

@@ -1,9 +1,10 @@
 from fastapi import APIRouter, Depends, Query, Response, status
+from sqlalchemy import update
 from sqlalchemy.orm import Session
 
 from ..database import get_db
 from ..errors import AppError
-from ..models import Product
+from ..models import ImportReceipt, Product
 from ..schemas import Analysis, ErrorResponse, ProductCreate, ProductSummary, ProductUpdate, UrlRequest
 from ..services import analysis as analysis_service
 from ..services import products as product_service
@@ -72,7 +73,10 @@ def update_product(product_id: int, body: ProductUpdate, db: Session = Depends(g
 @router.delete("/{product_id}", status_code=status.HTTP_204_NO_CONTENT, responses=NOT_FOUND,
                summary="Delete a product with its reviews and analysis history")
 def delete_product(product_id: int, db: Session = Depends(get_db)):
-    db.delete(product_service.get_product(db, product_id))
+    product = product_service.get_product(db, product_id)
+    if product.source == "upload":
+        db.execute(update(ImportReceipt).where(ImportReceipt.product_id == product.id).values(result=None))
+    db.delete(product)
     db.commit()
     return Response(status_code=status.HTTP_204_NO_CONTENT)
 
