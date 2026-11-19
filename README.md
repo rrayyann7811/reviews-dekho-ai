@@ -3,6 +3,7 @@
 Turn product and app reviews into sentiment charts, feature-level insights and summaries backed by counts and exact
 review excerpts. The full application runs locally, keeps analysis snapshots in SQLite, and supports comparisons
 and PDF/CSV exports without a paid AI API.
+https://reviews-dekho-ai.vercel.app/
 
 **[Open the live demo](https://rrayyann7811.github.io/reviews-dekho-ai/)** ·
 [Local setup](docs/LOCAL_GUIDE.md) · [Architecture](#architecture) · [Evaluation](docs/EVALUATION.md)
