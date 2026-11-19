@@ -45,6 +45,12 @@ def make_engine(url: str) -> Engine:
             if parsed.query.get("sslmode", "verify-full") != "verify-full":
                 raise ValueError("Remote PostgreSQL requires sslmode=verify-full")
             args["sslmode"] = "verify-full"
+            if (config.PUBLIC_DEMO and parsed.host.endswith(".pooler.supabase.com")
+                    and "sslrootcert" not in parsed.query):
+                ca = Path(__file__).resolve().parent / "certs" / "supabase-root-2021.pem"
+                if not ca.is_file():
+                    raise ValueError("Bundled Supabase CA certificate is missing")
+                args["sslrootcert"] = str(ca)
         options["connect_args"] = args
         if config.DB_POOL_MODE == "null":
             options["poolclass"] = NullPool
