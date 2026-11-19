@@ -16,6 +16,7 @@ import AccountActions from './AccountActions'
 function SignIn({ state, controller, configured, provider }) {
   const busy = state.status === 'signingIn' || state.status === 'signingOut'
   const disabled = busy || !configured
+  const showcase = import.meta.env.VITE_PUBLIC_DEMO === 'true'
   function submit(event) {
     event.preventDefault()
     const form = event.currentTarget
@@ -30,7 +31,8 @@ function SignIn({ state, controller, configured, provider }) {
       <div>
         <h1 className="text-2xl font-semibold tracking-tight text-ink">Sign in</h1>
         <p id="auth-help" className="mt-2 text-sm text-ink-2">
-          {configured ? 'Sign in through the configured identity provider to access your private review workspace.'
+          {configured ? (showcase ? 'This showcase is invite-only. Contact the organiser for access or password help.'
+            : 'Sign in through the configured identity provider to access your private review workspace.')
             : 'Account sign-in is being prepared. No production identity provider is connected in this build.'}
         </p>
       </div>
@@ -43,7 +45,7 @@ function SignIn({ state, controller, configured, provider }) {
           <Button type="submit" disabled={disabled}>{state.status === 'signingOut' ? 'Signing out…' : busy ? 'Signing in…' : 'Sign in'}</Button>
         </form>
       </Panel>
-      {!busy && configured && <AccountActions provider={provider} />}
+      {!busy && configured && !showcase && <AccountActions provider={provider} />}
     </main>
   )
 }

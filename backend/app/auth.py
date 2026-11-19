@@ -108,7 +108,7 @@ class AuthMiddleware:
     async def __call__(self, scope, receive, send):
         if scope["type"] != "http" or not scope["path"].startswith("/api/"):
             return await self.app(scope, receive, send)
-        if scope["method"] == "GET" and scope["path"].rstrip("/") in PUBLIC_PATHS:
+        if not config.PUBLIC_DEMO and scope["method"] == "GET" and scope["path"].rstrip("/") in PUBLIC_PATHS:
             return await self.app(scope, receive, send)
         if self.mode == "local":
             host = (scope.get("client") or ("",))[0]

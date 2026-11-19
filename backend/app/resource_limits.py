@@ -13,8 +13,15 @@ class ResourceLimitsMiddleware:
     async def __call__(self, scope, receive, send):
         if scope['type'] != 'http':
             return await self.app(scope, receive, send)
+        groups = operation_groups(scope)
+        path = scope["path"].rstrip("/")
+        if config.PUBLIC_DEMO and ("collection" in groups or path.endswith("/ai-summary")
+                                   or "/jobs/" in path or path.endswith("/jobs")):
+            return await JSONResponse(
+                {"detail": "This feature is unavailable in the hosted showcase."}, status_code=404,
+            )(scope, receive, send)
         expensive = (scope['method'] in {'POST', 'PUT', 'PATCH', 'DELETE'}
-                     or bool(set(operation_groups(scope)) & {'export', 'ai'}))
+                     or bool(set(groups) & {'export', 'ai'}))
         principal = scope.get('state', {}).get('principal')
         owner = principal.owner_id if principal is not None else None
         if expensive and (self.active >= config.MAX_EXPENSIVE_REQUESTS or owner in self.owners):

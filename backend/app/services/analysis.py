@@ -12,6 +12,7 @@ from .. import config
 
 from ..collectors.registry import site_name
 from ..errors import AppError
+from ..hosted import admit_expensive_work
 from ..models import AnalysisResult, Product, Review
 from ..nlp.pipeline import analyze_reviews
 from .review_query import tone_by_rating
@@ -38,6 +39,7 @@ def review_input(review: Review) -> dict:
 
 def run_analysis(db: Session, product: Product, ingestion: dict | None = None) -> AnalysisResult:
     """Analyse every review of `product` and store a new AnalysisResult. The caller commits."""
+    admit_expensive_work(db)
     count = db.scalar(select(func.count()).select_from(AnalysisResult).where(AnalysisResult.product_id == product.id)) or 0
     if count >= config.MAX_ANALYSIS_RUNS:
         raise AppError("This product has reached the analysis-history limit.", 413)

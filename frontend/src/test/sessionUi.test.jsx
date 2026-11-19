@@ -60,6 +60,16 @@ beforeEach(() => {
 afterEach(() => { cleanup(); setAccessTokenProvider(null); vi.unstubAllEnvs(); vi.restoreAllMocks() })
 
 describe('hosted session gate and minimal UI', () => {
+  it('shows invite-only sign-in without self-enrollment or email recovery controls', async () => {
+    vi.stubEnv('VITE_PUBLIC_DEMO', 'true')
+    const provider = { ...fakeProvider(), register: vi.fn(), requestPasswordReset: vi.fn(), updatePassword: vi.fn() }
+    render(<HostedApp provider={provider} />)
+    expect(await screen.findByText(/This showcase is invite-only/)).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Sign in' })).toBeEnabled()
+    expect(screen.queryByRole('button', { name: 'Create an account' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Forgot password?' })).not.toBeInTheDocument()
+  })
+
   it('does not pretend that a production identity provider is available', () => {
     vi.stubEnv('VITE_AUTH_MODE', 'hosted')
     globalThis.fetch = vi.fn()

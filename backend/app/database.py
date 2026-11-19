@@ -36,9 +36,11 @@ def make_engine(url: str) -> Engine:
                 or config.DB_MAX_OVERFLOW < 0 or min(config.DB_POOL_TIMEOUT, config.DB_CONNECT_TIMEOUT,
                     config.DB_STATEMENT_TIMEOUT_MS, config.DB_LOCK_TIMEOUT_MS) < 1):
             raise ValueError("Invalid PostgreSQL connection/pool limits")
-        args = {"connect_timeout": config.DB_CONNECT_TIMEOUT, "prepare_threshold": None,
-                "options": f"-c timezone=UTC -c statement_timeout={config.DB_STATEMENT_TIMEOUT_MS} "
-                           f"-c lock_timeout={config.DB_LOCK_TIMEOUT_MS}"}
+        args = {"connect_timeout": config.DB_CONNECT_TIMEOUT, "prepare_threshold": None}
+        session_options = (f"-c timezone=UTC -c statement_timeout={config.DB_STATEMENT_TIMEOUT_MS} "
+                           f"-c lock_timeout={config.DB_LOCK_TIMEOUT_MS}")
+        if not config.PUBLIC_DEMO:
+            args["options"] = session_options
         if parsed.host not in {None, "localhost", "127.0.0.1", "::1"}:
             if parsed.query.get("sslmode", "verify-full") != "verify-full":
                 raise ValueError("Remote PostgreSQL requires sslmode=verify-full")
@@ -50,6 +52,16 @@ def make_engine(url: str) -> Engine:
             options.update(pool_size=config.DB_POOL_SIZE, max_overflow=config.DB_MAX_OVERFLOW,
                            pool_timeout=config.DB_POOL_TIMEOUT, pool_recycle=300)
     engine = create_engine(parsed, **options)
+
+    if not sqlite and config.PUBLIC_DEMO:
+        # Supavisor can assign a different server connection to each transaction.
+        @event.listens_for(engine, "begin")
+        def _hosted_transaction(connection):
+            connection.exec_driver_sql(
+                "SELECT set_config('timezone', 'UTC', true), "
+                "set_config('statement_timeout', %s, true), set_config('lock_timeout', %s, true)",
+                (str(config.DB_STATEMENT_TIMEOUT_MS), str(config.DB_LOCK_TIMEOUT_MS)),
+            )
 
     if sqlite:
         @event.listens_for(engine, "connect")

@@ -16,6 +16,7 @@ from .api import ai, compare, health, history, jobs, products, reviews, sites, u
 from .database import init_db
 from .errors import register_error_handlers
 from .version import VERSION
+from .hosted import HostedErrorMiddleware
 from .resource_limits import ResourceLimitsMiddleware
 from .rate_limits import RateLimitsMiddleware
 
@@ -52,7 +53,12 @@ All errors return `{"detail": "<readable message>"}`.
 
 @asynccontextmanager
 async def lifespan(_: FastAPI):
-    init_db()
+    try:
+        init_db()
+    except Exception:
+        if config.PUBLIC_DEMO:
+            raise RuntimeError("Hosted database readiness check failed.") from None
+        raise
     yield
 
 
@@ -60,11 +66,16 @@ def create_app() -> FastAPI:
     if config.AUTH_MODE not in {"local", "jwt"}:
         raise ValueError("AUTH_MODE must be local or jwt")
     verifier = TokenVerifier() if config.AUTH_MODE == "jwt" else None
-    app = FastAPI(title="Reviews Dekho AI API", version=VERSION, description=DESCRIPTION, lifespan=lifespan)
+    app = FastAPI(title="Reviews Dekho AI API", version=VERSION, description=DESCRIPTION, lifespan=lifespan,
+                  docs_url=None if config.PUBLIC_DEMO else "/docs",
+                  redoc_url=None if config.PUBLIC_DEMO else "/redoc",
+                  openapi_url=None if config.PUBLIC_DEMO else "/openapi.json")
     app.add_middleware(ResourceLimitsMiddleware)
     app.add_middleware(RateLimitsMiddleware, phase="owner")
     app.add_middleware(AuthMiddleware, mode=config.AUTH_MODE, verifier=verifier)
     app.add_middleware(RateLimitsMiddleware, phase="peer")
+    if config.PUBLIC_DEMO:
+        app.add_middleware(HostedErrorMiddleware)
     app.add_middleware(
         CORSMiddleware,
         allow_origins=config.CORS_ORIGINS,

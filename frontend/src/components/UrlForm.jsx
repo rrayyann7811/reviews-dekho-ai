@@ -82,6 +82,15 @@ export default function UrlForm({ compact = false }) {
   const [outcome, setOutcome] = useState(null)
   const [loading, setLoading] = useState(false)
 
+  if (!STATIC_DEMO && import.meta.env.VITE_PUBLIC_DEMO === 'true') {
+    return (
+      <Alert title="Upload reviews for analysis"
+        action={<Button to="/upload" variant="secondary" size="sm">Upload a review file</Button>}>
+        This showcase analyses CSV and XLSX uploads. Review collection from links is unavailable here.
+      </Alert>
+    )
+  }
+
   async function handleSubmit(event) {
     event.preventDefault()
     setOutcome(null)

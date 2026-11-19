@@ -56,6 +56,16 @@ describe('navigation', () => {
 })
 
 describe('product link form', () => {
+  it('routes showcase users to upload without offering external collection', async () => {
+    vi.stubEnv('VITE_PUBLIC_DEMO', 'true')
+    try {
+      renderAt('/analyze')
+      expect(await screen.findByRole('link', { name: 'Upload a review file' })).toHaveAttribute('href', '/upload')
+      expect(screen.queryByRole('button', { name: 'Analyze' })).not.toBeInTheDocument()
+      expect(screen.queryByText('Supported websites')).not.toBeInTheDocument()
+    } finally { vi.unstubAllEnvs() }
+  })
+
   const submit = (value) => {
     fireEvent.change(screen.getByLabelText('Product link'), { target: { value } })
     fireEvent.click(screen.getByRole('button', { name: 'Analyze' }))

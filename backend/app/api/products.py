@@ -4,6 +4,7 @@ from sqlalchemy.orm import Session
 
 from ..database import get_db
 from ..errors import AppError
+from ..hosted import admit_expensive_work
 from ..models import ImportReceipt, Product
 from ..schemas import Analysis, ErrorResponse, ProductCreate, ProductSummary, ProductUpdate, UrlRequest
 from ..services import analysis as analysis_service
@@ -120,6 +121,7 @@ def _download_name(product, run, extension: str) -> str:
 def report_csv(product_id: int, analysis_id: int | None = Query(None, description="Default: the latest run"),
                include_reviewer: bool = Query(False, description="Add the reviewer-name column"),
                db: Session = Depends(get_db)):
+    admit_expensive_work(db)
     product = product_service.get_product(db, product_id)
     run = review_query.pick_run(product, analysis_id)
     return Response(reports.reviews_csv(run, include_reviewer), media_type="text/csv; charset=utf-8",
@@ -130,6 +132,7 @@ def report_csv(product_id: int, analysis_id: int | None = Query(None, descriptio
             summary="PDF report of an analysis run: figures, charts, evidence-backed summary, method, limitations")
 def report_pdf(product_id: int, analysis_id: int | None = Query(None, description="Default: the latest run"),
                db: Session = Depends(get_db)):
+    admit_expensive_work(db)
     product = product_service.get_product(db, product_id)
     run = review_query.pick_run(product, analysis_id, require_reviews=False)
     return Response(build_report(product, run), media_type="application/pdf",

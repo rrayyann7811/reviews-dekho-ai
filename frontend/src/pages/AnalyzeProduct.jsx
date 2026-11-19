@@ -14,11 +14,13 @@ function siteLabel(site) {
 }
 
 export default function AnalyzeProduct() {
+  const showcase = !STATIC_DEMO && import.meta.env.VITE_PUBLIC_DEMO === 'true'
   return (
     <>
       <PageHeader
         title="Analyze a product link"
-        description="Paste a link to a product page. If the website is supported, its reviews are collected and analysed."
+        description={showcase ? 'Use the upload page to analyse your reviews in this showcase.'
+          : 'Paste a link to a product page. If the website is supported, its reviews are collected and analysed.'}
       />
       {STATIC_DEMO && <ServerNotice feature="Collecting reviews from links" />}
       <div className="grid items-start gap-6 lg:grid-cols-5">
@@ -26,7 +28,7 @@ export default function AnalyzeProduct() {
           <UrlForm />
         </Panel>
 
-        <Panel title="Supported websites" bodyClassName="" className="lg:col-span-2">
+        {!showcase && <Panel title="Supported websites" bodyClassName="" className="lg:col-span-2">
           <ul className="divide-y divide-line">
             {SITES.map((site) => (
               <li key={site.id} className="flex gap-3 px-5 py-3.5">
@@ -48,7 +50,7 @@ export default function AnalyzeProduct() {
           <p className="border-t border-line px-5 py-3.5 text-[13px] text-ink-3">
             Reviews are only collected through permitted sources. For any other website, upload the reviews as a CSV or Excel file.
           </p>
-        </Panel>
+        </Panel>}
       </div>
     </>
   )
